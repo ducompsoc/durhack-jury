@@ -103,6 +103,10 @@ const AdminSettings = () => {
             .map((cat) => cat.trim())
             .filter((cat) => cat !== '');
 
+        if (filteredCats.length === 0) {
+            alert('Categories cannot be empty');
+            return
+        }
         // Post the new categories
         const res = await postRequest<OkResponse>('/admin/categories', 'admin', {
             categories: filteredCats,
