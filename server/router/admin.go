@@ -393,16 +393,15 @@ func GetScores(ctx *gin.Context) {
 	// Create an array of {Rankings: [], Unranked: []}
 	judgeRankings := make([]ranking.JudgeRanking, 0)
 	for _, judge := range judges {
-		unranked := make([]primitive.ObjectID, 0)
-		for _, proj := range judge.SeenProjects {
-			if !contains(judge.Rankings, proj.ProjectId) {
-				unranked = append(unranked, proj.ProjectId)
-			}
-		}
+		//for _, proj := range judge.SeenProjects {
+		//	if !contains(judge.Rankings, proj.ProjectId) {
+		//		unranked = append(unranked, proj.ProjectId)
+		//	}
+		//}
 
 		judgeRankings = append(judgeRankings, ranking.JudgeRanking{
 			Rankings: judge.Rankings,
-			Unranked: unranked,
+			//Unranked: unranked,
 		})
 	}
 

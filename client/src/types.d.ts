@@ -112,6 +112,7 @@ interface Options {
     clock: ClockState;
     judging_timer: number;
     categories: string[];
+    ranking_batch_size: number;
 }
 
 interface FetchResponse<T> {

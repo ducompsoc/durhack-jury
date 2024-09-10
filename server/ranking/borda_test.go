@@ -19,19 +19,19 @@ func TestCalcRanking(t *testing.T) {
 	jrs := []ranking.JudgeRanking{
 		{
 			Rankings: []primitive.ObjectID{obj1, obj5, obj3},
-			Unranked: []primitive.ObjectID{obj4, obj2},
+			//Unranked: []primitive.ObjectID{obj4, obj2},
 		},
 		{
 			Rankings: []primitive.ObjectID{obj5, obj4, obj2},
-			Unranked: []primitive.ObjectID{obj3, obj1},
+			//Unranked: []primitive.ObjectID{obj3, obj1},
 		},
 		{
 			Rankings: []primitive.ObjectID{obj1, obj5, obj2},
-			Unranked: []primitive.ObjectID{obj3, obj4},
+			//Unranked: []primitive.ObjectID{obj3, obj4},
 		},
 		{
 			Rankings: []primitive.ObjectID{obj2, obj1, obj5},
-			Unranked: []primitive.ObjectID{obj5, obj3},
+			//Unranked: []primitive.ObjectID{obj5, obj3},
 		},
 	}
 

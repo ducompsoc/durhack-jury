@@ -23,6 +23,7 @@ const AdminSettings = () => {
     const [dropPopup, setDropPopup] = useState(false);
     const [judgingTimer, setJudgingTimer] = useState('');
     const [categories, setCategories] = useState('');
+    const [rankingBatchSize, setRankingBatchSize] = useState(8);
     const [loading, setLoading] = useState(true);
 
     async function getOptions() {
@@ -44,6 +45,10 @@ const AdminSettings = () => {
         // Set categories
         const cats = res.data?.categories.join(', ');
         setCategories(cats ?? '');
+
+        // Set ranking batch size
+        const rbs = res.data?.ranking_batch_size;
+        setRankingBatchSize(rbs ?? 8)
 
         setLoading(false);
     }
@@ -110,6 +115,19 @@ const AdminSettings = () => {
         alert('Categories updated!');
         getOptions();
     };
+
+    const updateRankingBatchSize = async () => {
+        const res = await postRequest<OkResponse>('/admin/categories', 'admin', {
+            ranking_batch_size: rankingBatchSize,
+        });
+        if (res.status !== 200 || res.data?.ok !== 1) {
+            errorAlert(res);
+            return;
+        }
+
+        alert('Ranking Batch Size updated!');
+        getOptions();
+    }
 
     const resetClock = async () => {
         const res = await postRequest<OkResponse>('/admin/clock/reset', 'admin', null);
@@ -234,9 +252,32 @@ const AdminSettings = () => {
                 <Button
                     type="primary"
                     onClick={updateCategories}
-                    className="mt-4 w-auto md:w-auto px-4 py-2"
+                    className="mt-4 w-auto md:w-auto px-4 py-2 mb-8"  // lucatodo:  add white inner outline to buttons on focus?
                 >
                     Update Categories
+                </Button>
+
+                <SubSection>Set Ranking Batch Size</SubSection>
+                <Description>
+                    Set how many projects judges rank at a time (must be at least 2 obviously).
+                    Judges can rank and reorder projects freely before submitting a batch of the specified size.
+                </Description>
+                <input
+                    className="w-full h-14 px-4 text-2xl border-lightest border-2 rounded-sm focus:border-primary focus:border-4 focus:outline-none"
+                    type="number"
+                    min="2"
+                    placeholder="8"
+                    value={rankingBatchSize}
+                    onChange={(e) => {
+                        setRankingBatchSize(parseInt(e.target.value));
+                    }}
+                />
+                <Button
+                    type="primary"
+                    onClick={updateRankingBatchSize}
+                    className="mt-4 w-auto md:w-auto px-4 py-2"
+                >
+                    Update Ranking Batch Size
                 </Button>
 
                 <Section>Project Numbers</Section>

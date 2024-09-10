@@ -30,6 +30,7 @@ const Judge = () => {
     const navigate = useNavigate();
     const [judge, setJudge] = useState<Judge | null>(null);
     const [projects, setProjects] = useState<SortableJudgedProject[]>([]);
+    const [allRanked, setAllRanked] = useState(false)
     const [loaded, setLoaded] = useState(false);
     const [projCount, setProjCount] = useState(0);
     const [activeId, setActiveId] = useState<number | null>(null);
@@ -125,6 +126,8 @@ const Judge = () => {
         const combinedProjects = [...rankedProjects, dummy, ...unrankedProjects];
 
         setProjects(combinedProjects);
+        setAllRanked(rankedProjects.length === 3);  // lucatodo: use rank batch size variable;
+        // lucatodo: rankedProjects won't be variable we want to find length of. new variable probable: batchProjects?
         setLoaded(true);
     }, [judge]);
 
@@ -169,6 +172,7 @@ const Judge = () => {
     const saveSort = async (newProjects: SortableJudgedProject[]) => {
         // Split index
         const splitIndex = newProjects.findIndex((p) => p.id === -1);
+        setAllRanked(newProjects.length>0 && splitIndex === newProjects.length-1);  // lucatodo: use rank batch size variable equality, not >0
 
         // Get the ranked projects
         const rankedProjects = newProjects.slice(0, splitIndex);
@@ -189,6 +193,7 @@ const Judge = () => {
             <Container noCenter className="px-2 pb-4">
                 <h1 className="text-2xl my-2">Welcome, {judge?.name}!</h1>
                 <div className="w-full mb-6">
+                    {/* lucatodo: disable button if all projects in batch seen */}
                     <Button type="primary" full square href="/judge/live">
                         Next Project
                     </Button>
@@ -199,10 +204,12 @@ const Judge = () => {
                     </div>
                 </div>
                 <div className="flex justify-evenly">
-                    <StatBlock name="Seen" value={judge?.seen_projects.length as number} />
-                    <StatBlock name="Total Projects" value={projCount} />
+                    <StatBlock name="Seen" value={judge?.seen_projects.length as number}/>
+                    <StatBlock name="Total Projects" value={projCount}/>
                 </div>
                 <h2 className="text-primary text-xl font-bold mt-4">Rank Projects</h2>
+                {/* lucatodo: only update scores on submission? query this (only relevant if prioritisation implemented, issue #5 */}
+                <p className="italic text-light">NB: Relative project order is tracked on the admin panel even before your submit a batch.</p>
                 <div className="h-[1px] w-full bg-light my-2"></div>
                 <DndContext
                     sensors={sensors}
@@ -212,15 +219,28 @@ const Judge = () => {
                 >
                     <SortableContext items={projects} strategy={verticalListSortingStrategy}>
                         {projects.map((item) => (
-                            <SortableItem key={item.id} item={item} />
+                            <SortableItem key={item.id} item={item}/>
                         ))}
                     </SortableContext>
                     <DragOverlay>
                         {activeId ? (
-                            <SortableItem item={projects.find((p) => p.id === activeId)} />
+                            <SortableItem item={projects.find((p) => p.id === activeId)}/>
                         ) : null}
                     </DragOverlay>
                 </DndContext>
+                <div className="w-full mt-4">
+                    <div className="flex justify-center italic text-light text-center">
+                        {/* lucatodo: update X with variable limit */}
+                        {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
+                        Please rank all your projects.<br/>
+                        You can only submit rankings in batches of X projects.
+                    </div>
+                    <Button type="primary" full square href="" disabled={!allRanked}>
+                        {/* lucatodo: add button functionality (inc. alert to confirm submission) */}
+                        Submit Rankings
+                        <p className="text-sm italic">And move onto next batch</p>
+                    </Button>
+                </div>
             </Container>
         </>
     );

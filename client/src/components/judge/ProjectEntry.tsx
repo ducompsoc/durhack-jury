@@ -18,7 +18,7 @@ const ProjectEntry = ({ project }: ProjectEntryProps) => {
     if (project.id === -1) {
         return (
             <div>
-                <h3 className="text-xl grow mt-4">Unsorted Projects below here...</h3>
+                <h3 className="text-xl grow mt-4">Unranked projects below here...</h3>
             </div>
         );
     }
