@@ -1,6 +1,6 @@
 module server
 
-go 1.20
+go 1.22
 
 require (
 	github.com/bytedance/sonic v1.10.1 // indirect
