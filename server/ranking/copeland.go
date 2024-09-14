@@ -24,11 +24,11 @@ func rankingToPairwise(judgeRanking JudgeRanking) []Comparison {
 	}
 
 	// Loop through each project in the ranking and compare it to all the unranked projects
-	for _, winner := range judgeRanking.Rankings {
-		for _, loser := range judgeRanking.Unranked {
-			pairwise = append(pairwise, Comparison{winner, loser})
-		}
-	}
+	//for _, winner := range judgeRanking.Rankings {
+	//	for _, loser := range judgeRanking.Unranked {
+	//		pairwise = append(pairwise, Comparison{winner, loser})
+	//	}
+	//}
 
 	return pairwise
 }
