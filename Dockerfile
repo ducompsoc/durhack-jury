@@ -1,5 +1,5 @@
 # STEP 0: Statically build node client
-FROM node:lts-hydrogen as client-builder
+FROM node:lts-hydrogen AS client-builder
 WORKDIR /client
 COPY client ./
 COPY ["client/package.json", "client/tailwind.config.js", "client/tsconfig.json", "./"]

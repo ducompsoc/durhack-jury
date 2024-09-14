@@ -113,6 +113,7 @@ interface Options {
     judging_timer: number;
     categories: string[];
     ranking_batch_size: number;
+    min_views: number;
 }
 
 interface FetchResponse<T> {
