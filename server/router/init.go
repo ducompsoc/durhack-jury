@@ -103,10 +103,12 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.GET("/admin/export/rankings", ExportRankings)
 	judgeRouter.GET("/admin/timer", GetJudgingTimer)
 	adminRouter.POST("/admin/timer", SetJudgingTimer)
-	adminRouter.POST("/admin/categories", SetCategories)
 	adminRouter.POST("/admin/min-views", SetMinViews)
+	adminRouter.POST("/admin/ranking-batch-size", SetRankingBatchSize)
+	adminRouter.POST("/admin/categories", SetCategories)
 	judgeRouter.GET("/categories", GetCategories)
 	judgeRouter.POST("/judge/notes", JudgeUpdateNotes)
+	judgeRouter.GET("/rbs", GetRankingBatchSize)
 
 	// Serve frontend static files
 	router.Use(static.Serve("/assets", static.LocalFile("./public/assets", true)))

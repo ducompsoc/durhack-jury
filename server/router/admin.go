@@ -374,6 +374,10 @@ type MinViewsRequest struct {
 	MinViews int `json:"min_views"`
 }
 
+type RankingBatchSizeRequest struct {
+	RBS int `json:"ranking_batch_size"`
+}
+
 // POST /admin/min-views - sets the min views
 func SetMinViews(ctx *gin.Context) {
 	// Get the database from the context
@@ -390,6 +394,29 @@ func SetMinViews(ctx *gin.Context) {
 	err = database.UpdateMinViews(db, minViewsReq.MinViews)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving min views: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+}
+
+// POST /admin/ranking-batch-size - sets the ranking batch size
+func SetRankingBatchSize(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get the views
+	var rbsReq RankingBatchSizeRequest
+	err := ctx.BindJSON(&rbsReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing request: " + err.Error()})
+	}
+
+	// Save the ranking batch size in the db
+	err = database.UpdateRankingBatchSize(db, rbsReq.RBS)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving ranking batch size: " + err.Error()})
 		return
 	}
 

@@ -48,3 +48,10 @@ func GetMinViews(db *mongo.Database) (int64, error) {
 	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
 	return options.MinViews, err
 }
+
+// GetRankingBatchSize gets the ranking batch size option from the database
+func GetRankingBatchSize(db *mongo.Database) (int64, error) {
+	var options models.Options
+	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
+	return options.RankingBatchSize, err
+}

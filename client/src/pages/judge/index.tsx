@@ -30,6 +30,9 @@ const Judge = () => {
     const [ranked, setRanked] = useState<SortableJudgedProject[]>([]);
     const [unranked, setUnranked] = useState<SortableJudgedProject[]>([]);
     const [allRanked, setAllRanked] = useState(false)
+    const [rankingBatchSize, setRankingBatchSize] = useState(0);
+    const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
+    const [nextButtonHelperText, setNextButtonHelperText] = useState('');
     const [loaded, setLoaded] = useState(false);
     const [projCount, setProjCount] = useState(0);
     const [activeId, setActiveId] = useState<number | null>(null);
@@ -92,6 +95,15 @@ const Judge = () => {
                 return;
             }
             setProjCount(projCountRes.data?.count as number);
+
+            // Get Ranking Batch Size
+            const rankingBatchSizeReq = await getRequest<ProjectCount>('/rbs', 'judge');
+            if (rankingBatchSizeReq.status !== 200) {
+                errorAlert(rankingBatchSizeReq);
+                return;
+            }
+            const rbs = rankingBatchSizeReq.data;
+            setRankingBatchSize(rbs)
         }
 
         fetchData();
@@ -117,10 +129,23 @@ const Judge = () => {
         setRanked(rankedProjects);
         setUnranked(unrankedProjects);
 
-        setAllRanked(rankedProjects.length === 3);  // lucatodo: use rank batch size variable;
-        // lucatodo: rankedProjects won't be variable we want to find length of. new variable probable: batchProjects?
         setLoaded(true);
     }, [judge]);
+
+    // Trigger button state ranking batch logic updates when `rankingBatchSize` is set (>0) and/or whenever `ranked` or `unranked` states chance
+    useEffect(() => {
+        if (rankingBatchSize > 0) {
+            setAllRanked(ranked.length === rankingBatchSize && unranked.length === 0);
+
+            if (ranked.length + unranked.length === rankingBatchSize) {
+                setNextButtonHelperText('Rank and submit your current batch to move on');
+                setNextButtonDisabled(true);
+            } else {
+                setNextButtonHelperText('');
+                setNextButtonDisabled(false);
+            }
+        }
+    }, [rankingBatchSize, ranked, unranked]);
 
     if (!loaded) return <Loading disabled={!loaded} />;
 
@@ -221,7 +246,6 @@ const Judge = () => {
         if (isNaN(Number(id))) {
             return id === 'ranked';
         }
-        // lucatodo: use rank batch size variable equality, not >0
 
         // Otherwise if dropped onto a specific object
         const ro = ranked.find((a) => a.id === id);
@@ -245,9 +269,9 @@ const Judge = () => {
             <Container noCenter className="px-2 pb-4">
                 <h1 className="text-2xl my-2">Welcome, {judge?.name}!</h1>
                 <div className="w-full mb-6">
-                    {/* lucatodo: disable button if all projects in batch seen */}
-                    <Button type="primary" full square href="/judge/live">
+                    <Button type="primary" full square href="/judge/live" disabled={nextButtonDisabled}>
                         Next Project
+                        <p className="text-sm italic">{nextButtonHelperText}</p>
                     </Button>
                     <div className="flex align-center justify-center mt-4">
                         <Button type="outline" square onClick={takeBreak} className="text-lg p-2">
@@ -259,8 +283,6 @@ const Judge = () => {
                     <StatBlock name="Seen" value={judge?.seen_projects.length as number} />
                     <StatBlock name="Total Projects" value={projCount} />
                 </div>
-                {/* lucatodo: only update scores on submission? query this (only relevant if prioritisation implemented, issue #5 */}
-                <p className="italic text-light">NB: Relative project order is tracked on the admin panel even before your submit a batch.</p>
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
@@ -271,6 +293,10 @@ const Judge = () => {
                     <h2 className="text-primary text-xl font-bold mt-4">Ranked Projects</h2>
                     <p className="text-light text-sm">
                         Click on titles to edit scores and see details.
+                    </p>
+                    {/* lucatodo: only update scores on submission? query this (only relevant if prioritisation implemented, issue #5 */}
+                    <p className="text-light text-sm italic">
+                        NB: Relative project order is tracked on the admin panel even before your submit a batch.
                     </p>
                     <div className="h-[1px] w-full bg-light my-2"></div>
                     <Droppable id="ranked" projects={ranked} active={activeDropzone} />
@@ -295,13 +321,12 @@ const Judge = () => {
                     </DragOverlay>
                 </DndContext>
                 <div className="w-full mt-4">
-                    <div className="flex justify-center italic text-light text-center">
-                        {/* lucatodo: update X with variable limit */}
+                    <div className="flex justify-center text-light text-sm italic text-center">
                         {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
-                        Please rank all your projects.<br/>
-                        You can only submit rankings in batches of X projects.
+                        Please rank all your projects to submit.<br/>
+                        You can only submit rankings in batches of {rankingBatchSize} projects.
                     </div>
-                    <Button type="primary" full square href="" disabled={!allRanked}>
+                    <Button type="primary" full square className="mt-1" href="" disabled={!allRanked}>
                         {/* lucatodo: add button functionality (inc. alert to confirm submission) */}
                         Submit Rankings
                         <p className="text-sm italic">And move onto next batch</p>

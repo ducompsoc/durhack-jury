@@ -24,7 +24,7 @@ const AdminSettings = () => {
     const [judgingTimer, setJudgingTimer] = useState('');
     const [minViews, setMinViews] = useState('');
     const [categories, setCategories] = useState('');
-    const [rankingBatchSize, setRankingBatchSize] = useState(8);
+    const [rankingBatchSize, setRankingBatchSize] = useState('');
     const [loading, setLoading] = useState(true);
 
     async function getOptions() {
@@ -55,8 +55,7 @@ const AdminSettings = () => {
         setMinViews(res.data.min_views.toString());
 
         // Set ranking batch size
-        const rbs = res.data?.ranking_batch_size;
-        setRankingBatchSize(rbs ?? 8)
+        setRankingBatchSize(res.data.ranking_batch_size.toString())
         setLoading(false);
     }
 
@@ -149,8 +148,14 @@ const AdminSettings = () => {
     };
 
     const updateRankingBatchSize = async () => {
-        const res = await postRequest<OkResponse>('/admin/categories', 'admin', {
-            ranking_batch_size: rankingBatchSize,
+        // Convert rankingBatchSize to integer
+        const r = parseInt(rankingBatchSize);
+        if (isNaN(r) || r < 2) {
+            alert('Minimum views should be a positive integer >= 2!');
+            return;
+        }
+        const res = await postRequest<OkResponse>('/admin/ranking-batch-size', 'admin', {
+            ranking_batch_size: r,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
@@ -301,7 +306,7 @@ const AdminSettings = () => {
                     placeholder="8"
                     value={rankingBatchSize}
                     onChange={(e) => {
-                        setRankingBatchSize(parseInt(e.target.value));
+                        setRankingBatchSize(e.target.value.toString());
                     }}
                 />
                 <Button
