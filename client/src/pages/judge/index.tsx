@@ -97,13 +97,12 @@ const Judge = () => {
             setProjCount(projCountRes.data?.count as number);
 
             // Get Ranking Batch Size
-            const rankingBatchSizeReq = await getRequest<ProjectCount>('/rbs', 'judge');
-            if (rankingBatchSizeReq.status !== 200) {
-                errorAlert(rankingBatchSizeReq);
+            const rankingBatchSizeRes = await getRequest<RankingBatchSize>('/rbs', 'judge');
+            if (rankingBatchSizeRes.status !== 200) {
+                errorAlert(rankingBatchSizeRes);
                 return;
             }
-            const rbs = rankingBatchSizeReq.data;
-            setRankingBatchSize(rbs)
+            setRankingBatchSize(rankingBatchSizeRes.data?.rbs as number);
         }
 
         fetchData();
@@ -145,7 +144,7 @@ const Judge = () => {
                 setNextButtonDisabled(false);
             }
         }
-    }, [rankingBatchSize, ranked, unranked]);
+    }, [rankingBatchSize, ranked, unranked, loaded]);
 
     if (!loaded) return <Loading disabled={!loaded} />;
 

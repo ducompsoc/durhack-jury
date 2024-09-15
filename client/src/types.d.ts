@@ -96,6 +96,10 @@ interface ProjectCount {
     count: number;
 }
 
+interface RankingBatchSize {
+    rbs: number;
+}
+
 interface Flag {
     id: string;
     judge_id: string;

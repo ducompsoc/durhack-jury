@@ -663,7 +663,7 @@ func GetRankingBatchSize(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, rbs)
+	ctx.JSON(http.StatusOK, gin.H{"rbs": rbs})
 }
 
 type UpdateScoreRequest struct {
