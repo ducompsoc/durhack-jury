@@ -5,7 +5,6 @@ COPY client ./
 COPY ["client/package.json", "client/tailwind.config.js", "client/tsconfig.json", "./"]
 
 ARG VITE_JURY_NAME
-ARG VITE_HUB
 ARG VITE_JURY_URL
 
 RUN yarn install

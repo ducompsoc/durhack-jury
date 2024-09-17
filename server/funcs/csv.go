@@ -17,43 +17,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-// Read CSV file and return a slice of judge structs
-func ParseJudgeCSV(content string, hasHeader bool) ([]*models.Judge, error) {
-	r := csv.NewReader(strings.NewReader(content))
-
-	// Empty CSV file
-	if content == "" {
-		return []*models.Judge{}, nil
-	}
-
-	// If the CSV file has a header, skip the first line
-	if hasHeader {
-		r.Read()
-	}
-
-	// Read the CSV file, looping through each record
-	var judges []*models.Judge
-	for {
-		record, err := r.Read()
-		if err == io.EOF {
-			break
-		}
-		if err != nil {
-			return nil, err
-		}
-
-		// Make sure the record has 3 elements (name, email, notes)
-		if len(record) != 3 {
-			return nil, fmt.Errorf("record does not contain 3 elements: '%s'", strings.Join(record, ","))
-		}
-
-		// Add judge to slice
-		judges = append(judges, models.NewJudge(record[0], record[1], record[2]))
-	}
-
-	return judges, nil
-}
-
 // Read CSV file and return a slice of project structs
 func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
@@ -228,28 +191,6 @@ func AddZipFile(name string, content []byte, ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/octet-stream", content)
 }
 
-// Create a CSV file from a list of judges
-func CreateJudgeCSV(judges []*models.Judge) []byte {
-	csvBuffer := &bytes.Buffer{}
-
-	// Create a new CSV writer
-	w := csv.NewWriter(csvBuffer)
-
-	// Write the header
-	// TODO: Add judge rankings to output
-	w.Write([]string{"Name", "Email", "Notes", "Code", "Active", "ReadWelcome", "Seen", "LastActivity"})
-
-	// Write each judge
-	for _, judge := range judges {
-		w.Write([]string{judge.Name, judge.Email, judge.Notes, judge.Code, fmt.Sprintf("%t", judge.Active), fmt.Sprintf("%t", judge.ReadWelcome), fmt.Sprintf("%d", judge.Seen), fmt.Sprintf("%d", judge.LastActivity)})
-	}
-
-	// Flush the writer
-	w.Flush()
-
-	return csvBuffer.Bytes()
-}
-
 // Create a CSV file from the judges but only the rankings
 func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	csvBuffer := &bytes.Buffer{}
@@ -258,6 +199,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
+	// lucatodo: remove unranked concept
 	w.Write([]string{"Name", "Code", "Ranked", "Unranked"})
 
 	// Write each judge
@@ -293,7 +235,8 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		unrankedStr := util.IntToString(unranked)
 
 		// Write line to CSV
-		w.Write([]string{judge.Name, judge.Code, strings.Join(rankedStr, ","), strings.Join(unrankedStr, ",")})
+		// lucatodo: get judge info (from gocloak using admin api) to write to csv
+		w.Write([]string{judge.KeycloakUserId, strings.Join(rankedStr, ","), strings.Join(unrankedStr, ",")})
 	}
 
 	// Flush the writer

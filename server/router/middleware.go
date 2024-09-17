@@ -3,12 +3,14 @@ package router
 import (
 	"context"
 	"fmt"
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/oauth2"
 	"net/http"
 	"server/auth"
+	"server/database"
 	"server/models"
 	"server/util"
 
@@ -113,6 +115,20 @@ func AuthoriseJudge() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusForbidden)
 			return
 		}
+
+		// Get the database from the context
+		db := ctx.MustGet("db").(*mongo.Database)
+		userInfo := ctx.MustGet("user").(*oidc.UserInfo)
+		judge := models.NewJudge(userInfo.Subject)
+
+		// Insert the judge into the database
+		err := database.GetOrCreateJudge(db, judge)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		ctx.Set("judge", judge)
 		ctx.Next()
 	}
 }

@@ -53,7 +53,6 @@ func NewFlag(project *Project, judge *Judge, reason string) (*Flag, error) {
 		Time:            primitive.NewDateTimeFromTime(time.Now()),
 		ProjectName:     project.Name,
 		ProjectLocation: project.Location,
-		JudgeName:       judge.Name,
 		Reason:          reason,
 	}, nil
 }

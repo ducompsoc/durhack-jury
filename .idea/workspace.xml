@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="ALL" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="ab284114-a0da-4c4a-9d2d-6e7b2975a533" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/dev.Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/client/dev.Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/admin/AdminToolbar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/components/admin/AdminToolbar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/components/home/HomeHub.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/admin/login.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/judge/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/judge/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/judge/live.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/judge/live.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/judge/login.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/client/src/pages/judge/welcome.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/client/src/pages/judge/welcome.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose-mongo.dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose-mongo.dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.dev.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.dev.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/config/values.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/config/values.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/database/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/database/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/database/judge.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/database/judge.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/funcs/csv.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/funcs/csv.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/funcs/email.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/funcs/email_test.go" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/flag.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/flag.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/judge.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/judge.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/models/types.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/models/types.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/router/admin.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/router/admin.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/router/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/router/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/router/judge.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/router/judge.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/router/middleware.go" beforeDir="false" afterPath="$PROJECT_DIR$/server/router/middleware.go" afterDir="false" />
+    </list>
+    <list id="92963910-8d50-44a5-82d7-2aa5a4806624" name="Comments + For later" comment="" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Go File" />
+      </list>
+    </option>
+  </component>
+  <component name="GOROOT" url="file://$USER_HOME$/sdk/go1.22.7" />
+  <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Luca &lt;30503695+tametnt@users.noreply.github.com&gt;" />
+        <option value="Luca" />
+      </list>
+    </option>
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="new-batch-ranking" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;tameTNT&quot;
+  }
+}</component>
+  <component name="GitToolBoxStore">
+    <option name="recentBranches">
+      <RecentBranches>
+        <option name="branchesForRepo">
+          <list>
+            <RecentBranchesForRepo>
+              <option name="branches">
+                <list>
+                  <RecentBranch>
+                    <option name="branchName" value="oauth-keyclock" />
+                    <option name="lastUsedInstant" value="1726402458" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="new-batch-ranking" />
+                    <option name="lastUsedInstant" value="1725999970" />
+                  </RecentBranch>
+                  <RecentBranch>
+                    <option name="branchName" value="main" />
+                    <option name="lastUsedInstant" value="1725978774" />
+                  </RecentBranch>
+                </list>
+              </option>
+              <option name="repositoryRootUrl" value="file://$PROJECT_DIR$" />
+            </RecentBranchesForRepo>
+          </list>
+        </option>
+      </RecentBranches>
+    </option>
+  </component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/ducompsoc/durhack-jury.git&quot;,
+    &quot;accountId&quot;: &quot;e23e6d24-7610-4656-b438-b6f2f8f7edbf&quot;
+  }
+}</component>
+  <component name="GoLibraries">
+    <option name="urls">
+      <list>
+        <option value="file:$USER_HOME$/go" />
+      </list>
+    </option>
+    <option name="useGoPathFromSystemEnvironment" value="false" />
+  </component>
+  <component name="KubernetesApiPersistence">{}</component>
+  <component name="KubernetesApiProvider">{
+  &quot;isMigrated&quot;: true
+}</component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2lfUlN4xtIQSSBmK0IumwnfRCOZ" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showExcludedFiles" value="false" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultGoTemplateProperty&quot;: &quot;Go File&quot;,
+    &quot;Docker.Main project.executor&quot;: &quot;Run&quot;,
+    &quot;Go Test.TestCalcRanking in server/ranking.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.go.modules.go.list.on.any.changes.was.set&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;oauth-keyclock&quot;,
+    &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/lucah/durhack-projects/durhack-jury/docker-compose.dev.yml&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;yarn&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.github.copilot.settings.ApplicationConfigurable&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/home/lucah/durhack-projects/durhack-jury/client/node_modules/typescript/lib&quot;,
+    &quot;zielu.gittoolbox.prj.config.selected.tab.id&quot;: &quot;zielu.gittoolbox.config.shared.commit&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mongo&quot;
+    ],
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;TEXT&quot;
+    ]
+  }
+}</component>
+  <component name="RdControllerToolWindowsLayoutState" isNewUi="true">
+    <layout>
+      <window_info id="Bookmarks" show_stripe_button="false" side_tool="true" />
+      <window_info id="Merge Requests" show_stripe_button="false" />
+      <window_info id="Commit_Guest" show_stripe_button="false" />
+      <window_info id="Pull Requests" show_stripe_button="false" />
+      <window_info id="Learn" show_stripe_button="false" />
+      <window_info id="DFA" show_stripe_button="false" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.5004562" visible="true" weight="0.14609376" />
+      <window_info id="Commit" order="1" weight="0.14609376" />
+      <window_info id="Welcome to GitHub Copilot" order="2" show_stripe_button="false" weight="0.19453125" />
+      <window_info id="Structure" order="3" sideWeight="0.4995438" side_tool="true" weight="0.15338542" />
+      <window_info anchor="bottom" id="Database Changes" show_stripe_button="false" />
+      <window_info anchor="bottom" id="TypeScript" show_stripe_button="false" />
+      <window_info anchor="bottom" id="File Transfer" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="0" weight="0.33550346" />
+      <window_info anchor="bottom" id="Problems" order="1" />
+      <window_info anchor="bottom" id="Problems View" order="2" weight="0.55772567" />
+      <window_info anchor="bottom" id="Terminal" order="3" weight="0.33029515" />
+      <window_info anchor="bottom" id="Run" order="4" weight="0.35980904" />
+      <window_info active="true" anchor="bottom" id="Services" order="6" visible="true" weight="0.35894096" />
+      <window_info anchor="bottom" id="Find" order="7" weight="0.32074654" />
+      <window_info anchor="right" id="Endpoints" show_stripe_button="false" />
+      <window_info anchor="right" id="com.intellij.reactbuddy.storybook" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="com.intellij.reactbuddy.reactInspector" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="make" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="documentation.v2" side_tool="true" />
+      <window_info anchor="right" id="Coverage" show_stripe_button="false" side_tool="true" />
+      <window_info anchor="right" id="GitHub Copilot Chat" show_stripe_button="false" />
+      <window_info anchor="right" id="com.intellij.reactbuddy.reactComponents" show_stripe_button="false" />
+      <window_info anchor="right" id="Notifications" order="0" weight="0.18984374" />
+      <window_info anchor="right" id="AIAssistant" order="1" show_stripe_button="false" weight="0.32994792" />
+      <window_info anchor="right" id="Database" order="2" weight="0.2580729" />
+      <window_info anchor="right" id="Gradle" order="3" weight="0.25" />
+      <window_info anchor="right" id="Maven" order="4" weight="0.25" />
+      <window_info anchor="right" id="TODO" order="5" weight="0.2580729" />
+      <window_info anchor="right" id="github.copilotToolWindow" order="6" weight="0.18984374" />
+    </layout>
+  </component>
+  <component name="ReactDesignerToolWindowState">
+    <option name="myId2Visible">
+      <map>
+        <entry key="com.intellij.reactbuddy.reactComponents" value="false" />
+        <entry key="com.intellij.reactbuddy.reactInspector" value="false" />
+        <entry key="com.intellij.reactbuddy.storybook" value="false" />
+      </map>
+    </option>
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Docker.Main project">
+    <configuration name="TestCalcRanking in server/ranking" type="GoTestRunConfiguration" factoryName="Go Test" temporary="true" nameIsGenerated="true">
+      <module name="durhack-jury" />
+      <working_directory value="$PROJECT_DIR$/server/ranking" />
+      <root_directory value="$PROJECT_DIR$/server" />
+      <kind value="PACKAGE" />
+      <package value="server/ranking" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$" />
+      <framework value="gotest" />
+      <pattern value="^\QTestCalcRanking\E$" />
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.Main project" />
+      <item itemvalue="Go Test.TestCalcRanking in server/ranking" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Test.TestCalcRanking in server/ranking" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-gosdk-5df93f7ad4aa-df9ad98b711f-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-242.21829.165" />
+        <option value="bundled-js-predefined-d6986cc7102b-7c0b70fcd90d-JavaScript-GO-242.21829.165" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="dependencySupport" implementationName="javascript:npm:react" />
+    <option featureType="dependencySupport" implementationName="executable:docker" />
+    <option featureType="dependencySupport" implementationName="javascript:npm:tailwindcss" />
+    <option featureType="dependencySupport" implementationName="javascript:npm:vite" />
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+    <option featureType="dependencySupport" implementationName="executable:kubectl" />
+    <option featureType="dependencySupport" implementationName="javascript:npm:postcss" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="true" />
+                </map>
+              </option>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="new-batch-ranking" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="CODE_SMELLS_PROFILE" value="Project Default" />
+    <option name="myTodoPanelSettings">
+      <TodoPanelSettings>
+        <todo-filter name="Luca ToDos" />
+      </TodoPanelSettings>
+    </option>
+    <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="⬆️ Update Go to 1.22 and install oidc&#10;&#10;Install go-oidc, a Go OpenID Connect client, and update Go version.git config --global user.signingkey" />
+    <MESSAGE value="⬆️ Update Go to 1.22 and install oidc&#10;&#10;Install go-oidc, a Go OpenID Connect client, and update Go version." />
+    <MESSAGE value="⬆️ Update Go language version to 1.22" />
+    <MESSAGE value="️ Remove concept of unranked projects&#10;&#10;Towards addressing issue #1.&#10;&#10;Under the new system (not yet developed) unranked teams will not exist &#10;and rankings will be submitted in batches." />
+    <MESSAGE value="️ Remove concept of unranked projects&#10;&#10;Towards addressing issue #1.&#10;&#10;Under the new system (not yet developed) unranked teams will not exist&#10;and rankings will be submitted in batches." />
+    <MESSAGE value="️ Remove concept of unranked projects and move to batch submission&#10;&#10;Towards addressing issue #1.&#10;&#10;Under the new system (not yet developed) unranked teams will not exist&#10;and rankings will be submitted in batches." />
+    <MESSAGE value=" Validate categories non-empty and clarify project values&#10;&#10;The project description is not optional in the database.&#10;Leaving it empty raised an error.&#10;&#10;Clarified the wording on how the score is updated &#10;given the new batch rank system to be implemented" />
+    <MESSAGE value="Merge from upstream hackutd/jury to include new algorithms&#10;&#10;Merge remote-tracking branch 'fork-origin/master' into new-batch-ranking&#10;&#10;# Conflicts:&#10;#&#9;client/src/components/judge/ProjectEntry.tsx&#10;#&#9;client/src/pages/admin/settings.tsx&#10;#&#9;client/src/pages/judge/index.tsx&#10;#&#9;client/src/types.d.ts&#10;#&#9;server/models/options.go&#10;#&#9;server/ranking/borda.go" />
+    <MESSAGE value="Merge from upstream hackutd/jury to include new algorithms&#10;&#10;Merge remote-tracking branch 'fork-origin/master' into new-batch-ranking&#10;&#10;# Conflicts:&#10;#&#9;client/src/components/judge/ProjectEntry.tsx&#10;#&#9;client/src/pages/admin/settings.tsx&#10;#&#9;client/src/pages/judge/index.tsx&#10;#&#9;client/src/types.d.ts&#10;#&#9;server/models/options.go&#10;#&#9;server/ranking/borda.go" />
+    <MESSAGE value="️ Re-remove unranked concept after merge&#10;&#10;To address issue #1 again." />
+    <MESSAGE value="️ Re-remove unranked concept after merge&#10;&#10;To address issue #1 again." />
+    <MESSAGE value="✨ Allow admins to change the ranking batch size. Affects ranking page&#10;&#10;The judges' ranking pages now informs them when they need to &#10;rank a batch/submit/can move on/etc" />
+    <MESSAGE value="️ Correctly type ranking batch size request&#10;&#10;Handle return data being null by using proper type construction" />
+    <MESSAGE value="✨ Allow login using auth.durhack.com&#10;&#10;Enables logging in with SSO via auth.durhack.com keycloak OIDC&#10;Still to be fully tested but basic admin login works." />
+    <option name="LAST_COMMIT_MESSAGE" value="✨ Allow login using auth.durhack.com&#10;&#10;Enables logging in with SSO via auth.durhack.com keycloak OIDC&#10;Still to be fully tested but basic admin login works." />
+    <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
+  </component>
+  <component name="VgoProject">
+    <settings-migrated>true</settings-migrated>
+  </component>
+</project>

@@ -2,26 +2,20 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"math/rand"
-
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type Judge struct {
-	Id           primitive.ObjectID   `bson:"_id,omitempty" json:"id"`
-	Token        string               `bson:"token" json:"token"`
-	Code         string               `bson:"code" json:"code"`
-	Name         string               `bson:"name" json:"name"`
-	Email        string               `bson:"email" json:"email"`
-	Active       bool                 `bson:"active" json:"active"`
-	ReadWelcome  bool                 `bson:"read_welcome" json:"read_welcome"`
-	Notes        string               `bson:"notes" json:"notes"`
-	Current      *primitive.ObjectID  `bson:"current" json:"current"`
-	Seen         int64                `bson:"seen" json:"seen"`
-	SeenProjects []JudgedProject      `bson:"seen_projects" json:"seen_projects"`
-	Rankings     []primitive.ObjectID `bson:"rankings" json:"rankings"`
-	LastActivity primitive.DateTime   `bson:"last_activity" json:"last_activity"`
+	Id             primitive.ObjectID   `bson:"_id,omitempty" json:"id"`
+	KeycloakUserId string               `bson:"keycloak_user_id" json:"keycloak_user_id"`
+	Active         bool                 `bson:"active" json:"active"`
+	ReadWelcome    bool                 `bson:"read_welcome" json:"read_welcome"`
+	Notes          string               `bson:"notes" json:"notes"`
+	Current        *primitive.ObjectID  `bson:"current" json:"current"`
+	Seen           int64                `bson:"seen" json:"seen"`
+	SeenProjects   []JudgedProject      `bson:"seen_projects" json:"seen_projects"`
+	Rankings       []primitive.ObjectID `bson:"rankings" json:"rankings"`
+	LastActivity   primitive.DateTime   `bson:"last_activity" json:"last_activity"`
 }
 
 type JudgedProject struct {
@@ -33,20 +27,17 @@ type JudgedProject struct {
 	Description string             `bson:"description" json:"description"`
 }
 
-func NewJudge(name string, email string, notes string) *Judge {
+func NewJudge(keycloakUserId string) *Judge {
 	return &Judge{
-		Token:        "",
-		Code:         fmt.Sprintf("%d", rand.Intn(900000)+100000), // Generates a num between 100000 and 999999
-		Name:         name,
-		Email:        email,
-		Active:       true,
-		ReadWelcome:  false,
-		Notes:        notes,
-		Current:      nil,
-		Seen:         0,
-		SeenProjects: []JudgedProject{},
-		Rankings:     []primitive.ObjectID{},
-		LastActivity: primitive.DateTime(0),
+		KeycloakUserId: keycloakUserId,
+		Active:         true,
+		ReadWelcome:    false,
+		Notes:          "",
+		Current:        nil,
+		Seen:           0,
+		SeenProjects:   []JudgedProject{},
+		Rankings:       []primitive.ObjectID{},
+		LastActivity:   primitive.DateTime(0),
 	}
 }
 

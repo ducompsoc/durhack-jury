@@ -55,7 +55,7 @@ const Judge = () => {
             const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
             if (loggedInRes.status !== 200) {
@@ -64,7 +64,7 @@ const Judge = () => {
             }
             if (loggedInRes.data?.ok !== 1) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
 

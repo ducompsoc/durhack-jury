@@ -58,7 +58,7 @@ const JudgeLive = () => {
             }
             if (loggedInRes.data?.ok !== 1) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
 

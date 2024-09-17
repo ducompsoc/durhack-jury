@@ -1,0 +1,18 @@
+Index: client/src/pages/Home.tsx
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>import Button from '../components/Button';\r\nimport Container from '../components/Container';\r\n\r\nconst App = () => {\r\n    return (\r\n        <Container>\r\n            <h1 className=\"text-7xl font-bold text-center mb-4 hover:animate-wiggle cursor-pointer\">\r\n                <a href=\"https://github.com/acmutd/jury\" target=\"_blank\" rel=\"noopener noreferrer\">\r\n                    Jury\r\n                </a>\r\n            </h1>\r\n            <h2 className=\"text-primary text-3xl text-center font-bold mb-24\">\r\n                {import.meta.env.VITE_JURY_NAME}\r\n            </h2>\r\n            <Button href=\"/judge/login\" type=\"primary\">\r\n                Judging Portal\r\n            </Button>\r\n            <Button href=\"/expo\" type=\"outline\" className=\"py-3 mt-4 mb-2\">\r\n                Project Expo\r\n            </Button>\r\n            <Button href=\"/admin/login\" type=\"text\">\r\n                Admin Portal\r\n            </Button>\r\n        </Container>\r\n    );\r\n};\r\n\r\nexport default App;\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client/src/pages/Home.tsx b/client/src/pages/Home.tsx
+--- a/client/src/pages/Home.tsx	(revision 85875e6db13a7dc8ff5d3e777d94fe5b4afdc9b2)
++++ b/client/src/pages/Home.tsx	(date 1725735941761)
+@@ -14,6 +14,7 @@
+             </h2>
+             <Button href="/judge/login" type="primary">
+                 Judging Portal
++                <p className="text-sm italic">Log in via auth.durhack.com</p>
+             </Button>
+             <Button href="/expo" type="outline" className="py-3 mt-4 mb-2">
+                 Project Expo
