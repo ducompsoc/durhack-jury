@@ -17,7 +17,7 @@ const AdminStatsPanel = () => {
 
     // Fetch clock info
     const fetchClock = async () => {
-        const res = await getRequest<ClockState>('/admin/clock', 'admin');
+        const res = await getRequest<ClockState>('/admin/clock');
         if (res.status !== 200) {
             errorAlert(res);
             return;

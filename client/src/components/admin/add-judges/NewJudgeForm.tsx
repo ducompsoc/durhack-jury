@@ -25,7 +25,7 @@ const NewJudgeForm = () => {
 
         const newdata: NewJudgeDataFull = { ...data, no_send: noSend };
 
-        const res = await postRequest('/judge/new', 'admin', newdata);
+        const res = await postRequest('/judge/new', newdata);
         if (res.status !== 200) {
             errorAlert(res);
             setIsSubmitting(false);

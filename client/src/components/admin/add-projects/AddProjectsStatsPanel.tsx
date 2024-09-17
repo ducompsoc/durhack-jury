@@ -13,7 +13,7 @@ const AddProjectsStatsPanel = () => {
     const [stats, setStats] = useState<ProjectStats>({ num: 0, avg_votes: 0, avg_seen: 0 });
     useEffect(() => {
         const fetchStats = async () => {
-            const res = await getRequest('/project/stats', 'admin');
+            const res = await getRequest('/project/stats');
             if (res.status === 500) {
                 return;
             }

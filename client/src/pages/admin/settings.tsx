@@ -28,7 +28,7 @@ const AdminSettings = () => {
     const [loading, setLoading] = useState(true);
 
     async function getOptions() {
-        const res = await getRequest<Options>('/admin/options', 'admin');
+        const res = await getRequest<Options>('/admin/options');
         if (res.status !== 200) {
             errorAlert(res);
             return;
@@ -65,7 +65,7 @@ const AdminSettings = () => {
     }, []);
 
     const reassignTables = async () => {
-        const res = await postRequest<OkResponse>('/project/reassign', 'admin', null);
+        const res = await postRequest<OkResponse>('/project/reassign', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;
@@ -90,7 +90,7 @@ const AdminSettings = () => {
         }
 
         // Update the timer
-        const res = await postRequest<OkResponse>('/admin/timer', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/timer', {
             judging_timer: timer,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -111,7 +111,7 @@ const AdminSettings = () => {
         }
 
         // Update min views
-        const res = await postRequest<OkResponse>('/admin/min-views', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/min-views', {
             min_views: v,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -135,7 +135,7 @@ const AdminSettings = () => {
             return
         }
         // Post the new categories
-        const res = await postRequest<OkResponse>('/admin/categories', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/categories', {
             categories: filteredCats,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -154,7 +154,7 @@ const AdminSettings = () => {
             alert('Minimum views should be a positive integer >= 2!');
             return;
         }
-        const res = await postRequest<OkResponse>('/admin/ranking-batch-size', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/ranking-batch-size', {
             ranking_batch_size: r,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -167,7 +167,7 @@ const AdminSettings = () => {
     }
 
     const resetClock = async () => {
-        const res = await postRequest<OkResponse>('/admin/clock/reset', 'admin', null);
+        const res = await postRequest<OkResponse>('/admin/clock/reset', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;
@@ -178,7 +178,7 @@ const AdminSettings = () => {
     };
 
     const dropDatabase = async () => {
-        const res = await postRequest<OkResponse>('/admin/reset', 'admin', null);
+        const res = await postRequest<OkResponse>('/admin/reset', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;

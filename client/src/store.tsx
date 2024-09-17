@@ -20,7 +20,7 @@ const useAdminStore = create<AdminStore>()((set) => ({
     },
 
     fetchStats: async () => {
-        const statsRes = await getRequest<Stats>('/admin/stats', 'admin');
+        const statsRes = await getRequest<Stats>('/admin/stats');
         if (statsRes.status !== 200) {
             errorAlert(statsRes);
             return;
@@ -31,14 +31,14 @@ const useAdminStore = create<AdminStore>()((set) => ({
     projects: [],
 
     fetchProjects: async () => {
-        const projRes = await getRequest<Project[]>('/project/list', 'admin');
+        const projRes = await getRequest<Project[]>('/project/list');
         if (projRes.status !== 200) {
             errorAlert(projRes);
             return;
         }
         const projects = projRes.data as Project[];
 
-        const scoreRes = await getRequest<ScoredItem[]>('/admin/score', 'admin');
+        const scoreRes = await getRequest<ScoredItem[]>('/admin/score');
         if (scoreRes.status !== 200) {
             errorAlert(scoreRes);
             return;
@@ -58,7 +58,7 @@ const useAdminStore = create<AdminStore>()((set) => ({
     judges: [],
 
     fetchJudges: async () => {
-        const judgeRes = await getRequest<Judge[]>('/judge/list', 'admin');
+        const judgeRes = await getRequest<Judge[]>('/judge/list');
         if (judgeRes.status !== 200) {
             errorAlert(judgeRes);
             return;

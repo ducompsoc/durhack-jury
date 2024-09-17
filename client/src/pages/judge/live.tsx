@@ -51,7 +51,7 @@ const JudgeLive = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status !== 200) {
                 errorAlert(loggedInRes);
                 return;
@@ -63,7 +63,7 @@ const JudgeLive = () => {
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome', 'judge');
+            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
@@ -74,7 +74,7 @@ const JudgeLive = () => {
             }
 
             // Check to see if judging has started
-            const startedRes = await getRequest<OkResponse>('/admin/started', '');
+            const startedRes = await getRequest<OkResponse>('/admin/started');
             if (startedRes.status !== 200) {
                 errorAlert(startedRes);
                 return;
@@ -94,7 +94,7 @@ const JudgeLive = () => {
     // Once verification finishes, get the judge's next project to judge, as well as the timer
     async function getJudgeData() {
         // Get judging timer
-        const timerRes = await getRequest<Timer>('/admin/timer', 'judge');
+        const timerRes = await getRequest<Timer>('/admin/timer');
         if (timerRes.status !== 200) {
             errorAlert(timerRes);
             return;
@@ -104,7 +104,7 @@ const JudgeLive = () => {
         if (judgingTime === 0) setStarted(true);
 
         // Get the judge
-        const judgeRes = await getRequest<Judge>('/judge', 'judge');
+        const judgeRes = await getRequest<Judge>('/judge');
         if (judgeRes.status !== 200) {
             errorAlert(judgeRes);
             return;
@@ -124,7 +124,7 @@ const JudgeLive = () => {
         }
 
         // Otherwise, query for the next project to judge
-        const newProject = await postRequest<NextJudgeProject>('/judge/next', 'judge', null);
+        const newProject = await postRequest<NextJudgeProject>('/judge/next', null);
         if (newProject.status !== 200) {
             errorAlert(newProject);
             return;
@@ -231,7 +231,7 @@ const JudgeLive = () => {
 
         // Update notes if voting
         if (isVote) {
-            const res = await postRequest<OkResponse>('/judge/notes', 'judge', {
+            const res = await postRequest<OkResponse>('/judge/notes', {
                 notes,
                 project: judge?.current,
             });

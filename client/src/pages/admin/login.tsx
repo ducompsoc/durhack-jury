@@ -21,7 +21,7 @@ const AdminLogin = () => {
         async function checkLoggedIn() {
             const cookies = new Cookies();
             if (cookies.get('admin-pass')) {
-                const res = await postRequest<OkResponse>('/admin/auth', 'admin', null);
+                const res = await postRequest<OkResponse>('/admin/auth', null);
                 if (res.status === 200 && res.data?.ok === 1) {
                     navigate('/admin');
                     return;
@@ -51,7 +51,7 @@ const AdminLogin = () => {
         setLoginLock(true);
 
         // Make async call to check code
-        const res = await postRequest<OkResponse>('/admin/login', 'admin', { password });
+        const res = await postRequest<OkResponse>('/admin/login', {password});
 
         // Invalid code
         if (res.status === 400) {

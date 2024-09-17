@@ -18,7 +18,7 @@ const JuryHeader = (props: JuryHeaderProps) => {
     const navigate = useNavigate();
     const cookies = new Cookies();
 
-    const logout = () => {
+    const logout = () => {  // lucatodo: handle new logout process
         const isJudge = window.location.pathname.startsWith('/judge');
         cookies.remove(isJudge ? 'token' : 'admin-pass', { path: '/' });
         navigate('/');

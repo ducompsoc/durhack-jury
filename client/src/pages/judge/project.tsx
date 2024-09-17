@@ -16,7 +16,7 @@ const Project = () => {
 
     useEffect(() => {
         async function fetchData() {
-            const projRes = await getRequest<JudgedProjectWithUrl>(`/judge/project/${id}`, 'judge');
+            const projRes = await getRequest<JudgedProjectWithUrl>(`/judge/project/${id}`);
             if (projRes.status !== 200) {
                 errorAlert(projRes);
                 return;
@@ -33,7 +33,7 @@ const Project = () => {
         if (!project) return;
 
         async function updateNotes() {
-            const res = await postRequest<OkResponse>('/judge/notes', 'judge', {
+            const res = await postRequest<OkResponse>('/judge/notes', {
                 notes,
                 project: project?.project_id,
             });

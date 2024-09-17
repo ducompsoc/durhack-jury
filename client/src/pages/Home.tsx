@@ -12,14 +12,12 @@ const App = () => {
             <h2 className="text-primary text-3xl text-center font-bold mb-24">
                 {import.meta.env.VITE_JURY_NAME}
             </h2>
-            <Button href="/judge/login" type="primary">
-                Judging Portal
+            <Button href={`${import.meta.env.VITE_JURY_URL}/auth/keycloak/login`} type="primary">
+                Login
+                <p className="text-sm italic">via auth.durhack.com</p>
             </Button>
             <Button href="/expo" type="outline" className="py-3 mt-4 mb-2">
                 Project Expo
-            </Button>
-            <Button href="/admin/login" type="text">
-                Admin Portal
             </Button>
         </Container>
     );

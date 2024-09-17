@@ -20,10 +20,10 @@ const Admin = () => {
     useEffect(() => {
         // Check if user logged in
         async function checkLoggedIn() {
-            const loggedInRes = await postRequest<OkResponse>('/admin/auth', 'admin', null);
+            const loggedInRes = await postRequest<OkResponse>('/admin/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Admin is not logged in!`);
-                navigate('/admin/login');
+                navigate('/');
                 return;
             }
             if (loggedInRes.status === 200) {

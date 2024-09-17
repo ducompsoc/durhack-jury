@@ -17,6 +17,7 @@ type LoginAdminRequest struct {
 	Password string `json:"password"`
 }
 
+// lucatodo: remove old judge and admin login logic
 // POST /admin/login - LoginAdmin authenticates an admin
 func LoginAdmin(ctx *gin.Context) {
 	// Get the password from the environmental variable

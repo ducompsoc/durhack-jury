@@ -52,7 +52,7 @@ const Judge = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Judge is not logged in!`);
                 navigate('/judge/login');
@@ -69,7 +69,7 @@ const Judge = () => {
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome', 'judge');
+            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
@@ -80,7 +80,7 @@ const Judge = () => {
             }
 
             // Get the name & email of the user from the server
-            const judgeRes = await getRequest<Judge>('/judge', 'judge');
+            const judgeRes = await getRequest<Judge>('/judge');
             if (judgeRes.status !== 200) {
                 errorAlert(judgeRes);
                 return;
@@ -89,7 +89,7 @@ const Judge = () => {
             setJudge(judge);
 
             // Get the project count
-            const projCountRes = await getRequest<ProjectCount>('/project/count', 'judge');
+            const projCountRes = await getRequest<ProjectCount>('/project/count');
             if (projCountRes.status !== 200) {
                 errorAlert(projCountRes);
                 return;
@@ -97,7 +97,7 @@ const Judge = () => {
             setProjCount(projCountRes.data?.count as number);
 
             // Get Ranking Batch Size
-            const rankingBatchSizeRes = await getRequest<RankingBatchSize>('/rbs', 'judge');
+            const rankingBatchSizeRes = await getRequest<RankingBatchSize>('/rbs');
             if (rankingBatchSizeRes.status !== 200) {
                 errorAlert(rankingBatchSizeRes);
                 return;
@@ -156,7 +156,7 @@ const Judge = () => {
             return;
         }
 
-        const res = await postRequest<OkResponse>('/judge/break', 'judge', null);
+        const res = await postRequest<OkResponse>('/judge/break', null);
         if (res.status !== 200) {
             errorAlert(res);
             return;
@@ -192,7 +192,9 @@ const Judge = () => {
             const oldIndex = activeContainer.findIndex((i) => i.id === active.id);
             const newIndex = overContainer.findIndex((i) => i.id === over.id);
             const proj = activeContainer[oldIndex];
+            // @ts-ignore
             const newActive = activeContainer.toSpliced(oldIndex, 1);
+            // @ts-ignore
             const newOver = overContainer.toSpliced(newIndex, 0, proj);
             if (activeRanked) {
                 setRanked(newActive);
@@ -253,7 +255,7 @@ const Judge = () => {
 
     const saveSort = async (projects: SortableJudgedProject[]) => {
         // Save the rankings
-        const saveRes = await postRequest<OkResponse>('/judge/rank', 'judge', {
+        const saveRes = await postRequest<OkResponse>('/judge/rank', {
             ranking: projects.map((p) => p.project_id),
         });
         if (saveRes.status !== 200) {

@@ -22,7 +22,7 @@ const ProjectDisplay = (props: ProjectDisplayProps) => {
         async function fetchData() {
             if (!props.projectId) return;
 
-            const projRes = await getRequest<Project>(`/project/${props.projectId}`, 'judge');
+            const projRes = await getRequest<Project>(`/project/${props.projectId}`);
             if (projRes.status !== 200) {
                 errorAlert(projRes);
                 return;

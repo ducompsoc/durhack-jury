@@ -23,7 +23,7 @@ const DeletePopup = ({ element, close }: DeletePopupProps) => {
 
     const hideElement = async () => {
         const resource = isProject(element) ? 'project' : 'judge';
-        const res = await postRequest<OkResponse>(`/${resource}/hide`, 'admin', { id: element.id });
+        const res = await postRequest<OkResponse>(`/${resource}/hide`, {id: element.id});
         if (res.status === 200) {
             fetchStats();
             isProject(element) ? fetchProjects() : fetchJudges();

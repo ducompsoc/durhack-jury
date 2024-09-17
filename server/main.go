@@ -16,7 +16,7 @@ func main() {
 		fmt.Printf("Did not load .env file (%s). This is expected when running in a Docker container\n", err.Error())
 	}
 
-	// Check for all necessary env variables)
+	// Check for all necessary env variables
 	config.CheckEnv()
 
 	// Connect to the database
@@ -26,5 +26,5 @@ func main() {
 	r := router.NewRouter(db)
 
 	// Start the Gin server!
-	r.Run(":" + config.GetOptEnv("PORT", "8080"))
+	r.Run(":" + config.Port)
 }

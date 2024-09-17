@@ -2,12 +2,16 @@ package router
 
 import (
 	"log"
+	"server/config"
 	"server/database"
 	"server/judging"
 	"server/models"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-contrib/sessions"
+	sessionsMongodriver "github.com/gin-contrib/sessions/mongo/mongodriver"
 	"github.com/gin-contrib/static"
+
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 )
@@ -33,7 +37,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 
 	// CORS
 	router.Use(cors.New(cors.Config{
-		AllowAllOrigins:  true,
+		AllowOrigins:     []string{config.Origin},
 		AllowMethods:     []string{"GET", "POST", "DELETE", "OPTIONS", "PUT"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "Accept", "Cache-Control", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -41,13 +45,28 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 		MaxAge:           12 * 3600,
 	}))
 
+	// Sessions
+	sessionCollection := db.Collection("sessions")
+	store := sessionsMongodriver.NewStore(sessionCollection, 60*60, true, []byte("secret"))
+	store.Options(sessions.Options{
+		HttpOnly: true,
+		Secure:   false,
+		Domain:   config.Origin,
+		Path:     "/",
+	})
+	router.Use(sessions.Sessions("durhack-jury-session", store))
+
 	// Create router groups for judge and admins
-	// This grouping allows us to add middleware to all routes in the group
-	// Admins are authenticated with a password and judges are authenticated with a token
-	// The default group is for routes that do not require authentication
-	judgeRouter := router.Group("/api", AuthenticateJudge())
-	adminRouter := router.Group("/api", AuthenticateAdmin())
+	// lucatodo: document routing behaviour r.e. login and auth
+	authenticatedRouter := router.Group("", Authenticate())
+	judgeRouter := authenticatedRouter.Group("/api", AuthoriseJudge())
+	adminRouter := authenticatedRouter.Group("/api", AuthoriseAdmin())
 	defaultRouter := router.Group("/api")
+
+	// lucatodo: improved error handling middleware: https://stackoverflow.com/questions/69948784/how-to-handle-errors-in-gin-middleware/69948929#69948929
+	// Authenticated login routes
+	defaultRouter.GET("/auth/keycloak/login", BeginKeycloakOAuth2Flow())
+	defaultRouter.GET("/auth/keycloak/callback", KeycloakOAuth2FlowCallback(), HandleLoginSuccess())
 
 	// Add routes
 	judgeRouter.GET("/judge", GetJudge)

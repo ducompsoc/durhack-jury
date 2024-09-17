@@ -13,7 +13,7 @@ const AddJudgeStatsPanel = () => {
     const [stats, setStats] = useState<JudgeStats>({ num: 0, avg_seen: 0, num_active: 0 });
     useEffect(() => {
         const fetchStats = async () => {
-            const res = await getRequest('/judge/stats', 'admin');
+            const res = await getRequest('/judge/stats');
             if (res.status === 500) {
                 return;
             }

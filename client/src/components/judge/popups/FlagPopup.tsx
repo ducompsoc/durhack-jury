@@ -66,7 +66,7 @@ const FlagPopup = (props: FlagPopupProps) => {
         }
 
         // Flag the current project
-        const flagRes = await postRequest<OkResponse>('/judge/skip', 'judge', {
+        const flagRes = await postRequest<OkResponse>('/judge/skip', {
             reason: selected,
         });
         if (flagRes.status !== 200) {

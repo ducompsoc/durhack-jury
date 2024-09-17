@@ -22,7 +22,7 @@ const NewProjectForm = () => {
         // Upload project
         setIsSubmitting(true);
 
-        const res = await postRequest('/project/new', 'admin', data);
+        const res = await postRequest('/project/new', data);
         if (res.status === 400) {
             alert(`Error with form: ${res.error}`);
             setIsSubmitting(false);

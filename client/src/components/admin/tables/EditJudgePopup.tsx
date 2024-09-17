@@ -28,7 +28,7 @@ const EditJudgePopup = ({ judge, close }: EditJudgePopupProps) => {
     const onSubmit: SubmitHandler<UpdateJudgeData> = async (data) => {
         setIsSubmitting(true);
 
-        const res = await putRequest(`/judge/${judge.id}`, 'admin', data);
+        const res = await putRequest(`/judge/${judge.id}`, data);
         if (res.status !== 200) {
             errorAlert(res);
             return;

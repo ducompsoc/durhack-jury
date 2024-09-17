@@ -34,7 +34,7 @@ const JudgeLogin = () => {
             }
 
             // If invalid, delete the token
-            const res = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const res = await postRequest<OkResponse>('/judge/auth', null);
             if (res.status !== 200) {
                 console.error('Could not connect to server: error ' + res.status);
                 return;
@@ -79,7 +79,7 @@ const JudgeLogin = () => {
         }
 
         // Make async call to check code
-        const res = await postRequest<TokenResponse>('/judge/login', '', { code });
+        const res = await postRequest<TokenResponse>('/judge/login', {code});
 
         // Invalid code
         if (res.status === 400) {

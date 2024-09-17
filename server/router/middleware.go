@@ -1,87 +1,135 @@
 package router
 
 import (
-	"encoding/base64"
+	"context"
 	"fmt"
-	"server/config"
-	"server/database"
-	"strings"
-
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/oauth2"
+	"net/http"
+	"server/auth"
+	"server/models"
+	"server/util"
+
+	"slices"
 )
 
-// Authenticate Judge with Bearer token
-func AuthenticateJudge() gin.HandlerFunc {
+func Authenticate() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authHeader := ctx.GetHeader("Authorization")
-		if authHeader == "" {
-			no("Authorization header required with Bearer token", ctx)
+		session := sessions.Default(ctx)
+		userId := session.Get("user_id")
+		switch userId.(type) {
+		case string:
+			break
+		default:
+			ctx.Next()
 			return
 		}
 
-		// Make sure the auth header starts with "Bearer "
-		if len(authHeader) < 7 || authHeader[:7] != "Bearer " {
-			no("Invalid Authorization header, illegal format detected", ctx)
-			return
+		deleteSessionCookieAndNext := func() {
+			session.Delete("user_id")
+			err := session.Save()
+			if err != nil {
+				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+			ctx.Next()
 		}
 
-		// Extract the token
-		token := authHeader[7:]
-
-		// Make sure the token is valid (check for judge in database)
 		db := ctx.MustGet("db").(*mongo.Database)
-		judge, err := database.FindJudgeByToken(db, token)
-		if err != nil {
-			ctx.AbortWithStatusJSON(500, gin.H{"error": fmt.Sprintf("Error finding judge in database: %s", err.Error())})
-			return
+		var tokenSet struct {
+			UserId string       `bson:"user_id"`
+			Token  oauth2.Token `bson:"token_set"`
 		}
-		if judge == nil {
-			no("Invalid Authorization header, no judge with provided token", ctx)
+		err := db.Collection("token_set").FindOne(
+			context.Background(),
+			gin.H{"user_id": userId},
+		).Decode(&tokenSet)
+		if err != nil {
+			deleteSessionCookieAndNext()
 			return
 		}
 
-		// Success! - set judge in context
-		ctx.Set("judge", judge)
+		newToken, err := auth.KeycloakOAuth2Config.TokenSource(context.Background(), &tokenSet.Token).Token()
+		if util.IsNetworkError(err) {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		if err != nil {
+			deleteSessionCookieAndNext()
+			return
+		}
+
+		if newToken.AccessToken != tokenSet.Token.AccessToken {
+			_, err = db.Collection("token_set").UpdateOne(
+				context.Background(),
+				gin.H{"user_id": userId},
+				gin.H{"$set": gin.H{"token_set": newToken}},
+			)
+			if err != nil {
+				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+				return
+			}
+		}
+
+		userInfo, err := auth.KeycloakOIDCProvider.UserInfo(
+			context.Background(),
+			oauth2.StaticTokenSource(newToken),
+		)
+		if util.IsNetworkError(err) {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			return
+		}
+		if err != nil {
+			deleteSessionCookieAndNext()
+			return
+		}
+
+		var userInfoClaims models.UserInfoClaims
+		err = userInfo.Claims(&userInfoClaims)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+
+		ctx.Set("user", userInfo)
+		ctx.Set("user_token_set", newToken)
+		ctx.Set("user_claims", userInfoClaims)
 		ctx.Next()
 	}
 }
 
-// Authenticate Admin with Basic auth
-func AuthenticateAdmin() gin.HandlerFunc {
+func AuthoriseJudge() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authHeader := ctx.GetHeader("Authorization")
-		if authHeader == "" {
-			no("Authorization header required with Basic auth", ctx)
+		maybeClaims, exists := ctx.Get("user_claims")
+		if !exists {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
+		claims := maybeClaims.(models.UserInfoClaims)
+		if !slices.Contains(claims.Groups, "/judges") {
+			ctx.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		ctx.Next()
+	}
+}
 
-		// Make sure the auth header starts with "Basic "
-		if len(authHeader) < 6 || authHeader[:6] != "Basic " {
-			no("Invalid Authorization header, illegal format detected", ctx)
+func AuthoriseAdmin() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		maybeClaims, exists := ctx.Get("user_claims")
+		if !exists {
+			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-
-		// Extract the base64 encoded username:password and decode it
-		userpassHash := authHeader[6:]
-		userpass, err := base64.StdEncoding.DecodeString(userpassHash)
-		if err != nil {
-			no("Invalid Authorization header, invalid base64 encoding", ctx)
+		claims := maybeClaims.(models.UserInfoClaims)
+		if !slices.Contains(claims.Groups, "/admins") {
+			ctx.AbortWithStatus(http.StatusForbidden)
 			return
 		}
-
-		// Split the username:password string
-		authSplit := strings.Split(string(userpass), ":")
-		if len(authSplit) != 2 {
-			no("Invalid Authorization header, illegal format detected", ctx)
-			return
-		}
-
-		// Username should be "admin" and password should be the admin password
-		if authSplit[0] != "admin" || authSplit[1] != config.GetEnv("JURY_ADMIN_PASSWORD") {
-			no("Invalid Authorization header, incorrect credentials", ctx)
-			return
-		}
+		ctx.Next()
 	}
 }
 
