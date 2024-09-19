@@ -5,7 +5,6 @@ import Home from './pages/Home';
 import Judge from './pages/judge';
 import Admin from './pages/admin';
 import AddProjects from './pages/admin/AddProjects';
-import AddJudges from './pages/admin/AddJudges';
 import JudgeWelcome from './pages/judge/welcome';
 import JudgeLive from './pages/judge/live';
 import Project from './pages/judge/project';
@@ -49,10 +48,6 @@ const router = createBrowserRouter([
     {
         path: '/admin/add-projects',
         element: <AddProjects />,
-    },
-    {
-        path: '/admin/add-judges',
-        element: <AddJudges />,
     },
     {
         path: '/admin/settings',

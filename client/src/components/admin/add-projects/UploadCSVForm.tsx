@@ -47,9 +47,7 @@ const UploadCSVForm = (props: UploadCSVFormProps) => {
         try {
             // Determine the path based on the format
             const path =
-                props.format === 'judge'
-                    ? '/judge/csv'
-                    : props.format === 'project'
+                props.format === 'project'
                     ? '/project/csv'
                     : '/project/devpost';
 
@@ -57,7 +55,7 @@ const UploadCSVForm = (props: UploadCSVFormProps) => {
             const response = await fetch(`${import.meta.env.VITE_JURY_URL}${path}`, {
                 method: 'POST',
                 body: formData,
-                headers: createHeaders('admin', false),
+                headers: createHeaders(false),
             });
 
             // Throw error if response is not ok
@@ -71,7 +69,7 @@ const UploadCSVForm = (props: UploadCSVFormProps) => {
             // Reset the form and show success message
             setFile(null);
             setFileName('No file chosen');
-            const resource = props.format === 'judge' ? 'judge' : 'project';
+            const resource = 'project';
             setMsg(`Added ${resource}(s) successfully!`);
         } catch (err) {
             console.error(err);
