@@ -34,28 +34,6 @@ func InsertJudges(db *mongo.Database, judges []*models.Judge) error {
 	return err
 }
 
-// FindJudgeByToken finds a judge by their token.
-// Returns judge as nil if no judge was found.
-func FindJudgeByToken(db *mongo.Database, token string) (*models.Judge, error) {
-	var judge models.Judge
-	err := db.Collection("judges").FindOne(context.Background(), gin.H{"token": token}).Decode(&judge)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	return &judge, err
-}
-
-// FindJudgeByCode finds a judge by their code.
-// Returns judge as nil if no judge was found.
-func FindJudgeByCode(db *mongo.Database, code string) (*models.Judge, error) {
-	var judge models.Judge
-	err := db.Collection("judges").FindOne(context.Background(), gin.H{"code": code}).Decode(&judge)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	return &judge, err
-}
-
 // UpdateJudge updates a judge in the database
 func UpdateJudge(db *mongo.Database, judge *models.Judge) error {
 	judge.LastActivity = util.Now()

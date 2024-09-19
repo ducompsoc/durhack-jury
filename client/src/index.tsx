@@ -23,11 +23,7 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 const router = createBrowserRouter([
     {
         path: '/',
-        element: import.meta.env.VITE_HUB ? <HomeHub /> : <Home />,
-    },
-    {
-        path: '/judge/login',
-        element: <JudgeLogin />,
+        element: <Home />,
     },
     {
         path: '/judge/welcome',

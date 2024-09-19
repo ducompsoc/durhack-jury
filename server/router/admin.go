@@ -209,25 +209,6 @@ func GetOptions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, options)
 }
 
-// POST /admin/export/judges - ExportJudges exports all judges to a CSV
-func ExportJudges(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get all the judges
-	judges, err := database.FindAllJudges(db)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judges: " + err.Error()})
-		return
-	}
-
-	// Create the CSV
-	csvData := funcs.CreateJudgeCSV(judges)
-
-	// Send CSV
-	funcs.AddCsvData("judges", csvData, ctx)
-}
-
 // POST /admin/export/projects - ExportProjects exports all projects to a CSV
 func ExportProjects(ctx *gin.Context) {
 	// Get the database from the context
