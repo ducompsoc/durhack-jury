@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"fmt"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
 	"log"
+	"net/url"
 	"server/config"
 )
 
@@ -38,11 +38,15 @@ func getKeycloakOAuth2Config() *oauth2.Config {
 		return keycloakOAuth2Config
 	}
 
+	parsedUrl, err := url.JoinPath(config.ApiOrigin, "/api/auth/keycloak/callback")
+	if err != nil {
+		log.Fatalf("Failed to create keycloak callback URL: %v", err)
+	}
 	keycloakOAuth2Config := &oauth2.Config{
 		ClientID:     clientID,
 		ClientSecret: clientSecret,
 		Endpoint:     getKeycloakOIDCProvider().Endpoint(),
-		RedirectURL:  fmt.Sprintf("http://localhost:%s/api/auth/keycloak/callback", config.Port),
+		RedirectURL:  parsedUrl,
 		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
 	}
 
