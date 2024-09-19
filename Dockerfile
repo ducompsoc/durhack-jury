@@ -47,6 +47,4 @@ EXPOSE $PORT
 COPY --from=builder /go/bin/jury .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=client-builder /client/build /public
-COPY ./server/email.html /email.html
-
 ENTRYPOINT [ "./jury" ]

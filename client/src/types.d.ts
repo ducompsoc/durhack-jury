@@ -24,6 +24,7 @@ interface PublicProject {
 }
 
 interface Judge {
+    // lucatodo: update schema and usages to re-get email
     id: string;
     name: string;
     code: string;
