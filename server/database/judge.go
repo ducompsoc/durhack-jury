@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"server/models"
 	"server/util"
 
@@ -18,19 +19,14 @@ func UpdateJudgeLastActivity(db *mongo.Database, ctx context.Context, id *primit
 	return err
 }
 
-// InsertJudge inserts a judge into the database
-func InsertJudge(db *mongo.Database, judge *models.Judge) error {
-	_, err := db.Collection("judges").InsertOne(context.Background(), judge)
-	return err
-}
-
-// InsertJudges inserts multiple judges into the database
-func InsertJudges(db *mongo.Database, judges []*models.Judge) error {
-	var docs []interface{}
-	for _, judge := range judges {
-		docs = append(docs, judge)
-	}
-	_, err := db.Collection("judges").InsertMany(context.Background(), docs)
+// GetOrCreateJudge inserts a judge into the database if it does not exist and updates the passed judge variable with the database's version
+func GetOrCreateJudge(db *mongo.Database, judge *models.Judge) error {
+	err := db.Collection("judges").FindOneAndUpdate(
+		context.Background(),
+		gin.H{"keycloak_user_id": judge.KeycloakUserId},
+		gin.H{"$setOnInsert": judge},
+		mongoOptions.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(mongoOptions.After),
+	).Decode(&judge)
 	return err
 }
 
@@ -102,6 +98,7 @@ func AggregateJudgeStats(db *mongo.Database) (*models.JudgeStats, error) {
 	return &stats, nil
 }
 
+// lucatodo: implement API on Jury to allow keycloak client to delete a judge 'remotely'
 // DeleteJudgeById deletes a judge from the database by their id
 func DeleteJudgeById(db *mongo.Database, id primitive.ObjectID) error {
 	_, err := db.Collection("judges").DeleteOne(context.Background(), gin.H{"_id": id})
@@ -134,11 +131,11 @@ func SetJudgeHidden(db *mongo.Database, id *primitive.ObjectID, hidden bool) err
 }
 
 // UpdateJudgeBasicInfo updates the basic info of a judge (name, email, notes)
-func UpdateJudgeBasicInfo(db *mongo.Database, judgeId *primitive.ObjectID, addRequest *models.AddJudgeRequest) error {
+func UpdateJudgeBasicInfo(db *mongo.Database, judgeId *primitive.ObjectID, addRequest *models.EditJudgeRequest) error {
 	_, err := db.Collection("judges").UpdateOne(
 		context.Background(),
 		gin.H{"_id": judgeId},
-		gin.H{"$set": gin.H{"name": addRequest.Name, "email": addRequest.Email, "notes": addRequest.Notes}},
+		gin.H{"$set": gin.H{"notes": addRequest.Notes}},
 	)
 	return err
 }

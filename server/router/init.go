@@ -2,6 +2,7 @@ package router
 
 import (
 	"log"
+	"net/url"
 	"server/config"
 	"server/database"
 	"server/judging"
@@ -48,10 +49,14 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	// Sessions
 	sessionCollection := db.Collection("sessions")
 	store := sessionsMongodriver.NewStore(sessionCollection, 60*60, true, []byte("secret"))
+	parsedUrl, err := url.Parse(config.ApiOrigin)
+	if err != nil {
+		log.Fatalf("error parsing host url: %s\n", err.Error())
+	}
 	store.Options(sessions.Options{
 		HttpOnly: true,
 		Secure:   false,
-		Domain:   config.Origin,
+		Domain:   parsedUrl.Host,
 		Path:     "/",
 	})
 	router.Use(sessions.Sessions("durhack-jury-session", store))
@@ -70,10 +75,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 
 	// Add routes
 	judgeRouter.GET("/judge", GetJudge)
-	adminRouter.POST("/judge/new", AddJudge)
-	defaultRouter.POST("/judge/login", LoginJudge)
 	judgeRouter.POST("/judge/auth", JudgeAuthenticated)
-	adminRouter.POST("/judge/csv", AddJudgesCsv)
 	judgeRouter.GET("/judge/welcome", CheckJudgeReadWelcome)
 	judgeRouter.POST("/judge/welcome", SetJudgeReadWelcome)
 	adminRouter.GET("/judge/list", ListJudges)
@@ -86,6 +88,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.POST("/judge/rank", JudgeRank)
 	judgeRouter.PUT("/judge/score", JudgeUpdateScore)
 	judgeRouter.POST("/judge/break", JudgeBreak)
+
 	adminRouter.POST("/project/devpost", AddDevpostCsv)
 	adminRouter.POST("/project/new", AddProject)
 	adminRouter.GET("/project/list", ListProjects)
@@ -96,7 +99,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.GET("/judge/project/:id", GetJudgedProject)
 	adminRouter.DELETE("/project/:id", DeleteProject)
 	adminRouter.GET("/project/stats", ProjectStats)
-	defaultRouter.POST("/admin/login", LoginAdmin)
+
 	adminRouter.GET("/admin/stats", GetAdminStats)
 	adminRouter.GET("/admin/score", GetScores)
 	adminRouter.GET("/admin/clock", GetClock)
@@ -116,7 +119,6 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.GET("/admin/flags", GetFlags)
 	adminRouter.POST("/project/reassign", ReassignProjectNums)
 	adminRouter.GET("/admin/options", GetOptions)
-	adminRouter.GET("/admin/export/judges", ExportJudges)
 	adminRouter.GET("/admin/export/projects", ExportProjects)
 	adminRouter.GET("/admin/export/challenges", ExportProjectsByChallenge)
 	adminRouter.GET("/admin/export/rankings", ExportRankings)

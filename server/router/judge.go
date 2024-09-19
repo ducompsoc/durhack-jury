@@ -1,131 +1,31 @@
 package router
 
 import (
-	"fmt"
-	"net/http"
-	"server/database"
-	"server/funcs"
-	"server/judging"
-	"server/models"
-	"server/util"
-
+	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http"
+	"server/database"
+	"server/judging"
+	"server/models"
 )
+
+type GetJudgeResponse struct {
+	models.Judge
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}
 
 // GET /judge - Endpoint to get the judge from the token
 func GetJudge(ctx *gin.Context) {
 	// Get the judge from the context (See middleware.go)
 	judge := ctx.MustGet("judge").(*models.Judge)
+	// Get user info from separate authenticated user info created in earlier middleware: Authenticate()
+	userInfo := ctx.MustGet("user").(*oidc.UserInfo)
 
 	// Send Judge
-	ctx.JSON(http.StatusOK, judge)
-}
-
-// POST /judge/new - Endpoint to add a single judge
-func AddJudge(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get the judge from the request
-	var judgeReq models.AddJudgeRequest
-	err := ctx.BindJSON(&judgeReq)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Make sure all required request fields are defined
-	if judgeReq.Name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
-		return
-	}
-	if judgeReq.Email == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "email is required"})
-		return
-	}
-
-	// Create the judge
-	judge := models.NewJudge(judgeReq.Name, judgeReq.Email, judgeReq.Notes)
-
-	fmt.Println(judgeReq.NoSend)
-
-	// Send email if no_send is false
-	if !judgeReq.NoSend {
-		// Get hostname from request
-		hostname := util.GetFullHostname(ctx)
-
-		// Make sure email is right
-		if !funcs.CheckEmail(judge.Email) {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid email"})
-			return
-		}
-
-		// Send email to judge
-		err = funcs.SendJudgeEmail(judge, hostname)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error sending judge email: " + err.Error()})
-			return
-		}
-	}
-
-	// Insert the judge into the database
-	err = database.InsertJudge(db, judge)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
-}
-
-type LoginJudgeRequest struct {
-	Code string `json:"code"`
-}
-
-// POST /judge/login - Endpoint to login a judge
-func LoginJudge(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get the judge code from the request
-	var loginReq LoginJudgeRequest
-	err := ctx.BindJSON(&loginReq)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
-		return
-	}
-
-	// Find judge by code
-	judge, err := database.FindJudgeByCode(db, loginReq.Code)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error finding judge in database: " + err.Error()})
-		return
-	}
-	if judge == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid code"})
-		return
-	}
-
-	// Generate random 16-character token for judge
-	token, err := util.GenerateToken()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token: " + err.Error()})
-		return
-	}
-
-	// Update judge in database with new token
-	judge.Token = token
-	err = database.UpdateJudge(db, judge)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating judge in database: " + err.Error()})
-		return
-	}
-
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"token": token})
+	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: ""})
 }
 
 // POST /judge/auth - Check to make sure a judge is authenticated
@@ -438,7 +338,7 @@ func EditJudge(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get the body content
-	var judgeReq models.AddJudgeRequest
+	var judgeReq models.EditJudgeRequest
 	err := ctx.BindJSON(&judgeReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
