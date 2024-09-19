@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import { errorAlert, showTopFive, timeSince } from '../../../util';
-import DeletePopup from './DeletePopup';
-import EditJudgePopup from './EditJudgePopup';
 import { postRequest } from '../../../api';
 import useAdminStore from '../../../store';
 import { twMerge } from 'tailwind-merge';
@@ -15,8 +13,6 @@ interface JudgeRowProps {
 
 const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) => {
     const [popup, setPopup] = useState(false);
-    const [editPopup, setEditPopup] = useState(false);
-    const [deletePopup, setDeletePopup] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const fetchJudges = useAdminStore((state) => state.fetchJudges);
 
@@ -37,17 +33,9 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
 
     const doAction = (action: 'edit' | 'prioritize' | 'hide' | 'delete') => {
         switch (action) {
-            case 'edit':
-                // Open edit popup
-                setEditPopup(true);
-                break;
             case 'hide':
                 // Hide
                 hideJudge();
-                break;
-            case 'delete':
-                // Open delete popup
-                setDeletePopup(true);
                 break;
         }
 
@@ -106,21 +94,9 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                         >
                             <div
                                 className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
-                                onClick={() => doAction('edit')}
-                            >
-                                Edit
-                            </div>
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
                                 onClick={() => doAction('hide')}
                             >
                                 {judge.active ? 'Hide' : 'Un-hide'}
-                            </div>
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 text-error"
-                                onClick={() => doAction('delete')}
-                            >
-                                Delete
                             </div>
                         </div>
                     )}
@@ -134,8 +110,6 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                     </span>
                 </td>
             </tr>
-            {deletePopup && <DeletePopup element={judge} close={setDeletePopup} />}
-            {editPopup && <EditJudgePopup judge={judge} close={setEditPopup} />}
         </>
     );
 };
