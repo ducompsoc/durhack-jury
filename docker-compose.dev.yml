@@ -13,7 +13,7 @@ services:
             - EMAIL_PASSWORD=${EMAIL_PASSWORD}
             - SENDGRID_API_KEY=${SENDGRID_API_KEY}
             - VITE_JURY_NAME=${JURY_NAME}
-            - PORT=8000
+            - PORT=3301
             - KEYCLOAK_OAUTH2_CLIENT_ID=${KEYCLOAK_OAUTH2_CLIENT_ID}
             - KEYCLOAK_OAUTH2_CLIENT_SECRET=${KEYCLOAK_OAUTH2_CLIENT_SECRET}
             - ORIGIN=${ORIGIN:?}
@@ -22,7 +22,7 @@ services:
             context: './'
             dockerfile: dev.Dockerfile
         ports:
-            - ${PORT:-8000}:8000
+            - ${PORT:-3301}:3301
         volumes:
             - ./server:/jury
 
@@ -37,6 +37,6 @@ services:
             context: './'
             dockerfile: client/dev.Dockerfile
         ports:
-            - 3000:3000
+            - 3300:3300
         volumes:
             - ./client:/client

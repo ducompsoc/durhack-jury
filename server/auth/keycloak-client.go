@@ -10,7 +10,6 @@ import (
 )
 
 var (
-	clientID             = config.GetEnv("KEYCLOAK_OAUTH2_CLIENT_ID")
 	clientSecret         = config.GetEnv("KEYCLOAK_OAUTH2_CLIENT_SECRET")
 	keycloakOIDCProvider *oidc.Provider
 	keycloakOAuth2Config *oauth2.Config
@@ -25,7 +24,7 @@ func getKeycloakOIDCProvider() *oidc.Provider {
 
 	ctx := context.Background()
 
-	keycloakOIDCProvider, err := oidc.NewProvider(ctx, "https://auth.durhack.com/realms/durhack")
+	keycloakOIDCProvider, err := oidc.NewProvider(ctx, config.KeycloakIssuer)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,7 +42,7 @@ func getKeycloakOAuth2Config() *oauth2.Config {
 		log.Fatalf("Failed to create keycloak callback URL: %v", err)
 	}
 	keycloakOAuth2Config := &oauth2.Config{
-		ClientID:     clientID,
+		ClientID:     config.ClientID,
 		ClientSecret: clientSecret,
 		Endpoint:     getKeycloakOIDCProvider().Endpoint(),
 		RedirectURL:  parsedUrl,

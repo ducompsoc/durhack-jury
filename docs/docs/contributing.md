@@ -22,8 +22,8 @@ jury-dev-frontend  | $ vite
 jury-dev-frontend  | 
 jury-dev-frontend  |   VITE v5.2.2  ready in 327 ms
 jury-dev-frontend  | 
-jury-dev-frontend  |   ➜  Local:   http://localhost:3000/
-jury-dev-frontend  |   ➜  Network: http://172.18.0.3:3000/
+jury-dev-frontend  |   ➜  Local:   http://localhost:3300/
+jury-dev-frontend  |   ➜  Network: http://172.18.0.3:3300/
 ```
 
 Backend (will show ALL routes):
@@ -65,7 +65,7 @@ Requirements:
 
 Copy `.env.template` into `.env` and fill in the environmental variables (same as above). Additionally, copy `client/.env.template` into `client/.env` and copy over the relavent environmental variables from `.env`. This is used to expose the correct environmental variables to the running instance of the Vite frontend as you will not have Docker compose to automatically do that for you.
 
-Client dev server (PORT 3000):
+Client dev server (PORT 3300):
 
 ```
 cd client
@@ -73,7 +73,7 @@ yarn install
 yarn start
 ```
 
-Backend dev server (PORT 8000):
+Backend dev server (PORT 3301):
 
 ```
 go run .

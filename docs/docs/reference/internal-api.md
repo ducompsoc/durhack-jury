@@ -4,7 +4,7 @@ sidebar_position: 2
 
 # Internal API
 
-All routes are found at the `http://localhost:8000/api` endpoint, which can be accessed on the frontend through the `VITE_JURY_URL` environmental variable.
+All routes are found at the `http://localhost:3301/api` endpoint, which can be accessed on the frontend through the `VITE_JURY_URL` environmental variable.
 
 An example fetch request (The `credentials: include` allow for authentication cookies to be sent over):
 
