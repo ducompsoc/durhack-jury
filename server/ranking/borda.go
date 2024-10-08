@@ -8,7 +8,7 @@ import (
 
 // CalcBordaRanking calculates the ranking of projects based on the borda count rank aggregation model.
 // See https://en.wikipedia.org/wiki/Borda_count
-func CalcBordaRanking(rankingLists []JudgeRankings, projects [][]primitive.ObjectID) []RankedObject {
+func CalcBordaRanking(rankingLists []JudgeRankings, projects []primitive.ObjectID) []RankedObject {
 	// Create a map to store the scores of each project
 	scores := make(map[primitive.ObjectID]float64)
 
@@ -34,10 +34,8 @@ func CalcBordaRanking(rankingLists []JudgeRankings, projects [][]primitive.Objec
 
 	// Create the output DS
 	ranked := make([]RankedObject, 0)
-	for _, batch := range projects {
-		for _, project := range batch {
-			ranked = append(ranked, RankedObject{project, scores[project]})
-		}
+	for _, project := range projects {
+		ranked = append(ranked, RankedObject{project, scores[project]})
 	}
 
 	// Sort the projects by their scores
