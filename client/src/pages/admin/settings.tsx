@@ -191,7 +191,7 @@ const AdminSettings = () => {
     const exportCsv = async (type: string) => {
         const res = await fetch(`${import.meta.env.VITE_JURY_URL}/admin/export/${type}`, {
             method: 'GET',
-            headers: createHeaders('admin', false),
+            headers: createHeaders(false),
         });
 
         if (res.status !== 200) {
@@ -207,7 +207,7 @@ const AdminSettings = () => {
     const exportByChallenge = async () => {
         const res = await fetch(`${import.meta.env.VITE_JURY_URL}/admin/export/challenges`, {
             method: 'GET',
-            headers: createHeaders('admin', false),
+            headers: createHeaders(false),
         });
 
         if (res.status !== 200) {
@@ -298,6 +298,7 @@ const AdminSettings = () => {
                 <Description>
                     Set how many projects judges rank at a time (must be at least 2 obviously).
                     Judges can rank and reorder projects freely before submitting a batch of the specified size.
+                    Avoid changing this while judging is ongoing as judges may have already accumulated more/less projects.
                 </Description>
                 <input
                     className="w-full h-14 px-4 text-2xl border-lightest border-2 rounded-sm focus:border-primary focus:border-4 focus:outline-none"

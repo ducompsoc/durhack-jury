@@ -112,16 +112,18 @@ const Judge = () => {
     useEffect(() => {
         if (!judge) return;
 
-        const allProjects = judge.seen_projects.map((p, i) => ({
+        const currentBatchProjects = judge.seen_projects.map((p, i) => ({
             id: i + 1,
             ...p,
-        }));
+        })).filter((p) => // filter out projects that were ranked in a previous batch
+            judge.past_rankings.flat().every((r) => r !== p.project_id)
+        );
 
-        const rankedProjects = judge.rankings.map((r) =>
-            allProjects.find((p) => p.project_id === r)
+        const rankedProjects = judge.current_rankings.map((r) =>
+            currentBatchProjects.find((p) => p.project_id === r)
         ) as SortableJudgedProject[];
-        const unrankedProjects = allProjects.filter((p) =>
-            judge.rankings.every((r) => r !== p.project_id)
+        const unrankedProjects = currentBatchProjects.filter((p) =>
+            judge.current_rankings.every((r) => r !== p.project_id)
         );
         unrankedProjects.reverse();
 
@@ -264,6 +266,23 @@ const Judge = () => {
         }
     };
 
+    const submitBatch = async () => {
+        if (ranked.length !== rankingBatchSize) {  // lucatodo: handle end of event
+            alert(`You can only submit rankings in batches of ${rankingBatchSize} projects.`)
+            return
+        }
+        const submitRes = await postRequest<OkResponse>('/judge/submit_batch_ranking', {
+            batch_ranking: ranked.map((p) => p.project_id),
+        });
+        if (submitRes.status !== 200) {
+            errorAlert(submitRes);
+            return;
+        } else if (submitRes.status === 200) {
+            alert('Ranking batch submitted successfully!')
+            window.location.reload()
+        }
+    }
+
     return (
         <>
             <JuryHeader withLogout />
@@ -295,9 +314,8 @@ const Judge = () => {
                     <p className="text-light text-sm">
                         Click on titles to edit scores and see details.
                     </p>
-                    {/* lucatodo: only update scores on submission? query this (only relevant if prioritisation implemented, issue #5 */}
                     <p className="text-light text-sm italic">
-                        NB: Relative project order is tracked on the admin panel even before your submit a batch.
+                        NB: Your rankings are not counted until they are submitted as a batch. Reload if dragging breaks.
                     </p>
                     <div className="h-[1px] w-full bg-light my-2"></div>
                     <Droppable id="ranked" projects={ranked} active={activeDropzone} />
@@ -327,8 +345,7 @@ const Judge = () => {
                         Please rank all your projects to submit.<br/>
                         You can only submit rankings in batches of {rankingBatchSize} projects.
                     </div>
-                    <Button type="primary" full square className="mt-1" href="" disabled={!allRanked}>
-                        {/* lucatodo: add button functionality (inc. alert to confirm submission) */}
+                    <Button type="primary" full square className="mt-1" disabled={!allRanked} onClick={submitBatch}>
                         Submit Rankings
                         <p className="text-sm italic">And move onto next batch</p>
                     </Button>

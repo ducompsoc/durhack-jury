@@ -438,6 +438,40 @@ func JudgeRank(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
 
+type BatchRankingRequest struct {
+	BatchRanking []primitive.ObjectID `json:"batch_ranking"`
+}
+
+// POST /judge/submit_batch_ranking -
+func JudgeSubmitBatchRanking(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get the judge from the context
+	judge := ctx.MustGet("judge").(*models.Judge)
+
+	// Get the request object
+	var batchRankingReq BatchRankingRequest
+	err := ctx.BindJSON(&batchRankingReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+
+	// Update the judge's variables based on this new batch ranking
+	err = database.UpdateJudgePostBatchRank(db, judge, batchRankingReq.BatchRanking)
+	if err != nil {
+		ctx.JSON(
+			http.StatusInternalServerError,
+			gin.H{"error": "error updating judge ranking in database post batch submission: " + err.Error()},
+		)
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+}
+
 // POST /judge/break - Allows a judge to take a break and free up their current project
 func JudgeBreak(ctx *gin.Context) {
 	// Get the database from the context
