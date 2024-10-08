@@ -72,7 +72,7 @@ const AdminStatsPanel = () => {
             <PauseButton paused={paused} setPaused={setPaused} clock={time} />
             <div className="flex justify-evenly basis-2/5">
                 <StatBlock name="Projects" value={stats.projects} />
-                <StatBlock name="Avg Project Seen" value={stats.avg_project_seen} />
+                <StatBlock name="Avg Times Seen/Project" value={stats.avg_project_seen} />
             </div>
             <StatBlock
                 name="Judging Time"
@@ -80,7 +80,7 @@ const AdminStatsPanel = () => {
                 className={'basis-1/5' + (paused ? ' text-error' : '')}
             />
             <div className="flex justify-evenly basis-2/5">
-                <StatBlock name="Average Judge Seen" value={stats.avg_judge_seen} />
+                <StatBlock name="Avg Projects Seen/Judge" value={stats.avg_judge_seen} />
                 <StatBlock name="Judges" value={stats.judges} />
             </div>
         </div>

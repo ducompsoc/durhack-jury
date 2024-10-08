@@ -25,7 +25,7 @@ func GetJudge(ctx *gin.Context) {
 	userInfo := ctx.MustGet("user").(*oidc.UserInfo)
 
 	// Send Judge
-	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: ""})
+	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: ""}) // lucatodo: get user's name
 }
 
 // POST /judge/auth - Check to make sure a judge is authenticated

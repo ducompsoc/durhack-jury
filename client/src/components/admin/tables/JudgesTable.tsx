@@ -56,21 +56,20 @@ const JudgesTable = () => {
     useEffect(() => {
         setChecked(Array(unsortedJudges.length).fill(false));
 
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let sortFunc = (a: Judge, b: Judge) => 0;
         const asc = sortState.ascending ? 1 : -1;
         switch (sortState.field) {
             case JudgeSortField.Name:
                 sortFunc = (a, b) => a.name.localeCompare(b.name) * asc;
                 break;
-            case JudgeSortField.Code:
-                sortFunc = (a, b) => a.code.localeCompare(b.code) * asc;
+            case JudgeSortField.Email:
+                sortFunc = (a, b) => a.email.localeCompare(b.email) * asc;
                 break;
             case JudgeSortField.Seen:
                 sortFunc = (a, b) => (a.seen - b.seen) * asc;
                 break;
-            case JudgeSortField.Top:
-                sortFunc = (a, b) => (a.rankings.length - b.rankings.length) * asc;
+            case JudgeSortField.BatchesSubmitted:
+                sortFunc = (a, b) => (a.past_rankings.length - b.past_rankings.length) * asc;
                 break;
             case JudgeSortField.Updated:
                 sortFunc = (a, b) => (a.last_activity - b.last_activity) * asc;
@@ -93,9 +92,9 @@ const JudgesTable = () => {
                             align="left"
                         />
                         <HeaderEntry
-                            name="Code"
+                            name="Email"
                             updateSort={updateSort}
-                            sortField={JudgeSortField.Code}
+                            sortField={JudgeSortField.Email}
                             sortState={sortState}
                         />
                         <HeaderEntry
@@ -105,9 +104,9 @@ const JudgesTable = () => {
                             sortState={sortState}
                         />
                         <HeaderEntry
-                            name="Best Proj"
+                            name="Num. Batches Submitted"
                             updateSort={updateSort}
-                            sortField={JudgeSortField.Top}
+                            sortField={JudgeSortField.BatchesSubmitted}
                             sortState={sortState}
                         />
                         <HeaderEntry
