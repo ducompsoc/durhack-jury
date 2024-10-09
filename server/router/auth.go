@@ -12,7 +12,6 @@ import (
 	"net/url"
 	"server/auth"
 	"server/config"
-	"server/models"
 	"slices"
 )
 
@@ -117,17 +116,8 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 			return
 		}
 
-		var claims models.UserInfoClaims
-		err = userInfo.Claims(&claims)
-		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			fmt.Println(err.Error())
-			return
-		}
-
 		ctx.Set("user", userInfo)
 		ctx.Set("user_token_set", oauth2Token)
-		ctx.Set("user_claims", claims)
 		ctx.Set("user_id_token", idToken)
 		ctx.Next()
 	}
@@ -135,9 +125,9 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 
 func HandleLoginSuccess() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		claims := ctx.MustGet("user_claims").(models.UserInfoClaims)
+		userInfo := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo)
 		// Handle admins
-		if slices.Contains(claims.Groups, "/admins") {
+		if slices.Contains(userInfo.Groups, "/admins") {
 			urlPath, err := url.JoinPath(config.Origin, "/admin")
 			if err != nil {
 				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -149,7 +139,7 @@ func HandleLoginSuccess() gin.HandlerFunc {
 		}
 
 		// Handle judges
-		if slices.Contains(claims.Groups, "/judges") {
+		if slices.Contains(userInfo.Groups, "/judges") {
 			urlPath, err := url.JoinPath(config.Origin, "/judge")
 			if err != nil {
 				_ = ctx.AbortWithError(http.StatusInternalServerError, err)

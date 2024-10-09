@@ -1,11 +1,11 @@
 package router
 
 import (
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"net/http"
+	"server/auth"
 	"server/database"
 	"server/judging"
 	"server/models"
@@ -22,10 +22,10 @@ func GetJudge(ctx *gin.Context) {
 	// Get the judge from the context (See middleware.go)
 	judge := ctx.MustGet("judge").(*models.Judge)
 	// Get user info from separate authenticated user info created in earlier middleware: Authenticate()
-	userInfo := ctx.MustGet("user").(*oidc.UserInfo)
+	userInfo := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo)
 
 	// Send Judge
-	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: ""})
+	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: userInfo.GetNames()})
 }
 
 // POST /judge/auth - Check to make sure a judge is authenticated

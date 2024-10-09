@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -102,12 +101,12 @@ func Authenticate() gin.HandlerFunc {
 
 func AuthoriseJudge() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		maybeClaims, exists := ctx.Get("user_claims")
+		maybeUserInfo, exists := ctx.Get("user")
 		if !exists {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		claims := maybeClaims.(models.UserInfoClaims)
+		claims := maybeUserInfo.(*auth.DurHackKeycloakUserInfo)
 		if !slices.Contains(claims.Groups, "/judges") {
 			ctx.AbortWithStatus(http.StatusForbidden)
 			return
@@ -115,7 +114,7 @@ func AuthoriseJudge() gin.HandlerFunc {
 
 		// Get the database from the context
 		db := ctx.MustGet("db").(*mongo.Database)
-		userInfo := ctx.MustGet("user").(*oidc.UserInfo)
+		userInfo := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo)
 		judge := models.NewJudge(userInfo.Subject)
 
 		// Insert the judge into the database
@@ -132,12 +131,12 @@ func AuthoriseJudge() gin.HandlerFunc {
 
 func AuthoriseAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		maybeClaims, exists := ctx.Get("user_claims")
+		maybeUserInfo, exists := ctx.Get("user")
 		if !exists {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		claims := maybeClaims.(models.UserInfoClaims)
+		claims := maybeUserInfo.(*auth.DurHackKeycloakUserInfo)
 		if !slices.Contains(claims.Groups, "/admins") {
 			ctx.AbortWithStatus(http.StatusForbidden)
 			return
