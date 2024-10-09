@@ -2,7 +2,6 @@ package router
 
 import (
 	"context"
-	"fmt"
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
@@ -41,8 +40,9 @@ func Authenticate() gin.HandlerFunc {
 
 		db := ctx.MustGet("db").(*mongo.Database)
 		var tokenSet struct {
-			UserId string       `bson:"user_id"`
-			Token  oauth2.Token `bson:"token_set"`
+			UserId  string       `bson:"user_id"`
+			Token   oauth2.Token `bson:"token_set"`
+			IdToken string       `bson:"id_token"`
 		}
 		err := db.Collection("token_set").FindOne(
 			context.Background(),
@@ -53,6 +53,7 @@ func Authenticate() gin.HandlerFunc {
 			return
 		}
 
+		idToken := tokenSet.IdToken
 		newToken, err := auth.KeycloakOAuth2Config.TokenSource(context.Background(), &tokenSet.Token).Token()
 		if util.IsNetworkError(err) {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -64,10 +65,14 @@ func Authenticate() gin.HandlerFunc {
 		}
 
 		if newToken.AccessToken != tokenSet.Token.AccessToken {
+			idToken = newToken.Extra("id_token").(string)
 			_, err = db.Collection("token_set").UpdateOne(
 				context.Background(),
 				gin.H{"user_id": userId},
-				gin.H{"$set": gin.H{"token_set": newToken}},
+				gin.H{"$set": gin.H{
+					"token_set": newToken,
+					"id_token":  idToken,
+				}},
 			)
 			if err != nil {
 				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -88,17 +93,9 @@ func Authenticate() gin.HandlerFunc {
 			return
 		}
 
-		var userInfoClaims models.UserInfoClaims
-		err = userInfo.Claims(&userInfoClaims)
-		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			fmt.Println(err.Error())
-			return
-		}
-
 		ctx.Set("user", userInfo)
 		ctx.Set("user_token_set", newToken)
-		ctx.Set("user_claims", userInfoClaims)
+		ctx.Set("user_id_token", idToken)
 		ctx.Next()
 	}
 }

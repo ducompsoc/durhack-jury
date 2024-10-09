@@ -97,6 +97,7 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 			return
 		}
 
+		idToken := oauth2Token.Extra("id_token").(string)
 		db := ctx.MustGet("db").(*mongo.Database)
 		_, err = db.Collection("token_set").UpdateOne(
 			context.Background(),
@@ -104,6 +105,7 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 			gin.H{"$set": gin.H{
 				"user_id":   userInfo.Subject,
 				"token_set": oauth2Token,
+				"id_token":  idToken,
 			},
 			},
 			mongoOptions.Update().SetUpsert(true),
@@ -126,6 +128,7 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 		ctx.Set("user", userInfo)
 		ctx.Set("user_token_set", oauth2Token)
 		ctx.Set("user_claims", claims)
+		ctx.Set("user_id_token", idToken)
 		ctx.Next()
 	}
 }
@@ -166,5 +169,51 @@ func HandleLoginSuccess() gin.HandlerFunc {
 		}
 		ctx.Redirect(http.StatusFound, urlPath)
 		return
+	}
+}
+
+func Logout() gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		session := sessions.Default(ctx)
+		session.Delete("user_id")
+		err := session.Save()
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+
+		idToken := ctx.MustGet("user_id_token").(string)
+
+		// See https://github.com/coreos/go-oidc/pull/226#issuecomment-1130411016
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+
+		var claims struct {
+			EndSessionURL string `json:"end_session_endpoint"`
+		}
+		err = auth.KeycloakOIDCProvider.Claims(&claims)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+		// ... claims.EndSessionURL is now end session URL to use
+		parsedURL, err := url.Parse(claims.EndSessionURL)
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+
+		queryValues := parsedURL.Query()
+		queryValues.Add("id_token_hint", idToken)
+		queryValues.Add("post_logout_redirect_uri", config.Origin)
+		parsedURL.RawQuery = queryValues.Encode()
+
+		ctx.Redirect(http.StatusFound, parsedURL.String())
 	}
 }
