@@ -14,7 +14,7 @@ const FlagsPopup = ({ close }: FlagsPopupProps) => {
 
     useEffect(() => {
         async function getFlags() {
-            const res = await getRequest<Flag[]>('/admin/flags', 'admin');
+            const res = await getRequest<Flag[]>('/admin/flags');
             if (res.status !== 200) {
                 errorAlert(res);
             }

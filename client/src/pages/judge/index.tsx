@@ -10,31 +10,35 @@ import { errorAlert } from '../../util';
 import {
     DndContext,
     DragEndEvent,
+    DragOverEvent,
     DragOverlay,
     DragStartEvent,
     KeyboardSensor,
-    PointerSensor,
+    UniqueIdentifier,
     closestCenter,
     useSensor,
     useSensors,
 } from '@dnd-kit/core';
-import {
-    SortableContext,
-    arrayMove,
-    sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import SortableItem from '../../components/judge/SortableItem';
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable';
+import Droppable from '../../components/judge/dnd/Droppable';
+import RankItem from '../../components/judge/dnd/RankItem';
+import CustomPointerSensor from '../../components/judge/dnd/CustomPointerSensor';
 
 const Judge = () => {
     const navigate = useNavigate();
     const [judge, setJudge] = useState<Judge | null>(null);
-    const [projects, setProjects] = useState<SortableJudgedProject[]>([]);
+    const [ranked, setRanked] = useState<SortableJudgedProject[]>([]);
+    const [unranked, setUnranked] = useState<SortableJudgedProject[]>([]);
+    const [allRanked, setAllRanked] = useState(false)
+    const [rankingBatchSize, setRankingBatchSize] = useState(0);
+    const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
+    const [nextButtonHelperText, setNextButtonHelperText] = useState('');
     const [loaded, setLoaded] = useState(false);
     const [projCount, setProjCount] = useState(0);
     const [activeId, setActiveId] = useState<number | null>(null);
+    const [activeDropzone, setActiveDropzone] = useState<string | null>(null);
     const sensors = useSensors(
-        useSensor(PointerSensor, {
+        useSensor(CustomPointerSensor, {
             activationConstraint: {
                 distance: 5,
             },
@@ -48,10 +52,10 @@ const Judge = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
             if (loggedInRes.status !== 200) {
@@ -60,12 +64,12 @@ const Judge = () => {
             }
             if (loggedInRes.data?.ok !== 1) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome', 'judge');
+            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
@@ -76,7 +80,7 @@ const Judge = () => {
             }
 
             // Get the name & email of the user from the server
-            const judgeRes = await getRequest<Judge>('/judge', 'judge');
+            const judgeRes = await getRequest<Judge>('/judge');
             if (judgeRes.status !== 200) {
                 errorAlert(judgeRes);
                 return;
@@ -85,17 +89,26 @@ const Judge = () => {
             setJudge(judge);
 
             // Get the project count
-            const projCountRes = await getRequest<ProjectCount>('/project/count', 'judge');
+            const projCountRes = await getRequest<ProjectCount>('/project/count');
             if (projCountRes.status !== 200) {
                 errorAlert(projCountRes);
                 return;
             }
             setProjCount(projCountRes.data?.count as number);
+
+            // Get Ranking Batch Size
+            const rankingBatchSizeRes = await getRequest<RankingBatchSize>('/rbs');
+            if (rankingBatchSizeRes.status !== 200) {
+                errorAlert(rankingBatchSizeRes);
+                return;
+            }
+            setRankingBatchSize(rankingBatchSizeRes.data?.rbs as number);
         }
 
         fetchData();
     }, []);
 
+    // Load all projects when judge loads
     useEffect(() => {
         if (!judge) return;
 
@@ -110,26 +123,32 @@ const Judge = () => {
         const unrankedProjects = allProjects.filter((p) =>
             judge.rankings.every((r) => r !== p.project_id)
         );
+        unrankedProjects.reverse();
 
-        // Create dummy project
-        const dummy = {
-            id: -1,
-            project_id: '',
-            categories: {},
-            notes: '',
-            name: 'Unsorted Projects',
-            location: 0,
-            description: '',
-        };
+        setRanked(rankedProjects);
+        setUnranked(unrankedProjects);
 
-        const combinedProjects = [...rankedProjects, dummy, ...unrankedProjects];
-
-        setProjects(combinedProjects);
         setLoaded(true);
     }, [judge]);
 
+    // Trigger button state ranking batch logic updates when `rankingBatchSize` is set (>0) and/or whenever `ranked` or `unranked` states chance
+    useEffect(() => {
+        if (rankingBatchSize > 0) {
+            setAllRanked(ranked.length === rankingBatchSize && unranked.length === 0);
+
+            if (ranked.length + unranked.length === rankingBatchSize) {
+                setNextButtonHelperText('Rank and submit your current batch to move on');
+                setNextButtonDisabled(true);
+            } else {
+                setNextButtonHelperText('');
+                setNextButtonDisabled(false);
+            }
+        }
+    }, [rankingBatchSize, ranked, unranked, loaded]);
+
     if (!loaded) return <Loading disabled={!loaded} />;
 
+    // Lets the user take a break
     const takeBreak = async () => {
         // Check if the user is allowed to take a break
         if (judge?.current == null) {
@@ -137,7 +156,7 @@ const Judge = () => {
             return;
         }
 
-        const res = await postRequest<OkResponse>('/judge/break', 'judge', null);
+        const res = await postRequest<OkResponse>('/judge/break', null);
         if (res.status !== 200) {
             errorAlert(res);
             return;
@@ -148,34 +167,96 @@ const Judge = () => {
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
-        console.log(active.id);
         setActiveId(active.id as number);
+    };
+
+    const handleDragOver = (event: DragOverEvent) => {
+        const { active, over } = event;
+        const { id } = active;
+
+        if (over === null) {
+            setActiveId(null);
+            return;
+        }
+        const { id: overId } = over;
+
+        const activeRanked = isRankedObject(id);
+        const overRanked = isRankedObject(overId);
+
+        setActiveDropzone(overRanked ? 'ranked' : 'unranked');
+
+        // If moving to new container, swap the item to the new list
+        if (activeRanked !== overRanked) {
+            const activeContainer = activeRanked ? ranked : unranked;
+            const overContainer = overRanked ? ranked : unranked;
+            const oldIndex = activeContainer.findIndex((i) => i.id === active.id);
+            const newIndex = overContainer.findIndex((i) => i.id === over.id);
+            const proj = activeContainer[oldIndex];
+            // @ts-ignore
+            const newActive = activeContainer.toSpliced(oldIndex, 1);
+            // @ts-ignore
+            const newOver = overContainer.toSpliced(newIndex, 0, proj);
+            if (activeRanked) {
+                setRanked(newActive);
+                setUnranked(newOver);
+            } else {
+                setRanked(newOver);
+                setUnranked(newActive);
+            }
+        }
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        const { id } = active;
 
-        if (over != null) {
-            const oldIndex = projects.findIndex((i) => i.id === active.id);
-            const newIndex = projects.findIndex((i) => i.id === over.id);
-            const newProjects = arrayMove(projects, oldIndex, newIndex);
-            setProjects(newProjects);
-            saveSort(newProjects);
+        if (over === null) {
+            setActiveId(null);
+            return;
+        }
+        const { id: overId } = over;
+
+        const activeRanked = isRankedObject(id);
+        const overRanked = isRankedObject(overId);
+
+        if (activeRanked === overRanked) {
+            const currProjs = activeRanked ? ranked : unranked;
+
+            const oldIndex = currProjs.findIndex((i) => i.id === active.id);
+            const newIndex = currProjs.findIndex((i) => i.id === over.id);
+            const newProjects: SortableJudgedProject[] = arrayMove(currProjs, oldIndex, newIndex);
+            activeRanked ? setRanked(newProjects) : setUnranked(newProjects);
+
+            if (activeRanked) saveSort(newProjects);
+            else saveSort(ranked);
+        } else {
+            saveSort(ranked);
         }
 
+        setActiveDropzone(null);
         setActiveId(null);
     };
 
-    const saveSort = async (newProjects: SortableJudgedProject[]) => {
-        // Split index
-        const splitIndex = newProjects.findIndex((p) => p.id === -1);
+    // dnd-kit is strange. For active/over ids, it is a number most of the time,
+    // representing the ID of the item that we are hovering over.
+    // However, if the user is hovering NOT on an item, it will set the ID
+    // to the ID of the droppable container ?!??!
+    // Strange indeed.
+    function isRankedObject(id: UniqueIdentifier) {
+        // If drop onto the zone (id would be string)
+        if (isNaN(Number(id))) {
+            return id === 'ranked';
+        }
 
-        // Get the ranked projects
-        const rankedProjects = newProjects.slice(0, splitIndex);
+        // Otherwise if dropped onto a specific object
+        const ro = ranked.find((a) => a.id === id);
+        return !!ro;
+    }
 
+    const saveSort = async (projects: SortableJudgedProject[]) => {
         // Save the rankings
-        const saveRes = await postRequest<OkResponse>('/judge/rank', 'judge', {
-            ranking: rankedProjects.map((p) => p.project_id),
+        const saveRes = await postRequest<OkResponse>('/judge/rank', {
+            ranking: projects.map((p) => p.project_id),
         });
         if (saveRes.status !== 200) {
             errorAlert(saveRes);
@@ -189,8 +270,9 @@ const Judge = () => {
             <Container noCenter className="px-2 pb-4">
                 <h1 className="text-2xl my-2">Welcome, {judge?.name}!</h1>
                 <div className="w-full mb-6">
-                    <Button type="primary" full square href="/judge/live">
+                    <Button type="primary" full square href="/judge/live" disabled={nextButtonDisabled}>
                         Next Project
+                        <p className="text-sm italic">{nextButtonHelperText}</p>
                     </Button>
                     <div className="flex align-center justify-center mt-4">
                         <Button type="outline" square onClick={takeBreak} className="text-lg p-2">
@@ -202,25 +284,55 @@ const Judge = () => {
                     <StatBlock name="Seen" value={judge?.seen_projects.length as number} />
                     <StatBlock name="Total Projects" value={projCount} />
                 </div>
-                <h2 className="text-primary text-xl font-bold mt-4">Rank Projects</h2>
-                <div className="h-[1px] w-full bg-light my-2"></div>
                 <DndContext
                     sensors={sensors}
                     collisionDetection={closestCenter}
                     onDragStart={handleDragStart}
+                    onDragOver={handleDragOver}
                     onDragEnd={handleDragEnd}
                 >
-                    <SortableContext items={projects} strategy={verticalListSortingStrategy}>
-                        {projects.map((item) => (
-                            <SortableItem key={item.id} item={item} />
-                        ))}
-                    </SortableContext>
+                    <h2 className="text-primary text-xl font-bold mt-4">Ranked Projects</h2>
+                    <p className="text-light text-sm">
+                        Click on titles to edit scores and see details.
+                    </p>
+                    {/* lucatodo: only update scores on submission? query this (only relevant if prioritisation implemented, issue #5 */}
+                    <p className="text-light text-sm italic">
+                        NB: Relative project order is tracked on the admin panel even before your submit a batch.
+                    </p>
+                    <div className="h-[1px] w-full bg-light my-2"></div>
+                    <Droppable id="ranked" projects={ranked} active={activeDropzone} />
+
+                    <h2 className="text-primary text-xl font-bold mt-4">Unranked Projects</h2>
+                    <p className="text-light text-sm">
+                        Projects will be sorted in reverse chronological order.
+                    </p>
+                    <div className="h-[1px] w-full bg-light my-2"></div>
+                    <Droppable id="unranked" projects={unranked} active={activeDropzone} />
+
                     <DragOverlay>
                         {activeId ? (
-                            <SortableItem item={projects.find((p) => p.id === activeId)} />
+                            <RankItem
+                                item={
+                                    unranked.find((p) => p.id === activeId) ??
+                                    (ranked.find((p) => p.id === activeId) as SortableJudgedProject)
+                                }
+                                ranking={ranked.findIndex((p) => p.id === activeId) + 1}
+                            />
                         ) : null}
                     </DragOverlay>
                 </DndContext>
+                <div className="w-full mt-4">
+                    <div className="flex justify-center text-light text-sm italic text-center">
+                        {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
+                        Please rank all your projects to submit.<br/>
+                        You can only submit rankings in batches of {rankingBatchSize} projects.
+                    </div>
+                    <Button type="primary" full square className="mt-1" href="" disabled={!allRanked}>
+                        {/* lucatodo: add button functionality (inc. alert to confirm submission) */}
+                        Submit Rankings
+                        <p className="text-sm italic">And move onto next batch</p>
+                    </Button>
+                </div>
             </Container>
         </>
     );

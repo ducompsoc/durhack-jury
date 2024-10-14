@@ -22,18 +22,24 @@ const AdminSettings = () => {
     const [clockResetPopup, setClockResetPopup] = useState(false);
     const [dropPopup, setDropPopup] = useState(false);
     const [judgingTimer, setJudgingTimer] = useState('');
+    const [minViews, setMinViews] = useState('');
     const [categories, setCategories] = useState('');
+    const [rankingBatchSize, setRankingBatchSize] = useState('');
     const [loading, setLoading] = useState(true);
 
     async function getOptions() {
-        const res = await getRequest<Options>('/admin/options', 'admin');
+        const res = await getRequest<Options>('/admin/options');
         if (res.status !== 200) {
             errorAlert(res);
             return;
         }
+        if (!res.data) {
+            alert('error: could not get options data');
+            return;
+        }
 
         // Calculate judging timer MM:SS
-        const timer = res.data?.judging_timer;
+        const timer = res.data.judging_timer;
         if (timer) {
             const minutes = Math.floor(timer / 60);
             const seconds = timer % 60;
@@ -42,9 +48,14 @@ const AdminSettings = () => {
         }
 
         // Set categories
-        const cats = res.data?.categories.join(', ');
+        const cats = res.data.categories.join(', ');
         setCategories(cats ?? '');
 
+        // Set min views
+        setMinViews(res.data.min_views.toString());
+
+        // Set ranking batch size
+        setRankingBatchSize(res.data.ranking_batch_size.toString())
         setLoading(false);
     }
 
@@ -54,7 +65,7 @@ const AdminSettings = () => {
     }, []);
 
     const reassignTables = async () => {
-        const res = await postRequest<OkResponse>('/project/reassign', 'admin', null);
+        const res = await postRequest<OkResponse>('/project/reassign', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;
@@ -79,7 +90,7 @@ const AdminSettings = () => {
         }
 
         // Update the timer
-        const res = await postRequest<OkResponse>('/admin/timer', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/timer', {
             judging_timer: timer,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -91,6 +102,27 @@ const AdminSettings = () => {
         getOptions();
     };
 
+    const updateMinViews = async () => {
+        // Convert minViews to integer
+        const v = parseInt(minViews);
+        if (isNaN(v)) {
+            alert('Minimum views should be a positive integer!');
+            return;
+        }
+
+        // Update min views
+        const res = await postRequest<OkResponse>('/admin/min-views', {
+            min_views: v,
+        });
+        if (res.status !== 200 || res.data?.ok !== 1) {
+            errorAlert(res);
+            return;
+        }
+
+        alert('Min views updated!');
+        getOptions();
+    };
+
     const updateCategories = async () => {
         // Split categories by comma and remove empty strings
         const filteredCats = categories
@@ -98,8 +130,12 @@ const AdminSettings = () => {
             .map((cat) => cat.trim())
             .filter((cat) => cat !== '');
 
+        if (filteredCats.length === 0) {
+            alert('Categories cannot be empty');
+            return
+        }
         // Post the new categories
-        const res = await postRequest<OkResponse>('/admin/categories', 'admin', {
+        const res = await postRequest<OkResponse>('/admin/categories', {
             categories: filteredCats,
         });
         if (res.status !== 200 || res.data?.ok !== 1) {
@@ -111,8 +147,27 @@ const AdminSettings = () => {
         getOptions();
     };
 
+    const updateRankingBatchSize = async () => {
+        // Convert rankingBatchSize to integer
+        const r = parseInt(rankingBatchSize);
+        if (isNaN(r) || r < 2) {
+            alert('Minimum views should be a positive integer >= 2!');
+            return;
+        }
+        const res = await postRequest<OkResponse>('/admin/ranking-batch-size', {
+            ranking_batch_size: r,
+        });
+        if (res.status !== 200 || res.data?.ok !== 1) {
+            errorAlert(res);
+            return;
+        }
+
+        alert('Ranking Batch Size updated!');
+        getOptions();
+    }
+
     const resetClock = async () => {
-        const res = await postRequest<OkResponse>('/admin/clock/reset', 'admin', null);
+        const res = await postRequest<OkResponse>('/admin/clock/reset', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;
@@ -123,7 +178,7 @@ const AdminSettings = () => {
     };
 
     const dropDatabase = async () => {
-        const res = await postRequest<OkResponse>('/admin/reset', 'admin', null);
+        const res = await postRequest<OkResponse>('/admin/reset', null);
         if (res.status !== 200 || res.data?.ok !== 1) {
             errorAlert(res);
             return;
@@ -234,12 +289,35 @@ const AdminSettings = () => {
                 <Button
                     type="primary"
                     onClick={updateCategories}
-                    className="mt-4 w-auto md:w-auto px-4 py-2"
+                    className="mt-4 w-auto md:w-auto px-4 py-2 mb-8"  // lucatodo:  add white inner outline to buttons on focus?
                 >
                     Update Categories
                 </Button>
 
-                <Section>Project Numbers</Section>
+                <SubSection>Set Ranking Batch Size</SubSection>
+                <Description>
+                    Set how many projects judges rank at a time (must be at least 2 obviously).
+                    Judges can rank and reorder projects freely before submitting a batch of the specified size.
+                </Description>
+                <input
+                    className="w-full h-14 px-4 text-2xl border-lightest border-2 rounded-sm focus:border-primary focus:border-4 focus:outline-none"
+                    type="number"
+                    min="2"
+                    placeholder="8"
+                    value={rankingBatchSize}
+                    onChange={(e) => {
+                        setRankingBatchSize(e.target.value.toString());
+                    }}
+                />
+                <Button
+                    type="primary"
+                    onClick={updateRankingBatchSize}
+                    className="mt-4 w-auto md:w-auto px-4 py-2"
+                >
+                    Update Ranking Batch Size
+                </Button>
+
+                <Section>Judging Parameters</Section>
 
                 <SubSection>Reassign Project Numbers</SubSection>
                 <Description>
@@ -254,6 +332,30 @@ const AdminSettings = () => {
                     className="mt-4 mb-8 w-auto md:w-auto px-4 py-2 bg-gold text-black"
                 >
                     Reassign
+                </Button>
+
+                <SubSection>Set Minimum Project Views</SubSection>
+                <Description>
+                    Set the minimum amount of times that a project should be seen during judging.
+                    This will ensure all projects get seen at LEAST this many times before switching
+                    over to the optimal method of assigning projects. Set to 0 to ignore this
+                    condition (recommended: 3-5).
+                </Description>
+                <input
+                    className="w-full h-14 px-4 text-2xl border-lightest border-2 rounded-sm focus:border-primary focus:border-4 focus:outline-none"
+                    type="string"
+                    placeholder="Enter integer..."
+                    value={minViews}
+                    onChange={(e) => {
+                        setMinViews(e.target.value);
+                    }}
+                />
+                <Button
+                    type="primary"
+                    onClick={updateMinViews}
+                    className="mt-4 w-auto md:w-auto px-4 py-2 mb-8"
+                >
+                    Update Min Views
                 </Button>
 
                 <Section>Export Data</Section>

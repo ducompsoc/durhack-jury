@@ -100,7 +100,7 @@ const ProjectsTable = () => {
                             sortState={sortState}
                         />
                         <HeaderEntry
-                            name="Score"
+                            name="Live Score (inc. pre-submission)"
                             updateSort={updateSort}
                             sortField={ProjectSortField.Score}
                             sortState={sortState}

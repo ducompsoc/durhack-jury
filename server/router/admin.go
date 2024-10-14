@@ -17,6 +17,7 @@ type LoginAdminRequest struct {
 	Password string `json:"password"`
 }
 
+// lucatodo: remove old judge and admin login logic
 // POST /admin/login - LoginAdmin authenticates an admin
 func LoginAdmin(ctx *gin.Context) {
 	// Get the password from the environmental variable
@@ -208,25 +209,6 @@ func GetOptions(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, options)
 }
 
-// POST /admin/export/judges - ExportJudges exports all judges to a CSV
-func ExportJudges(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get all the judges
-	judges, err := database.FindAllJudges(db)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judges: " + err.Error()})
-		return
-	}
-
-	// Create the CSV
-	csvData := funcs.CreateJudgeCSV(judges)
-
-	// Send CSV
-	funcs.AddCsvData("judges", csvData, ctx)
-}
-
 // POST /admin/export/projects - ExportProjects exports all projects to a CSV
 func ExportProjects(ctx *gin.Context) {
 	// Get the database from the context
@@ -370,6 +352,60 @@ func SetCategories(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
 
+type MinViewsRequest struct {
+	MinViews int `json:"min_views"`
+}
+
+type RankingBatchSizeRequest struct {
+	RBS int `json:"ranking_batch_size"`
+}
+
+// POST /admin/min-views - sets the min views
+func SetMinViews(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get the views
+	var minViewsReq MinViewsRequest
+	err := ctx.BindJSON(&minViewsReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing request: " + err.Error()})
+	}
+
+	// Save the min views in the db
+	err = database.UpdateMinViews(db, minViewsReq.MinViews)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving min views: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+}
+
+// POST /admin/ranking-batch-size - sets the ranking batch size
+func SetRankingBatchSize(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get the views
+	var rbsReq RankingBatchSizeRequest
+	err := ctx.BindJSON(&rbsReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing request: " + err.Error()})
+	}
+
+	// Save the ranking batch size in the db
+	err = database.UpdateRankingBatchSize(db, rbsReq.RBS)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving ranking batch size: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+}
+
 // /GET /admin/score - GetScores returns the calculated scores of all projects
 func GetScores(ctx *gin.Context) {
 	// Get the database from the context
@@ -393,16 +429,15 @@ func GetScores(ctx *gin.Context) {
 	// Create an array of {Rankings: [], Unranked: []}
 	judgeRankings := make([]ranking.JudgeRanking, 0)
 	for _, judge := range judges {
-		unranked := make([]primitive.ObjectID, 0)
-		for _, proj := range judge.SeenProjects {
-			if !contains(judge.Rankings, proj.ProjectId) {
-				unranked = append(unranked, proj.ProjectId)
-			}
-		}
+		//for _, proj := range judge.SeenProjects {
+		//	if !contains(judge.Rankings, proj.ProjectId) {
+		//		unranked = append(unranked, proj.ProjectId)
+		//	}
+		//}
 
 		judgeRankings = append(judgeRankings, ranking.JudgeRanking{
 			Rankings: judge.Rankings,
-			Unranked: unranked,
+			//Unranked: unranked,
 		})
 	}
 
@@ -413,7 +448,7 @@ func GetScores(ctx *gin.Context) {
 	}
 
 	// Calculate the scores
-	scores := ranking.CalcRanking(judgeRankings, projectIds)
+	scores := ranking.CalcCopelandRanking(judgeRankings, projectIds)
 
 	// Send OK
 	ctx.JSON(http.StatusOK, scores)

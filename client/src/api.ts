@@ -2,13 +2,16 @@ import Cookies from 'universal-cookie';
 
 const BACKEND_URL = import.meta.env.VITE_JURY_URL;
 
-export async function getRequest<T>(path: string, auth: string): Promise<FetchResponse<T>> {
+export async function getRequest<T>(path: string): Promise<FetchResponse<T>> {
     try {
         const options: RequestInit = {
             method: 'GET',
-            headers: createHeaders(auth, true),
+            headers: createHeaders(true),
+            credentials: 'include',
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
+        if (!response.ok) throw new Error(response.statusText);
+
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
         // eslint-disable-next-line
@@ -20,17 +23,18 @@ export async function getRequest<T>(path: string, auth: string): Promise<FetchRe
 
 export async function postRequest<T>(
     path: string,
-    auth: string,
-    // eslint-disable-next-line
     body: any
 ): Promise<FetchResponse<T>> {
     try {
         const options: RequestInit = {
             method: 'POST',
-            headers: createHeaders(auth, true),
+            headers: createHeaders(true),
+            credentials: 'include',
             body: body ? JSON.stringify(body) : null,
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
+        if (!response.ok) throw new Error(response.statusText);
+
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
         // eslint-disable-next-line
@@ -42,17 +46,18 @@ export async function postRequest<T>(
 
 export async function putRequest<T>(
     path: string,
-    auth: string,
-    // eslint-disable-next-line
     body: any
 ): Promise<FetchResponse<T>> {
     try {
         const options: RequestInit = {
             method: 'PUT',
-            headers: createHeaders(auth, true),
+            headers: createHeaders(true),
+            credentials: 'include',
             body: body ? JSON.stringify(body) : null,
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
+        if (!response.ok) throw new Error(response.statusText);
+
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
         // eslint-disable-next-line
@@ -63,15 +68,17 @@ export async function putRequest<T>(
 }
 
 export async function deleteRequest(
-    path: string,
-    auth: string
+    path: string
 ): Promise<FetchResponse<OkResponse>> {
     try {
         const options: RequestInit = {
             method: 'DELETE',
-            headers: createHeaders(auth, true),
+            headers: createHeaders(true),
+            credentials: 'include',
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
+        if (!response.ok) throw new Error(response.statusText);
+
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
         // eslint-disable-next-line
@@ -81,22 +88,10 @@ export async function deleteRequest(
     }
 }
 
-export function createHeaders(auth: string, json: boolean): Headers {
+export function createHeaders(json: boolean): Headers {
     const headers = new Headers();
     if (json) {
         headers.append('Content-Type', 'application/json');
     }
-
-    if (auth === 'admin') {
-        const cookies = new Cookies();
-        const pass = cookies.get('admin-pass');
-        const basicAuth = btoa(`admin:${pass}`);
-        headers.append('Authorization', `Basic ${basicAuth}`);
-    } else if (auth === 'judge') {
-        const cookies = new Cookies();
-        const token = cookies.get('token');
-        headers.append('Authorization', `Bearer ${token}`);
-    }
-
     return headers;
 }

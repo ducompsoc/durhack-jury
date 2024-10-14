@@ -13,12 +13,16 @@ services:
             - EMAIL_PASSWORD=${EMAIL_PASSWORD}
             - SENDGRID_API_KEY=${SENDGRID_API_KEY}
             - VITE_JURY_NAME=${JURY_NAME}
-            - PORT=8000
+            - PORT=3301
+            - KEYCLOAK_OAUTH2_CLIENT_ID=${KEYCLOAK_OAUTH2_CLIENT_ID}
+            - KEYCLOAK_OAUTH2_CLIENT_SECRET=${KEYCLOAK_OAUTH2_CLIENT_SECRET}
+            - ORIGIN=${ORIGIN:?}
+            - API_ORIGIN=${API_ORIGIN:?}
         build:
             context: './'
             dockerfile: dev.Dockerfile
         ports:
-            - ${PORT:-8000}:8000
+            - ${PORT:-3301}:3301
         volumes:
             - ./server:/jury
 
@@ -28,12 +32,11 @@ services:
         container_name: jury-dev-frontend
         environment:
             - VITE_JURY_NAME=${JURY_NAME}
-            - VITE_JURY_URL=http://localhost:${PORT:-8000}/api
-            - VITE_HUB=${HEHE:-}
+            - VITE_JURY_URL=${API_ORIGIN}/api
         build:
             context: './'
             dockerfile: client/dev.Dockerfile
         ports:
-            - 3000:3000
+            - 3300:3300
         volumes:
             - ./client:/client

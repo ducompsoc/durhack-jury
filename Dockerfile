@@ -1,11 +1,10 @@
 # STEP 0: Statically build node client
-FROM node:lts-hydrogen as client-builder
+FROM node:lts-hydrogen AS client-builder
 WORKDIR /client
 COPY client ./
 COPY ["client/package.json", "client/tailwind.config.js", "client/tsconfig.json", "./"]
 
 ARG VITE_JURY_NAME
-ARG VITE_HUB
 ARG VITE_JURY_URL
 
 RUN yarn install
@@ -48,6 +47,4 @@ EXPOSE $PORT
 COPY --from=builder /go/bin/jury .
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
 COPY --from=client-builder /client/build /public
-COPY ./server/email.html /email.html
-
 ENTRYPOINT [ "./jury" ]

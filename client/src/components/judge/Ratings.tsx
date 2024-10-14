@@ -27,7 +27,7 @@ const Ratings = (props: RatingsProps) => {
     useEffect(() => {
         async function getCategories() {
             // Get the categories
-            const res = await getRequest<string[]>(`/categories`, 'judge');
+            const res = await getRequest<string[]>(`/categories`);
             if (res.status !== 200) {
                 errorAlert(res);
                 return;
@@ -54,13 +54,14 @@ const Ratings = (props: RatingsProps) => {
 
         // Score the current project
         const scoreRes = props.update
-            ? await putRequest<OkResponse>('/judge/score', 'judge', {
-                  categories: scores,
-                  project: props.project?.project_id,
-              })
-            : await postRequest<OkResponse>('/judge/score', 'judge', {
-                  categories: scores,
-              });
+            ? await putRequest<OkResponse>('/judge/score', {
+                categories: scores,
+                project: props.project?.project_id,
+            })
+            : await postRequest<OkResponse>('/judge/score', {
+                categories: scores,
+                initial: true,
+            });
         if (scoreRes.status !== 200) {
             errorAlert(scoreRes);
             return;

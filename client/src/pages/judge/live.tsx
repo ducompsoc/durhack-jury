@@ -16,6 +16,7 @@ import { getRequest, postRequest } from '../../api';
 import { errorAlert } from '../../util';
 import alarm from '../../assets/alarm.mp3';
 import data from '../../data.json';
+import RawTextInput from '../../components/RawTextInput';
 
 const infoPages = ['paused', 'hidden', 'no-projects', 'done'];
 const infoData = [
@@ -45,23 +46,24 @@ const JudgeLive = () => {
     const [stopAudio, setStopAudio] = useState(false);
     const [audioPopupOpen, setAudioPopupOpen] = useState(false);
     const [paused, setPaused] = useState(false);
+    const [notes, setNotes] = useState('');
 
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status !== 200) {
                 errorAlert(loggedInRes);
                 return;
             }
             if (loggedInRes.data?.ok !== 1) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome', 'judge');
+            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
@@ -72,7 +74,7 @@ const JudgeLive = () => {
             }
 
             // Check to see if judging has started
-            const startedRes = await getRequest<OkResponse>('/admin/started', '');
+            const startedRes = await getRequest<OkResponse>('/admin/started');
             if (startedRes.status !== 200) {
                 errorAlert(startedRes);
                 return;
@@ -92,7 +94,7 @@ const JudgeLive = () => {
     // Once verification finishes, get the judge's next project to judge, as well as the timer
     async function getJudgeData() {
         // Get judging timer
-        const timerRes = await getRequest<Timer>('/admin/timer', 'judge');
+        const timerRes = await getRequest<Timer>('/admin/timer');
         if (timerRes.status !== 200) {
             errorAlert(timerRes);
             return;
@@ -102,7 +104,7 @@ const JudgeLive = () => {
         if (judgingTime === 0) setStarted(true);
 
         // Get the judge
-        const judgeRes = await getRequest<Judge>('/judge', 'judge');
+        const judgeRes = await getRequest<Judge>('/judge');
         if (judgeRes.status !== 200) {
             errorAlert(judgeRes);
             return;
@@ -122,7 +124,7 @@ const JudgeLive = () => {
         }
 
         // Otherwise, query for the next project to judge
-        const newProject = await postRequest<NextJudgeProject>('/judge/next', 'judge', null);
+        const newProject = await postRequest<NextJudgeProject>('/judge/next', null);
         if (newProject.status !== 200) {
             errorAlert(newProject);
             return;
@@ -224,8 +226,19 @@ const JudgeLive = () => {
         setPaused(true);
     };
 
-    const flagCallback = () => {
+    const flagCallback = async (isVote?: boolean) => {
         setJudge(null);
+
+        // Update notes if voting
+        if (isVote) {
+            const res = await postRequest<OkResponse>('/judge/notes', {
+                notes,
+                project: judge?.current,
+            });
+            if (res.status !== 200) {
+                errorAlert(res);
+            }
+        }
 
         resetTimer();
         getJudgeData();
@@ -309,7 +322,7 @@ const JudgeLive = () => {
                     {totalJudgingTime === 0 ? null : !started ? (
                         <Button
                             type="primary"
-                            className="py-8 text-5xl rounded-xl mb-4"
+                            className="py-8 text-4xl md:text-5xl rounded-xl mb-4"
                             full
                             onClick={startJudging}
                         >
@@ -338,7 +351,7 @@ const JudgeLive = () => {
                         <Button
                             type="primary"
                             className="bg-error mr-2 py-1 text-xl rounded-xl basis-2/5 disabled:bg-backgroundDark hover:bg-errorDark"
-                            disabled={judge === null || !started}
+                            disabled={judge === null}
                             onClick={() => {
                                 openPopup('flag');
                             }}
@@ -368,11 +381,22 @@ const JudgeLive = () => {
                     </div>
                 </div>
                 {judge.current && <ProjectDisplay judge={judge} projectId={judge.current} />}
+                {/* Dummy div for fixed text input */}
+                <div className="w-full py-2 h-10"></div>
+                <div className="fixed bottom-0 flex p-2 w-full left-0 bg-background">
+                    <RawTextInput
+                        name="notes"
+                        placeholder="Personal notes..."
+                        className="text-md h-10 px-2 w-auto grow"
+                        text={notes}
+                        setText={setNotes}
+                    />
+                </div>
                 <RatePopup
                     enabled={votePopup}
                     setEnabled={setVotePopup}
                     judge={judge}
-                    callback={flagCallback}
+                    callback={flagCallback.bind(this, true)}
                 />
                 <FlagPopup enabled={flagPopup} setEnabled={setFlagPopup} onSubmit={flagCallback} />
                 <FlagPopup

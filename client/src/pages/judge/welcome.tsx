@@ -18,19 +18,19 @@ const JudgeWelcome = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', 'judge', null);
+            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
             if (loggedInRes.status !== 200) {
                 errorAlert(loggedInRes);
                 return;
             }
             if (loggedInRes.data?.ok !== 1) {
                 console.error(`Judge is not logged in!`);
-                navigate('/judge/login');
+                navigate('/');
                 return;
             }
 
             // Get the name & email of the user from the server
-            const judgeRes = await getRequest<Judge>('/judge', 'judge');
+            const judgeRes = await getRequest<Judge>('/judge');
             if (judgeRes.status !== 200) {
                 errorAlert(judgeRes);
                 return;
@@ -51,7 +51,7 @@ const JudgeWelcome = () => {
         }
 
         // POST to server to mark that the user has read the welcome message
-        const readWelcomeRes = await postRequest<OkResponse>('/judge/welcome', 'judge', null);
+        const readWelcomeRes = await postRequest<OkResponse>('/judge/welcome', null);
         if (readWelcomeRes.status !== 200) {
             errorAlert(readWelcomeRes);
             return;

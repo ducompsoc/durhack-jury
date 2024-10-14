@@ -23,7 +23,7 @@ const DeletePopup = ({ element, close }: DeletePopupProps) => {
 
     const deleteElement = async () => {
         const resource = isProject(element) ? 'project' : 'judge';
-        const res = await deleteRequest(`/${resource}/${element.id}`, 'admin');
+        const res = await deleteRequest(`/${resource}/${element.id}`);
         if (res.status === 200) {
             fetchStats();
             isProject(element) ? fetchProjects() : fetchJudges();

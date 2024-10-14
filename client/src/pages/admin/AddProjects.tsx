@@ -1,5 +1,5 @@
 import JuryHeader from "../../components/JuryHeader";
-import UploadCSVForm from "../../components/admin/add-judges/UploadCSVForm";
+import UploadCSVForm from "../../components/admin/add-projects/UploadCSVForm";
 import AddProjectsStatsPanel from "../../components/admin/add-projects/AddProjectsStatsPanel";
 import NewProjectForm from "../../components/admin/add-projects/NewProjectForm";
 

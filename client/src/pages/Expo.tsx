@@ -11,7 +11,7 @@ const Expo = () => {
     // Fetch public project list from DB
     useEffect(() => {
         async function fetchProjects() {
-            const res = await getRequest<PublicProject[]>('/project/list/public', '');
+            const res = await getRequest<PublicProject[]>('/project/list/public');
             if (res.status !== 200) {
                 errorAlert(res);
                 return;

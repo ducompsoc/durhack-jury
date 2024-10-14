@@ -20,6 +20,5 @@ services:
             args:
                 - VITE_JURY_NAME=${JURY_NAME}
                 - VITE_JURY_URL=/api
-                - VITE_HUB=${HEHE:-}
         ports:
             - ${PORT:-8000}:8000

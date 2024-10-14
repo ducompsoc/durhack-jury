@@ -22,7 +22,7 @@ const NewProjectForm = () => {
         // Upload project
         setIsSubmitting(true);
 
-        const res = await postRequest('/project/new', 'admin', data);
+        const res = await postRequest('/project/new', data);
         if (res.status === 400) {
             alert(`Error with form: ${res.error}`);
             setIsSubmitting(false);
@@ -47,7 +47,7 @@ const NewProjectForm = () => {
                     <TextInput name="name" placeholder="Name" register={register} />
                     <TextArea
                         name="description"
-                        placeholder="Description (optional)"
+                        placeholder="Description"
                         register={register}
                     />
                     <TextInput name="url" placeholder="URL" register={register} />

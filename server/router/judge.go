@@ -1,204 +1,37 @@
 package router
 
 import (
-	"fmt"
-	"net/http"
-	"server/database"
-	"server/funcs"
-	"server/models"
-	"server/util"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"net/http"
+	"server/auth"
+	"server/database"
+	"server/judging"
+	"server/models"
 )
+
+type GetJudgeResponse struct {
+	models.Judge
+	Email string `json:"email"`
+	Name  string `json:"name"`
+}
 
 // GET /judge - Endpoint to get the judge from the token
 func GetJudge(ctx *gin.Context) {
 	// Get the judge from the context (See middleware.go)
 	judge := ctx.MustGet("judge").(*models.Judge)
+	// Get user info from separate authenticated user info created in earlier middleware: Authenticate()
+	userInfo := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo)
 
 	// Send Judge
-	ctx.JSON(http.StatusOK, judge)
-}
-
-// POST /judge/new - Endpoint to add a single judge
-func AddJudge(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get the judge from the request
-	var judgeReq models.AddJudgeRequest
-	err := ctx.BindJSON(&judgeReq)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Make sure all required request fields are defined
-	if judgeReq.Name == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "name is required"})
-		return
-	}
-	if judgeReq.Email == "" {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "email is required"})
-		return
-	}
-
-	// Create the judge
-	judge := models.NewJudge(judgeReq.Name, judgeReq.Email, judgeReq.Notes)
-
-	fmt.Println(judgeReq.NoSend)
-
-	// Send email if no_send is false
-	if !judgeReq.NoSend {
-		// Get hostname from request
-		hostname := util.GetFullHostname(ctx)
-
-		// Make sure email is right
-		if !funcs.CheckEmail(judge.Email) {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid email"})
-			return
-		}
-
-		// Send email to judge
-		err = funcs.SendJudgeEmail(judge, hostname)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error sending judge email: " + err.Error()})
-			return
-		}
-	}
-
-	// Insert the judge into the database
-	err = database.InsertJudge(db, judge)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
-}
-
-type LoginJudgeRequest struct {
-	Code string `json:"code"`
-}
-
-// POST /judge/login - Endpoint to login a judge
-func LoginJudge(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get the judge code from the request
-	var loginReq LoginJudgeRequest
-	err := ctx.BindJSON(&loginReq)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
-		return
-	}
-
-	// Find judge by code
-	judge, err := database.FindJudgeByCode(db, loginReq.Code)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error finding judge in database: " + err.Error()})
-		return
-	}
-	if judge == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid code"})
-		return
-	}
-
-	// Generate random 16-character token for judge
-	token, err := util.GenerateToken()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error generating token: " + err.Error()})
-		return
-	}
-
-	// Update judge in database with new token
-	judge.Token = token
-	err = database.UpdateJudge(db, judge)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating judge in database: " + err.Error()})
-		return
-	}
-
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"token": token})
+	ctx.JSON(http.StatusOK, GetJudgeResponse{Judge: *judge, Email: userInfo.Email, Name: userInfo.GetNames()})
 }
 
 // POST /judge/auth - Check to make sure a judge is authenticated
 func JudgeAuthenticated(ctx *gin.Context) {
 	// This route will run the middleware first, and if the middleware
 	// passes, then that means the judge is authenticated
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
-}
-
-// POST /judge/csv - Endpoint to add judges from a CSV file
-func AddJudgesCsv(ctx *gin.Context) {
-	// Get the database from the context
-	db := ctx.MustGet("db").(*mongo.Database)
-
-	// Get the CSV file from the request
-	file, err := ctx.FormFile("csv")
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading CSV file from request: " + err.Error()})
-		return
-	}
-
-	// Get the hasHeader parameter from the request
-	hasHeader := ctx.PostForm("hasHeader") == "true"
-
-	// Open the file
-	f, err := file.Open()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error opening CSV file: " + err.Error()})
-		return
-	}
-
-	// Read the file
-	content := make([]byte, file.Size)
-	_, err = f.Read(content)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error reading CSV file: " + err.Error()})
-		return
-	}
-
-	// Parse the CSV file
-	judges, err := funcs.ParseJudgeCSV(string(content), hasHeader)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing CSV file: " + err.Error()})
-		return
-	}
-
-	// Get hostname from request
-	hostname := util.GetFullHostname(ctx)
-
-	// Check all judge emails
-	for _, judge := range judges {
-		if !funcs.CheckEmail(judge.Email) {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid email: " + judge.Email})
-			return
-		}
-	}
-
-	// Send emails to all judges
-	for _, judge := range judges {
-		err = funcs.SendJudgeEmail(judge, hostname)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error sending judge " + judge.Name + " email: " + err.Error()})
-			return
-		}
-	}
-
-	// Insert judges into the database
-	err = database.InsertJudges(db, judges)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting judges into database: " + err.Error()})
-		return
-	}
-
-	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
 
@@ -303,6 +136,9 @@ func GetNextJudgeProject(ctx *gin.Context) {
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
+	// Get the comparisons from the context
+	comps := ctx.MustGet("comps").(*judging.Comparisons)
+
 	// If the judge already has a next project, return that project
 	if judge.Current != nil {
 		ctx.JSON(http.StatusOK, gin.H{"project_id": judge.Current.Hex()})
@@ -314,7 +150,7 @@ func GetNextJudgeProject(ctx *gin.Context) {
 	var project *models.Project
 	err := database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
 		var err error
-		project, err = database.PickNextProject(db, judge, ctx)
+		project, err = judging.PickNextProject(db, judge, ctx, comps)
 		return nil, err
 	})
 	if err != nil {
@@ -411,6 +247,9 @@ func JudgeSkip(ctx *gin.Context) {
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
+	// Get the comparisons object
+	comps := ctx.MustGet("comps").(*judging.Comparisons)
+
 	// Get the skip reason from the request
 	var skipReq SkipRequest
 	err := ctx.BindJSON(&skipReq)
@@ -420,7 +259,7 @@ func JudgeSkip(ctx *gin.Context) {
 	}
 
 	// Skip the project
-	err = database.SkipCurrentProject(db, judge, skipReq.Reason, true)
+	err = judging.SkipCurrentProject(db, judge, comps, skipReq.Reason, true)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -499,7 +338,7 @@ func EditJudge(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get the body content
-	var judgeReq models.AddJudgeRequest
+	var judgeReq models.EditJudgeRequest
 	err := ctx.BindJSON(&judgeReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
@@ -607,6 +446,9 @@ func JudgeBreak(ctx *gin.Context) {
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
+	// Get the comparisons from the context
+	comps := ctx.MustGet("comps").(*judging.Comparisons)
+
 	// Error if the judge doesn't have a current project
 	if judge.Current == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "judge doesn't have a current project"})
@@ -614,7 +456,7 @@ func JudgeBreak(ctx *gin.Context) {
 	}
 
 	// Basically skip the project for the judge
-	err := database.SkipCurrentProject(db, judge, "break", false)
+	err := judging.SkipCurrentProject(db, judge, comps, "break", false)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error skipping project: " + err.Error()})
 		return
@@ -640,9 +482,26 @@ func GetCategories(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
+// GET /rbs - Endpoint to return ranking batch size
+func GetRankingBatchSize(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get categories from database
+	rbs, err := database.GetRankingBatchSize(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting ranking batch size: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"rbs": rbs})
+}
+
 type UpdateScoreRequest struct {
 	Categories map[string]int     `json:"categories"`
 	Project    primitive.ObjectID `json:"project"`
+	Initial    bool               `json:"initial"`
 }
 
 // PUT /judge/score - Endpoint to update a judge's score for a certain project
@@ -652,6 +511,9 @@ func JudgeUpdateScore(ctx *gin.Context) {
 
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
+
+	// Get the comparisons object from the context
+	comps := ctx.MustGet("comps").(*judging.Comparisons)
 
 	// Get the request object
 	var scoreReq UpdateScoreRequest
@@ -680,6 +542,60 @@ func JudgeUpdateScore(ctx *gin.Context) {
 	judge.SeenProjects[index].Categories = scoreReq.Categories
 
 	// Update the judge's score for the project
+	err = database.UpdateJudgeSeenProjects(db, judge)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating judge score in database: " + err.Error()})
+		return
+	}
+
+	// If this is the initial scoring, update the comparisons array
+	comps.UpdateProjectComparisonCount(judge.SeenProjects, scoreReq.Project)
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+}
+
+type UpdateNotesRequest struct {
+	Notes   string             `json:"notes"`
+	Project primitive.ObjectID `json:"project"`
+}
+
+// POST /judge/notes - Update the notes of a judge
+func JudgeUpdateNotes(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get the judge from the context
+	judge := ctx.MustGet("judge").(*models.Judge)
+
+	// Get the request object
+	var scoreReq UpdateNotesRequest
+	err := ctx.BindJSON(&scoreReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+
+	// Find the index of the project in the judge's seen projects
+	// TODO: Extract to diff function to get rid of repeated code from JudgeUpdateScore
+	index := -1
+	for i, p := range judge.SeenProjects {
+		if p.ProjectId == scoreReq.Project {
+			index = i
+			break
+		}
+	}
+
+	// If the project isn't in the judge's seen projects, return an error
+	if index == -1 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "judge hasn't seen project or project is invalid"})
+		return
+	}
+
+	// Update that specific index of the seen projects array
+	judge.SeenProjects[index].Notes = scoreReq.Notes
+
+	// Update the judge's object for the project
 	err = database.UpdateJudgeSeenProjects(db, judge)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating judge score in database: " + err.Error()})

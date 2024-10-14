@@ -41,3 +41,17 @@ func GetCategories(db *mongo.Database) ([]string, error) {
 	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
 	return options.Categories, err
 }
+
+// GetMinViews gets the minimum views option from the database
+func GetMinViews(db *mongo.Database) (int64, error) {
+	var options models.Options
+	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
+	return options.MinViews, err
+}
+
+// GetRankingBatchSize gets the ranking batch size option from the database
+func GetRankingBatchSize(db *mongo.Database) (int64, error) {
+	var options models.Options
+	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
+	return options.RankingBatchSize, err
+}

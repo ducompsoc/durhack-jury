@@ -2,7 +2,7 @@ package database
 
 import (
 	"context"
-	"errors"
+	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"server/models"
 	"server/util"
 
@@ -19,42 +19,15 @@ func UpdateJudgeLastActivity(db *mongo.Database, ctx context.Context, id *primit
 	return err
 }
 
-// InsertJudge inserts a judge into the database
-func InsertJudge(db *mongo.Database, judge *models.Judge) error {
-	_, err := db.Collection("judges").InsertOne(context.Background(), judge)
+// GetOrCreateJudge inserts a judge into the database if it does not exist and updates the passed judge variable with the database's version
+func GetOrCreateJudge(db *mongo.Database, judge *models.Judge) error {
+	err := db.Collection("judges").FindOneAndUpdate(
+		context.Background(),
+		gin.H{"keycloak_user_id": judge.KeycloakUserId},
+		gin.H{"$setOnInsert": judge},
+		mongoOptions.FindOneAndUpdate().SetUpsert(true).SetReturnDocument(mongoOptions.After),
+	).Decode(&judge)
 	return err
-}
-
-// InsertJudges inserts multiple judges into the database
-func InsertJudges(db *mongo.Database, judges []*models.Judge) error {
-	var docs []interface{}
-	for _, judge := range judges {
-		docs = append(docs, judge)
-	}
-	_, err := db.Collection("judges").InsertMany(context.Background(), docs)
-	return err
-}
-
-// FindJudgeByToken finds a judge by their token.
-// Returns judge as nil if no judge was found.
-func FindJudgeByToken(db *mongo.Database, token string) (*models.Judge, error) {
-	var judge models.Judge
-	err := db.Collection("judges").FindOne(context.Background(), gin.H{"token": token}).Decode(&judge)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	return &judge, err
-}
-
-// FindJudgeByCode finds a judge by their code.
-// Returns judge as nil if no judge was found.
-func FindJudgeByCode(db *mongo.Database, code string) (*models.Judge, error) {
-	var judge models.Judge
-	err := db.Collection("judges").FindOne(context.Background(), gin.H{"code": code}).Decode(&judge)
-	if err == mongo.ErrNoDocuments {
-		return nil, nil
-	}
-	return &judge, err
 }
 
 // UpdateJudge updates a judge in the database
@@ -125,6 +98,7 @@ func AggregateJudgeStats(db *mongo.Database) (*models.JudgeStats, error) {
 	return &stats, nil
 }
 
+// lucatodo: implement API on Jury to allow keycloak client to delete a judge 'remotely'
 // DeleteJudgeById deletes a judge from the database by their id
 func DeleteJudgeById(db *mongo.Database, id primitive.ObjectID) error {
 	_, err := db.Collection("judges").DeleteOne(context.Background(), gin.H{"_id": id})
@@ -157,70 +131,12 @@ func SetJudgeHidden(db *mongo.Database, id *primitive.ObjectID, hidden bool) err
 }
 
 // UpdateJudgeBasicInfo updates the basic info of a judge (name, email, notes)
-func UpdateJudgeBasicInfo(db *mongo.Database, judgeId *primitive.ObjectID, addRequest *models.AddJudgeRequest) error {
+func UpdateJudgeBasicInfo(db *mongo.Database, judgeId *primitive.ObjectID, addRequest *models.EditJudgeRequest) error {
 	_, err := db.Collection("judges").UpdateOne(
 		context.Background(),
 		gin.H{"_id": judgeId},
-		gin.H{"$set": gin.H{"name": addRequest.Name, "email": addRequest.Email, "notes": addRequest.Notes}},
+		gin.H{"$set": gin.H{"notes": addRequest.Notes}},
 	)
-	return err
-}
-
-// SkipCurrentProject skips the current project for a judge
-func SkipCurrentProject(db *mongo.Database, judge *models.Judge, reason string, getNew bool) error {
-	// Get skipped project from database
-	skippedProject, err := FindProjectById(db, judge.Current)
-	if err != nil {
-		return errors.New("error finding skipped project in database: " + err.Error())
-	}
-
-	// Run rest of DB operations in a transaction
-	err = WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
-		// If skipping for any reason other than wanting a break, add the project to the skipped list
-		if reason != "break" {
-			// Create a new skip object
-			skip, err := models.NewFlag(skippedProject, judge, reason)
-			if err != nil {
-				return nil, errors.New("error creating flag object: " + err.Error())
-			}
-
-			// Add skipped project to flags database
-			err = InsertFlag(db, ctx, skip)
-			if err != nil {
-				return nil, errors.New("error inserting flag into database: " + err.Error())
-			}
-		}
-
-		// Update the judge
-		_, err := db.Collection("judges").UpdateOne(
-			ctx,
-			gin.H{"_id": judge.Id},
-			gin.H{"$set": gin.H{"current": nil, "last_activity": util.Now()}},
-		)
-		if err != nil {
-			return nil, err
-		}
-
-		// Update the project
-		_, err = db.Collection("projects").UpdateOne(ctx, gin.H{"_id": skippedProject.Id}, gin.H{"$inc": gin.H{"seen": -1}})
-		if err != nil {
-			return nil, err
-		}
-
-		// Don't get a new project if we're not supposed to
-		if !getNew {
-			return nil, nil
-		}
-
-		// Get a new project
-		project, err := PickNextProject(db, judge, ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		// Update the judge
-		return UpdateAfterPickedWithTx(db, project, judge, ctx)
-	})
 	return err
 }
 

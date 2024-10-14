@@ -65,7 +65,6 @@ services:
         environment:
             - VITE_JURY_NAME=${JURY_NAME}
             - VITE_JURY_URL=http://localhost:${PORT:-8000}/api
-            - VITE_HUB=${HEHE:-}
         build:
             context: './'
             dockerfile: client/dev.Dockerfile

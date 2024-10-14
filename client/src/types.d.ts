@@ -24,6 +24,7 @@ interface PublicProject {
 }
 
 interface Judge {
+    // lucatodo: update schema and usages to re-get email
     id: string;
     name: string;
     code: string;
@@ -96,6 +97,10 @@ interface ProjectCount {
     count: number;
 }
 
+interface RankingBatchSize {
+    rbs: number;
+}
+
 interface Flag {
     id: string;
     judge_id: string;
@@ -112,6 +117,8 @@ interface Options {
     clock: ClockState;
     judging_timer: number;
     categories: string[];
+    ranking_batch_size: number;
+    min_views: number;
 }
 
 interface FetchResponse<T> {
