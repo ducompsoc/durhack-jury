@@ -24,7 +24,7 @@ interface PublicProject {
 }
 
 interface Judge {
-    // lucatodo: update schema and usages to re-get email
+    // lucatodo: update this schema based on actual return and then update usages
     id: string;
     name: string;
     code: string;
@@ -33,7 +33,8 @@ interface Judge {
     read_welcome: boolean;
     seen: number;
     seen_projects: JudgedProject[];
-    rankings: string[];
+    current_rankings: string[];
+    past_rankings: string[][];
     active: boolean;
     current: string;
     last_activity: number;

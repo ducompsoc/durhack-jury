@@ -12,19 +12,21 @@ type Comparison struct {
 }
 
 // Convert a judge ranking to a list of pairwise comparisons
-func rankingToPairwise(judgeRanking JudgeRanking) []Comparison {
+func rankingToPairwise(judgeRanking JudgeRankings) []Comparison {
 	// Create a slice to store the pairwise comparisons
 	pairwise := make([]Comparison, 0)
 
-	// Loop through each project in the ranking and compare it to all the projects below it
-	for i, winner := range judgeRanking.Rankings {
-		for _, loser := range judgeRanking.Rankings[i+1:] {
-			pairwise = append(pairwise, Comparison{winner, loser})
+	// Loop through each project in the batch ranking and compare it to all the projects below it
+	for _, batch := range judgeRanking.Rankings {
+		for i, winner := range batch {
+			for _, loser := range batch[i+1:] {
+				pairwise = append(pairwise, Comparison{winner, loser})
+			}
 		}
 	}
 
 	// Loop through each project in the ranking and compare it to all the unranked projects
-	//for _, winner := range judgeRanking.Rankings {
+	//for _, winner := range judgeRanking.CurrentRankings {
 	//	for _, loser := range judgeRanking.Unranked {
 	//		pairwise = append(pairwise, Comparison{winner, loser})
 	//	}
@@ -35,7 +37,7 @@ func rankingToPairwise(judgeRanking JudgeRanking) []Comparison {
 
 // Calculate the ranking of the projects based on the copeland count method.
 // See https://en.wikipedia.org/wiki/Copeland%27s_method
-func CalcCopelandRanking(rankingLists []JudgeRanking, projects []primitive.ObjectID) []RankedObject {
+func CalcCopelandRanking(rankingLists []JudgeRankings, projects []primitive.ObjectID) []RankedObject {
 	// Create a map to store the scores of each project
 	scores := make(map[primitive.ObjectID]float64)
 

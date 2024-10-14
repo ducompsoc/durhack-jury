@@ -141,11 +141,29 @@ func UpdateJudgeBasicInfo(db *mongo.Database, judgeId *primitive.ObjectID, addRe
 }
 
 // UpdateJudgeRanking updates the judge's ranking array
-func UpdateJudgeRanking(db *mongo.Database, judge *models.Judge, rankings []primitive.ObjectID) error {
+func UpdateJudgeRanking(db *mongo.Database, judge *models.Judge, currentRankings []primitive.ObjectID) error {
 	_, err := db.Collection("judges").UpdateOne(
 		context.Background(),
 		gin.H{"_id": judge.Id},
-		gin.H{"$set": gin.H{"rankings": rankings, "last_activity": util.Now()}},
+		gin.H{"$set": gin.H{"current_rankings": currentRankings, "last_activity": util.Now()}},
+	)
+	return err
+}
+
+// UpdateJudgePostBatch updates the judge after a batch of projects has been ranked and submitted
+func UpdateJudgePostBatchRank(db *mongo.Database, judge *models.Judge, batchRanking []primitive.ObjectID) error {
+	_, err := db.Collection("judges").UpdateOne(
+		context.Background(),
+		gin.H{"_id": judge.Id},
+		gin.H{
+			"$set": gin.H{
+				"current_rankings": []primitive.ObjectID{},
+				"last_activity":    util.Now(),
+			},
+			"$push": gin.H{
+				"past_rankings": batchRanking, // Add the latest batch ranking to the past_rankings 2D array
+			},
+		},
 	)
 	return err
 }

@@ -94,13 +94,13 @@ const ProjectsTable = () => {
                             align='left'
                         />
                         <HeaderEntry
-                            name="Table Number"
+                            name="Table"
                             updateSort={updateSort}
                             sortField={ProjectSortField.TableNumber}
                             sortState={sortState}
                         />
                         <HeaderEntry
-                            name="Live Score (inc. pre-submission)"
+                            name="Live Score"
                             updateSort={updateSort}
                             sortField={ProjectSortField.Score}
                             sortState={sortState}

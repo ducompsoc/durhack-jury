@@ -191,7 +191,7 @@ func AddZipFile(name string, content []byte, ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/octet-stream", content)
 }
 
-// Create a CSV file from the judges but only the rankings
+// Create a CSV file from the judges but only the rankings  lucatodo: update for new ranking object structures (2D array)
 func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	csvBuffer := &bytes.Buffer{}
 
@@ -205,13 +205,13 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	// Write each judge
 	for _, judge := range judges {
 		// Don't include if their rankings are empty :/
-		if len(judge.Rankings) == 0 {
+		if len(judge.CurrentRankings) == 0 {
 			continue
 		}
 
 		// Create a list of all ranked projects (just their location)
-		ranked := make([]int64, 0, len(judge.Rankings))
-		for _, projId := range judge.Rankings {
+		ranked := make([]int64, 0, len(judge.CurrentRankings))
+		for _, projId := range judge.CurrentRankings {
 			idx := util.IndexFunc(judge.SeenProjects, func(p models.JudgedProject) bool {
 				return p.ProjectId == projId
 			})
@@ -223,7 +223,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all unranked projects (filter using ranked projects)
-		unranked := make([]int64, 0, len(judge.SeenProjects)-len(judge.Rankings))
+		unranked := make([]int64, 0, len(judge.SeenProjects)-len(judge.CurrentRankings))
 		for _, proj := range judge.SeenProjects {
 			if util.ContainsFunc(ranked, func(table int64) bool { return table == proj.Location }) {
 				unranked = append(unranked, proj.Location)
