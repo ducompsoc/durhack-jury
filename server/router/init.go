@@ -72,6 +72,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	// Authenticated login routes
 	defaultRouter.GET("/auth/keycloak/login", BeginKeycloakOAuth2Flow())
 	defaultRouter.GET("/auth/keycloak/callback", KeycloakOAuth2FlowCallback(), HandleLoginSuccess())
+	authenticatedRouter.GET("/api/auth/keycloak/logout", Logout())
 
 	// Add routes
 	judgeRouter.GET("/judge", GetJudge)

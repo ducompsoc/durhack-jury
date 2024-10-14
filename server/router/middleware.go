@@ -2,8 +2,6 @@ package router
 
 import (
 	"context"
-	"fmt"
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -41,8 +39,9 @@ func Authenticate() gin.HandlerFunc {
 
 		db := ctx.MustGet("db").(*mongo.Database)
 		var tokenSet struct {
-			UserId string       `bson:"user_id"`
-			Token  oauth2.Token `bson:"token_set"`
+			UserId  string       `bson:"user_id"`
+			Token   oauth2.Token `bson:"token_set"`
+			IdToken string       `bson:"id_token"`
 		}
 		err := db.Collection("token_set").FindOne(
 			context.Background(),
@@ -53,6 +52,7 @@ func Authenticate() gin.HandlerFunc {
 			return
 		}
 
+		idToken := tokenSet.IdToken
 		newToken, err := auth.KeycloakOAuth2Config.TokenSource(context.Background(), &tokenSet.Token).Token()
 		if util.IsNetworkError(err) {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -64,10 +64,14 @@ func Authenticate() gin.HandlerFunc {
 		}
 
 		if newToken.AccessToken != tokenSet.Token.AccessToken {
+			idToken = newToken.Extra("id_token").(string)
 			_, err = db.Collection("token_set").UpdateOne(
 				context.Background(),
 				gin.H{"user_id": userId},
-				gin.H{"$set": gin.H{"token_set": newToken}},
+				gin.H{"$set": gin.H{
+					"token_set": newToken,
+					"id_token":  idToken,
+				}},
 			)
 			if err != nil {
 				_ = ctx.AbortWithError(http.StatusInternalServerError, err)
@@ -88,29 +92,21 @@ func Authenticate() gin.HandlerFunc {
 			return
 		}
 
-		var userInfoClaims models.UserInfoClaims
-		err = userInfo.Claims(&userInfoClaims)
-		if err != nil {
-			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
-			fmt.Println(err.Error())
-			return
-		}
-
 		ctx.Set("user", userInfo)
 		ctx.Set("user_token_set", newToken)
-		ctx.Set("user_claims", userInfoClaims)
+		ctx.Set("user_id_token", idToken)
 		ctx.Next()
 	}
 }
 
 func AuthoriseJudge() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		maybeClaims, exists := ctx.Get("user_claims")
+		maybeUserInfo, exists := ctx.Get("user")
 		if !exists {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		claims := maybeClaims.(models.UserInfoClaims)
+		claims := maybeUserInfo.(*auth.DurHackKeycloakUserInfo)
 		if !slices.Contains(claims.Groups, "/judges") {
 			ctx.AbortWithStatus(http.StatusForbidden)
 			return
@@ -118,7 +114,7 @@ func AuthoriseJudge() gin.HandlerFunc {
 
 		// Get the database from the context
 		db := ctx.MustGet("db").(*mongo.Database)
-		userInfo := ctx.MustGet("user").(*oidc.UserInfo)
+		userInfo := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo)
 		judge := models.NewJudge(userInfo.Subject)
 
 		// Insert the judge into the database
@@ -135,12 +131,12 @@ func AuthoriseJudge() gin.HandlerFunc {
 
 func AuthoriseAdmin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		maybeClaims, exists := ctx.Get("user_claims")
+		maybeUserInfo, exists := ctx.Get("user")
 		if !exists {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		claims := maybeClaims.(models.UserInfoClaims)
+		claims := maybeUserInfo.(*auth.DurHackKeycloakUserInfo)
 		if !slices.Contains(claims.Groups, "/admins") {
 			ctx.AbortWithStatus(http.StatusForbidden)
 			return

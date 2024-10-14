@@ -9,25 +9,59 @@ import (
 	"server/config"
 )
 
+type DurHackKeycloakUserInfo struct {
+	// KeycloakUserInfo structure available at:
+	//https://github.com/ducompsoc/durhack/blob/130a71ab674288cbe1a6e0e2f3a518773658bc9f/server/src/lib/keycloak-client.ts#L47
+	oidc.UserInfo
+	Groups         []string `json:"groups"`
+	PreferredNames *string  `json:"preferred_names"` // preferred_names can be null
+	FirstNames     string   `json:"first_names"`
+}
+
+func (p *DurHackKeycloakUserInfo) GetNames() string {
+	if p.PreferredNames != nil {
+		return *p.PreferredNames
+	}
+	return p.FirstNames
+}
+
+type DurHackKeycloakProvider struct {
+	*oidc.Provider
+}
+
+func (p *DurHackKeycloakProvider) UserInfo(ctx context.Context, tokenSource oauth2.TokenSource) (*DurHackKeycloakUserInfo, error) {
+	userInfo, err := p.Provider.UserInfo(ctx, tokenSource)
+	if err != nil {
+		return nil, err
+	}
+	durhackUserInfo := &DurHackKeycloakUserInfo{UserInfo: *userInfo}
+	err = durhackUserInfo.Claims(durhackUserInfo)
+	if err != nil {
+		return nil, err
+	}
+	return durhackUserInfo, nil
+}
+
 var (
 	clientSecret         = config.GetEnv("KEYCLOAK_OAUTH2_CLIENT_SECRET")
-	keycloakOIDCProvider *oidc.Provider
+	keycloakOIDCProvider *DurHackKeycloakProvider
 	keycloakOAuth2Config *oauth2.Config
 	KeycloakOIDCProvider = getKeycloakOIDCProvider()
 	KeycloakOAuth2Config = getKeycloakOAuth2Config()
 )
 
-func getKeycloakOIDCProvider() *oidc.Provider {
+func getKeycloakOIDCProvider() *DurHackKeycloakProvider {
 	if keycloakOIDCProvider != nil {
 		return keycloakOIDCProvider
 	}
 
 	ctx := context.Background()
 
-	keycloakOIDCProvider, err := oidc.NewProvider(ctx, config.KeycloakIssuer)
+	provider, err := oidc.NewProvider(ctx, config.KeycloakIssuer)
 	if err != nil {
 		log.Fatal(err)
 	}
+	keycloakOIDCProvider = &DurHackKeycloakProvider{Provider: provider}
 
 	return keycloakOIDCProvider
 }

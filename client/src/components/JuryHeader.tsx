@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { twMerge } from 'tailwind-merge';
-import Cookies from 'universal-cookie';
 import logoutButton from '../assets/logout.svg';
 
 interface JuryHeaderProps {
@@ -16,13 +15,6 @@ interface JuryHeaderProps {
 
 const JuryHeader = (props: JuryHeaderProps) => {
     const navigate = useNavigate();
-    const cookies = new Cookies();
-
-    const logout = () => {  // lucatodo: handle new logout process
-        const isJudge = window.location.pathname.startsWith('/judge');
-        cookies.remove(isJudge ? 'token' : 'admin-pass', { path: '/' });
-        navigate('/');
-    };
 
     const backToAdmin = () => navigate('/admin');
 
@@ -65,9 +57,8 @@ const JuryHeader = (props: JuryHeaderProps) => {
             {props.withLogout && (
                 <div
                     className="absolute top-6 right-6 flex items-center cursor-pointer border-none bg-transparent hover:scale-110 duration-200"
-                    onClick={logout}
                 >
-                    <div className="text-light text-xl mr-2">Logout</div>
+                    <div className="text-light text-xl mr-2"><a href={`${import.meta.env.VITE_JURY_URL}/auth/keycloak/logout`}>Logout</a></div>
                     <img className="w-4 h-4" src={logoutButton} alt="logout icon" />
                 </div>
             )}
