@@ -244,7 +244,7 @@ func DeleteProject(ctx *gin.Context) {
 	// Convert judge ID string to ObjectID
 	projectObjectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid judge ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID"})
 		return
 	}
 
