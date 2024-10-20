@@ -18,6 +18,7 @@ const Admin = () => {
     const [loading, setLoading] = useState(true);
     const [judgingEnded, setJudgingEnded] = useState(false);
     const [numJudges, setNumJudges] = useState(0);
+    const [submittedJudges, setSubmittedJudges] = useState(0);
 
     useEffect(() => {
         // Check if user logged in
@@ -64,6 +65,7 @@ const Admin = () => {
                     alert("Judging has now been ended. Judges will be notified and made to submit their rankings. " +
                         "Wait until all have submitted before recording final results.")
                     setJudgingEnded(true)
+                    checkSubmittedJudges();
                 } else {
                     alert("Failed to end judging.")
                 }
@@ -76,6 +78,22 @@ const Admin = () => {
         // const endJudgingRes = await postRequest<OkResponse>('/admin/end_judging', null)
         // lucatodo: pause and remove clock
         return true
+    }
+
+    async function checkSubmittedJudges() {
+        console.log("Refreshing submitted judge count by counting current_projects array lengths")
+        const justListRes = await getRequest<Judge[]>('/judge/list')
+        if (justListRes.status !== 200) {
+            errorAlert(justListRes);
+            return;
+        }
+        if (justListRes.data){
+            let numSubmitted = 0
+            justListRes.data.forEach(j => {
+                if (j.current_rankings.length == 0) numSubmitted++
+            })
+            setSubmittedJudges(numSubmitted)
+        }
     }
 
     if (loading) {
@@ -92,14 +110,16 @@ const Admin = () => {
                 className="absolute top-6 left-[16rem] w-40 md:w-52 text-lg py-2 px-1 hover:scale-100 focus:scale-100 rounded-md font-bold"
             >Settings</Button>
             <AdminStatsPanel />
-            <div className="w-full flex flex-row center items-center justify-center my-5">
+            <div className="w-full grid grid-cols-3 justify-center justify-items-center items-center my-5">
+                <div></div>
                 <Button
                     type="error"
                     onClick={endJudging}
                     disabled={judgingEnded}
                     bold
-                    className="w-1/3 md:w-1/4"
-                >{judgingEnded ? `Submitted judges: ${1}/${numJudges}` : "End Judging"}</Button>
+                    className="justify-self-stretch md:w-full w-full"
+                >{judgingEnded ? `Submitted judges: ${submittedJudges}/${numJudges}` : "End Judging"}</Button>
+                <div hidden={!judgingEnded} onClick={checkSubmittedJudges} className="justify-self-start cursor-pointer" title="Refresh submitted judges">🔁</div>
             </div>
             <AdminToggleSwitch state={showProjects} setState={setShowProjects} />
             <AdminToolbar showProjects={showProjects} />
