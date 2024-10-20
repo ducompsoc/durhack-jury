@@ -442,7 +442,7 @@ type BatchRankingRequest struct {
 	BatchRanking []primitive.ObjectID `json:"batch_ranking"`
 }
 
-// POST /judge/submit_batch_ranking -
+// POST /judge/submit-batch-ranking -
 func JudgeSubmitBatchRanking(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)

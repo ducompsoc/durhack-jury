@@ -271,7 +271,7 @@ const Judge = () => {
             alert(`You can only submit rankings in batches of ${rankingBatchSize} projects.`)
             return
         }
-        const submitRes = await postRequest<OkResponse>('/judge/submit_batch_ranking', {
+        const submitRes = await postRequest<OkResponse>('/judge/submit-batch-ranking', {
             batch_ranking: ranked.map((p) => p.project_id),
         });
         if (submitRes.status !== 200) {
