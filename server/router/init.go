@@ -133,6 +133,9 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.POST("/judge/notes", JudgeUpdateNotes)
 	judgeRouter.GET("/rbs", GetRankingBatchSize)
 
+	adminRouter.GET("/admin/end-judging", isJudgingEnded)
+	adminRouter.POST("/admin/end-judging", endJudging)
+
 	// Serve frontend static files
 	router.Use(static.Serve("/assets", static.LocalFile("./public/assets", true)))
 	router.StaticFile("/favicon.ico", "./public/favicon.ico")

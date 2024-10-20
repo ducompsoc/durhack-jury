@@ -127,7 +127,13 @@ func UpdateMinViews(db *mongo.Database, minViews int) error {
 // UpdateRankingBatchSize will update the min views setting
 func UpdateRankingBatchSize(db *mongo.Database, rankingBatchSize int) error {
 	// Update the min views
-	println(rankingBatchSize)
 	_, err := db.Collection("options").UpdateOne(context.Background(), gin.H{}, gin.H{"$set": gin.H{"ranking_batch_size": rankingBatchSize}})
+	return err
+}
+
+// SetEndJudging will set the judging_ended flag to true
+func SetEndJudging(db *mongo.Database) error {
+	// Update the min views
+	_, err := db.Collection("options").UpdateOne(context.Background(), gin.H{}, gin.H{"$set": gin.H{"judging_ended": true}})
 	return err
 }

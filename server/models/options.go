@@ -11,6 +11,7 @@ type Options struct {
 	MinViews         int64              `bson:"min_views" json:"min_views"`
 	Categories       []string           `bson:"categories" json:"categories"`
 	RankingBatchSize int64              `bson:"ranking_batch_size" json:"ranking_batch_size"`
+	JudgingEnded     bool               `bson:"judging_ended" json:"judging_ended"`
 }
 
 func NewOptions() *Options {
@@ -22,5 +23,6 @@ func NewOptions() *Options {
 		Clock:            *NewClockState(),
 		Categories:       []string{"Creativity/Innovation", "Technical Competence/Execution", "Research/Design", "Presentation"},
 		RankingBatchSize: 8,
+		JudgingEnded:     false,
 	}
 }

@@ -111,6 +111,13 @@ func UnpauseClock(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
+	// Check if judging has ended
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if judgingEnded {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Judging has been ended. Clock cannot be unpaused."})
+		return
+	}
+
 	// Get the clock from the context
 	clock := ctx.MustGet("clock").(*models.ClockState)
 
@@ -118,7 +125,7 @@ func UnpauseClock(ctx *gin.Context) {
 	clock.Resume()
 
 	// Save the clock in the database
-	err := database.UpdateClock(db, clock)
+	err = database.UpdateClock(db, clock)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving clock: " + err.Error()})
 		return
@@ -452,6 +459,38 @@ func GetScores(ctx *gin.Context) {
 
 	// Send OK
 	ctx.JSON(http.StatusOK, scores)
+}
+
+// GET /admin/end-judging - isJudgingEnded returns the value of the judging_ended flag
+func isJudgingEnded(ctx *gin.Context) {
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get judging_ended flag from database
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"judging_ended": judgingEnded})
+}
+
+// POST /admin/end-judging - endJudging ends the judging process by setting the judging_ended flag to true
+func endJudging(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Save the judging_ended flag in the db
+	err := database.SetEndJudging(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error setting judging_ended: " + err.Error()})
+		return
+	}
+
+	PauseClock(ctx)
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
 
 // contains checks if a string is in a list of strings

@@ -48,26 +48,32 @@ const Admin = () => {
 
         }
         getNumJudges();
+        checkSubmittedJudges();
 
         async function checkJudgingEnded() {
-            // const judgingEndedRes = await getRequest<OkResponse>('/admin/end_judging')
-            setJudgingEnded(false)
+            const judgingEndedRes = await getRequest<JudgingEnded>('/admin/end-judging')
+            if (judgingEndedRes.status !== 200) {
+                errorAlert(judgingEndedRes);
+                return;
+            }
+            setJudgingEnded(judgingEndedRes.data?.judging_ended as boolean);
         }
         checkJudgingEnded();
     }, []);
 
     function endJudging() {
         let confirmed = window.confirm("Are you sure you want to end judging? This cannot be undone.\n" +
-            "Judges will not be able to request new projects to rank and must submit rankings.")
+            "Judges will not be able to request new projects to rank and must submit rankings.");
         if (confirmed) {
             endJudgingReq().then(success => {
                 if (success) {
                     alert("Judging has now been ended. Judges will be notified and made to submit their rankings. " +
-                        "Wait until all have submitted before recording final results.")
-                    setJudgingEnded(true)
+                        "Wait until all have submitted before recording final results.");
+                    setJudgingEnded(true);
                     checkSubmittedJudges();
                 } else {
-                    alert("Failed to end judging.")
+                    alert("Failed to end judging.");
+                    setJudgingEnded(false);
                 }
             })
         }
@@ -75,9 +81,8 @@ const Admin = () => {
 
     async function endJudgingReq() {
         console.log("Requesting server to end judging.")
-        // const endJudgingRes = await postRequest<OkResponse>('/admin/end_judging', null)
-        // lucatodo: pause and remove clock
-        return true
+        const endJudgingRes = await postRequest<OkResponse>('/admin/end-judging', null)
+        return endJudgingRes.status === 200;
     }
 
     async function checkSubmittedJudges() {
