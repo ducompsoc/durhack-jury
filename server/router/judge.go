@@ -521,7 +521,7 @@ func GetRankingBatchSize(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
-	// Get categories from database
+	// Get ranking batch size from database
 	rbs, err := database.GetRankingBatchSize(db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting ranking batch size: " + err.Error()})

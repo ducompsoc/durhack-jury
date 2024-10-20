@@ -413,7 +413,7 @@ func SetRankingBatchSize(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
 
-// /GET /admin/score - GetScores returns the calculated scores of all projects
+// GET /admin/score - GetScores returns the calculated scores of all projects
 func GetScores(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
