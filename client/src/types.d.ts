@@ -64,8 +64,8 @@ interface VotingProjectInfo {
     prev_location: number;
 }
 
-interface OkResponse {
-    ok: number;
+interface YesNoResponse {
+    yes_no: number;
 }
 
 interface TokenResponse {

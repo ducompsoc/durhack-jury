@@ -33,7 +33,7 @@ func LoginAdmin(ctx *gin.Context) {
 
 	// Return status OK if the password matches
 	if req.Password == password {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 		return
 	}
 
@@ -46,7 +46,7 @@ func AdminAuthenticated(ctx *gin.Context) {
 	// This route will run the middleware first, and if the middleware
 	// passes, then that means the admin is authenticated
 
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /admin/stats - GetAdminStats returns stats about the system
@@ -163,9 +163,9 @@ func IsClockPaused(ctx *gin.Context) {
 
 	// Send OK
 	if clock.Running {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 0})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 0})
 	}
 }
 
@@ -182,7 +182,7 @@ func ResetDatabase(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /admin/flags - GetFlags returns all flags
@@ -328,7 +328,7 @@ func SetJudgingTimer(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type SetCategoriesRequest struct {
@@ -356,7 +356,7 @@ func SetCategories(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type MinViewsRequest struct {
@@ -387,7 +387,7 @@ func SetMinViews(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /admin/ranking-batch-size - sets the ranking batch size
@@ -410,7 +410,7 @@ func SetRankingBatchSize(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /admin/score - GetScores returns the calculated scores of all projects
@@ -490,7 +490,7 @@ func endJudging(ctx *gin.Context) {
 	PauseClock(ctx)
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // contains checks if a string is in a list of strings

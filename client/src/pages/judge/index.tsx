@@ -52,7 +52,7 @@ const Judge = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
+            const loggedInRes = await postRequest<YesNoResponse>('/judge/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Judge is not logged in!`);
                 navigate('/');
@@ -62,19 +62,19 @@ const Judge = () => {
                 errorAlert(loggedInRes);
                 return;
             }
-            if (loggedInRes.data?.ok !== 1) {
+            if (loggedInRes.data?.yes_no !== 1) {
                 console.error(`Judge is not logged in!`);
                 navigate('/');
                 return;
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
+            const readWelcomeRes = await getRequest<YesNoResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
             }
-            const readWelcome = readWelcomeRes.data?.ok === 1;
+            const readWelcome = readWelcomeRes.data?.yes_no === 1;
             if (!readWelcome) {
                 navigate('/judge/welcome');
             }
@@ -158,7 +158,7 @@ const Judge = () => {
             return;
         }
 
-        const res = await postRequest<OkResponse>('/judge/break', null);
+        const res = await postRequest<YesNoResponse>('/judge/break', null);
         if (res.status !== 200) {
             errorAlert(res);
             return;
@@ -257,7 +257,7 @@ const Judge = () => {
 
     const saveSort = async (projects: SortableJudgedProject[]) => {
         // Save the rankings
-        const saveRes = await postRequest<OkResponse>('/judge/rank', {
+        const saveRes = await postRequest<YesNoResponse>('/judge/rank', {
             ranking: projects.map((p) => p.project_id),
         });
         if (saveRes.status !== 200) {
@@ -271,7 +271,7 @@ const Judge = () => {
             alert(`You can only submit rankings in batches of ${rankingBatchSize} projects.`)
             return
         }
-        const submitRes = await postRequest<OkResponse>('/judge/submit-batch-ranking', {
+        const submitRes = await postRequest<YesNoResponse>('/judge/submit-batch-ranking', {
             batch_ranking: ranked.map((p) => p.project_id),
         });
         if (submitRes.status !== 200) {

@@ -54,11 +54,11 @@ const Ratings = (props: RatingsProps) => {
 
         // Score the current project
         const scoreRes = props.update
-            ? await putRequest<OkResponse>('/judge/score', {
+            ? await putRequest<YesNoResponse>('/judge/score', {
                 categories: scores,
                 project: props.project?.project_id,
             })
-            : await postRequest<OkResponse>('/judge/score', {
+            : await postRequest<YesNoResponse>('/judge/score', {
                 categories: scores,
                 initial: true,
             });

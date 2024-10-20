@@ -32,7 +32,7 @@ func GetJudge(ctx *gin.Context) {
 func JudgeAuthenticated(ctx *gin.Context) {
 	// This route will run the middleware first, and if the middleware
 	// passes, then that means the judge is authenticated
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /judge/welcome - Endpoint to check if a judge has read the welcome message
@@ -42,9 +42,9 @@ func CheckJudgeReadWelcome(ctx *gin.Context) {
 
 	// Send OK
 	if judge.ReadWelcome {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 0})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 0})
 	}
 }
 
@@ -67,7 +67,7 @@ func SetJudgeReadWelcome(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /judge/list - Endpoint to get a list of all judges
@@ -125,7 +125,7 @@ func DeleteJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/next - Endpoint to get the next project for a judge
@@ -266,7 +266,7 @@ func JudgeSkip(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/hide - Endpoint to hide a judge
@@ -297,7 +297,7 @@ func HideJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/unhide - Endpoint to unhide a judge
@@ -329,7 +329,7 @@ func UnhideJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // PUT /judge/:id - Endpoint to edit a judge
@@ -363,7 +363,7 @@ func EditJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type JudgeScoreRequest struct {
@@ -404,7 +404,7 @@ func JudgeScore(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type RankRequest struct {
@@ -435,7 +435,7 @@ func JudgeRank(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type BatchRankingRequest struct {
@@ -469,7 +469,7 @@ func JudgeSubmitBatchRanking(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/break - Allows a judge to take a break and free up their current project
@@ -497,7 +497,7 @@ func JudgeBreak(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /categories - Endpoint to get the categories
@@ -586,7 +586,7 @@ func JudgeUpdateScore(ctx *gin.Context) {
 	comps.UpdateProjectComparisonCount(judge.SeenProjects, scoreReq.Project)
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type UpdateNotesRequest struct {
@@ -637,5 +637,5 @@ func JudgeUpdateNotes(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }

@@ -23,7 +23,7 @@ const Admin = () => {
     useEffect(() => {
         // Check if user logged in
         async function checkLoggedIn() {
-            const loggedInRes = await postRequest<OkResponse>('/admin/auth', null);
+            const loggedInRes = await postRequest<YesNoResponse>('/admin/auth', null);
             if (loggedInRes.status === 401) {
                 console.error(`Admin is not logged in!`);
                 navigate('/');
@@ -81,7 +81,7 @@ const Admin = () => {
 
     async function endJudgingReq() {
         console.log("Requesting server to end judging.")
-        const endJudgingRes = await postRequest<OkResponse>('/admin/end-judging', null)
+        const endJudgingRes = await postRequest<YesNoResponse>('/admin/end-judging', null)
         return endJudgingRes.status === 200;
     }
 
