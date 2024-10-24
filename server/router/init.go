@@ -133,7 +133,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.POST("/judge/notes", JudgeUpdateNotes)
 	judgeRouter.GET("/rbs", GetRankingBatchSize)
 
-	adminRouter.GET("/admin/end-judging", isJudgingEnded)
+	defaultRouter.GET("/check-judging-over", isJudgingEnded)
 	adminRouter.POST("/admin/end-judging", endJudging)
 
 	// Serve frontend static files

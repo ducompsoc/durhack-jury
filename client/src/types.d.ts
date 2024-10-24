@@ -102,10 +102,6 @@ interface RankingBatchSize {
     rbs: number;
 }
 
-interface JudgingEnded {
-    judging_ended: boolean;
-}
-
 interface Flag {
     id: string;
     judge_id: string;

@@ -51,12 +51,12 @@ const Admin = () => {
         checkSubmittedJudges();
 
         async function checkJudgingEnded() {
-            const judgingEndedRes = await getRequest<JudgingEnded>('/admin/end-judging')
+            const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
             if (judgingEndedRes.status !== 200) {
                 errorAlert(judgingEndedRes);
                 return;
             }
-            setJudgingEnded(judgingEndedRes.data?.judging_ended as boolean);
+            setJudgingEnded(Boolean(judgingEndedRes.data?.yes_no));
         }
         checkJudgingEnded();
     }, []);

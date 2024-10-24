@@ -461,7 +461,7 @@ func GetScores(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, scores)
 }
 
-// GET /admin/end-judging - isJudgingEnded returns the value of the judging_ended flag
+// GET /check-judging-over - isJudgingEnded returns the value of the judging_ended flag
 func isJudgingEnded(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
@@ -472,7 +472,13 @@ func isJudgingEnded(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"judging_ended": judgingEnded})
+	// no type conversion from bool to int directly :'( : https://stackoverflow.com/a/38627381/7253717
+	var judgingEndedVar int8
+	if judgingEnded {
+		judgingEndedVar = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": judgingEndedVar})
 }
 
 // POST /admin/end-judging - endJudging ends the judging process by setting the judging_ended flag to true
