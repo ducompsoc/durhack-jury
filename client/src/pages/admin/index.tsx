@@ -95,7 +95,7 @@ const Admin = () => {
         if (justListRes.data){
             let numSubmitted = 0
             justListRes.data.forEach(j => {
-                if (j.current_rankings.length == 0) numSubmitted++
+                if (j.past_rankings.flat().length == j.seen) numSubmitted++
             })
             setSubmittedJudges(numSubmitted)
         }
