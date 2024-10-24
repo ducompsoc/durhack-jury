@@ -9,6 +9,7 @@ import (
 	"server/database"
 	"server/judging"
 	"server/models"
+	"strconv"
 )
 
 type GetJudgeResponse struct {
@@ -32,7 +33,7 @@ func GetJudge(ctx *gin.Context) {
 func JudgeAuthenticated(ctx *gin.Context) {
 	// This route will run the middleware first, and if the middleware
 	// passes, then that means the judge is authenticated
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /judge/welcome - Endpoint to check if a judge has read the welcome message
@@ -42,9 +43,9 @@ func CheckJudgeReadWelcome(ctx *gin.Context) {
 
 	// Send OK
 	if judge.ReadWelcome {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 0})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 0})
 	}
 }
 
@@ -67,7 +68,7 @@ func SetJudgeReadWelcome(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /judge/list - Endpoint to get a list of all judges
@@ -125,13 +126,24 @@ func DeleteJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/next - Endpoint to get the next project for a judge
 func GetNextJudgeProject(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
+
+	// If judging is over, return an empty object (prevents any picking of new projects)
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+	if judgingEnded {
+		ctx.JSON(http.StatusOK, gin.H{})
+		return
+	}
 
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
@@ -148,7 +160,7 @@ func GetNextJudgeProject(ctx *gin.Context) {
 	// Otherwise, get the next project for the judge
 	// TODO: This wrapping is a little ridiculous...
 	var project *models.Project
-	err := database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
+	err = database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
 		var err error
 		project, err = judging.PickNextProject(db, judge, ctx, comps)
 		return nil, err
@@ -266,7 +278,7 @@ func JudgeSkip(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/hide - Endpoint to hide a judge
@@ -297,7 +309,7 @@ func HideJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/unhide - Endpoint to unhide a judge
@@ -329,7 +341,7 @@ func UnhideJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // PUT /judge/:id - Endpoint to edit a judge
@@ -363,7 +375,7 @@ func EditJudge(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type JudgeScoreRequest struct {
@@ -404,7 +416,7 @@ func JudgeScore(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type RankRequest struct {
@@ -435,14 +447,14 @@ func JudgeRank(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type BatchRankingRequest struct {
 	BatchRanking []primitive.ObjectID `json:"batch_ranking"`
 }
 
-// POST /judge/submit_batch_ranking -
+// POST /judge/submit-batch-ranking -
 func JudgeSubmitBatchRanking(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
@@ -458,6 +470,26 @@ func JudgeSubmitBatchRanking(ctx *gin.Context) {
 		return
 	}
 
+	// Validate batch ranking size
+	brs, err := database.GetBatchRankingSize(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting batch ranking size: " + err.Error()})
+		return
+	}
+	judgingOver, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+	if !judgingOver && len(batchRankingReq.BatchRanking) != int(brs) { // If judging hasn't ended, the batch should be the size of the batch ranking size
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "batch should be at least " + strconv.FormatInt(brs, 10) + " (current BRS value) projects large."})
+		return
+	}
+	if len(batchRankingReq.BatchRanking) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "batch ranking should be at least 1 project large."}) // note: can't enforce at least 2 since judging might be ended early
+		return
+	}
+
 	// Update the judge's variables based on this new batch ranking
 	err = database.UpdateJudgePostBatchRank(db, judge, batchRankingReq.BatchRanking)
 	if err != nil {
@@ -469,7 +501,7 @@ func JudgeSubmitBatchRanking(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /judge/break - Allows a judge to take a break and free up their current project
@@ -497,7 +529,7 @@ func JudgeBreak(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /categories - Endpoint to get the categories
@@ -516,20 +548,20 @@ func GetCategories(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
-// GET /rbs - Endpoint to return ranking batch size
+// GET /brs - Endpoint to return ranking batch size
 func GetRankingBatchSize(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
-	// Get categories from database
-	rbs, err := database.GetRankingBatchSize(db)
+	// Get ranking batch size from database
+	brs, err := database.GetBatchRankingSize(db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting ranking batch size: " + err.Error()})
 		return
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"rbs": rbs})
+	ctx.JSON(http.StatusOK, gin.H{"brs": brs})
 }
 
 type UpdateScoreRequest struct {
@@ -586,7 +618,7 @@ func JudgeUpdateScore(ctx *gin.Context) {
 	comps.UpdateProjectComparisonCount(judge.SeenProjects, scoreReq.Project)
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type UpdateNotesRequest struct {
@@ -637,5 +669,5 @@ func JudgeUpdateNotes(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }

@@ -87,7 +87,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.POST("/judge/skip", JudgeSkip)
 	judgeRouter.POST("/judge/score", JudgeScore)
 	judgeRouter.POST("/judge/rank", JudgeRank)
-	judgeRouter.POST("/judge/submit_batch_ranking", JudgeSubmitBatchRanking)
+	judgeRouter.POST("/judge/submit-batch-ranking", JudgeSubmitBatchRanking)
 	judgeRouter.PUT("/judge/score", JudgeUpdateScore)
 	judgeRouter.POST("/judge/break", JudgeBreak)
 
@@ -105,7 +105,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.GET("/admin/stats", GetAdminStats)
 	adminRouter.GET("/admin/score", GetScores)
 	adminRouter.GET("/admin/clock", GetClock)
-	adminRouter.POST("/admin/clock/pause", PauseClock)
+	adminRouter.POST("/admin/clock/pause", PauseClockHandler)
 	adminRouter.POST("/admin/clock/unpause", UnpauseClock)
 	adminRouter.POST("/admin/clock/reset", ResetClock)
 	adminRouter.POST("/admin/auth", AdminAuthenticated)
@@ -127,11 +127,16 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.GET("/admin/timer", GetJudgingTimer)
 	adminRouter.POST("/admin/timer", SetJudgingTimer)
 	adminRouter.POST("/admin/min-views", SetMinViews)
-	adminRouter.POST("/admin/ranking-batch-size", SetRankingBatchSize)
+
+	judgeRouter.GET("/brs", GetRankingBatchSize)
+	adminRouter.POST("/admin/batch-ranking-size", SetRankingBatchSize)
+
 	adminRouter.POST("/admin/categories", SetCategories)
 	judgeRouter.GET("/categories", GetCategories)
 	judgeRouter.POST("/judge/notes", JudgeUpdateNotes)
-	judgeRouter.GET("/rbs", GetRankingBatchSize)
+
+	defaultRouter.GET("/check-judging-over", isJudgingEnded)
+	adminRouter.POST("/admin/end-judging", endJudging)
 
 	// Serve frontend static files
 	router.Use(static.Serve("/assets", static.LocalFile("./public/assets", true)))

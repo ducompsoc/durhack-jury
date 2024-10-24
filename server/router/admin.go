@@ -33,7 +33,7 @@ func LoginAdmin(ctx *gin.Context) {
 
 	// Return status OK if the password matches
 	if req.Password == password {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 		return
 	}
 
@@ -46,7 +46,7 @@ func AdminAuthenticated(ctx *gin.Context) {
 	// This route will run the middleware first, and if the middleware
 	// passes, then that means the admin is authenticated
 
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /admin/stats - GetAdminStats returns stats about the system
@@ -84,8 +84,7 @@ func GetClock(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"running": clock.Running, "time": clock.GetDuration()})
 }
 
-// POST /admin/clock/pause - PauseClock pauses the clock
-func PauseClock(ctx *gin.Context) {
+func PauseClock(ctx *gin.Context) *models.ClockState {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
@@ -99,17 +98,32 @@ func PauseClock(ctx *gin.Context) {
 	err := database.UpdateClock(db, clock)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving clock: " + err.Error()})
-		return
+		return nil
 	}
+	return clock
+}
 
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"clock": clock})
+// POST /admin/clock/pause - PauseClockHandler pauses the clock
+func PauseClockHandler(ctx *gin.Context) {
+	clock := PauseClock(ctx)
+
+	if clock != nil {
+		// Send OK
+		ctx.JSON(http.StatusOK, gin.H{"clock": clock})
+	}
 }
 
 // POST /admin/clock/unpause - UnpauseClock unpauses the clock
 func UnpauseClock(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Check if judging has ended
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if judgingEnded {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Judging has been ended. Clock cannot be unpaused."})
+		return
+	}
 
 	// Get the clock from the context
 	clock := ctx.MustGet("clock").(*models.ClockState)
@@ -118,7 +132,7 @@ func UnpauseClock(ctx *gin.Context) {
 	clock.Resume()
 
 	// Save the clock in the database
-	err := database.UpdateClock(db, clock)
+	err = database.UpdateClock(db, clock)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving clock: " + err.Error()})
 		return
@@ -156,9 +170,9 @@ func IsClockPaused(ctx *gin.Context) {
 
 	// Send OK
 	if clock.Running {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 	} else {
-		ctx.JSON(http.StatusOK, gin.H{"ok": 0})
+		ctx.JSON(http.StatusOK, gin.H{"yes_no": 0})
 	}
 }
 
@@ -175,7 +189,7 @@ func ResetDatabase(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /admin/flags - GetFlags returns all flags
@@ -321,7 +335,7 @@ func SetJudgingTimer(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type SetCategoriesRequest struct {
@@ -349,15 +363,15 @@ func SetCategories(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type MinViewsRequest struct {
 	MinViews int `json:"min_views"`
 }
 
-type RankingBatchSizeRequest struct {
-	RBS int `json:"ranking_batch_size"`
+type BatchRankingSizeRequest struct {
+	BRS int `json:"batch_ranking_size"`
 }
 
 // POST /admin/min-views - sets the min views
@@ -380,33 +394,33 @@ func SetMinViews(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
-// POST /admin/ranking-batch-size - sets the ranking batch size
+// POST /admin/batch-ranking-size - sets the ranking batch size
 func SetRankingBatchSize(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get the views
-	var rbsReq RankingBatchSizeRequest
-	err := ctx.BindJSON(&rbsReq)
+	var brsReq BatchRankingSizeRequest
+	err := ctx.BindJSON(&brsReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing request: " + err.Error()})
 	}
 
 	// Save the ranking batch size in the db
-	err = database.UpdateRankingBatchSize(db, rbsReq.RBS)
+	err = database.UpdateBatchRankingSize(db, brsReq.BRS)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving ranking batch size: " + err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving batch ranking size: " + err.Error()})
 		return
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
-// /GET /admin/score - GetScores returns the calculated scores of all projects
+// GET /admin/score - GetScores returns the calculated scores of all projects
 func GetScores(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
@@ -452,6 +466,50 @@ func GetScores(ctx *gin.Context) {
 
 	// Send OK
 	ctx.JSON(http.StatusOK, scores)
+}
+
+// GET /check-judging-over - isJudgingEnded returns a yes_no indicating the value of the judging_ended boolean flag
+func isJudgingEnded(ctx *gin.Context) {
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get judging_ended flag from database
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+
+	// no type conversion from bool to int directly :'( : https://stackoverflow.com/a/38627381/7253717
+	var judgingEndedVar int8
+	if judgingEnded {
+		judgingEndedVar = 1
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": judgingEndedVar})
+}
+
+// POST /admin/end-judging - endJudging ends the judging process by setting the judging_ended flag to true
+func endJudging(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Pause the clock
+	clock := PauseClock(ctx)
+
+	if clock == nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error pausing clock"})
+		return
+	}
+
+	// Save the judging_ended flag in the db
+	err := database.SetEndJudging(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error setting judging_ended: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // contains checks if a string is in a list of strings

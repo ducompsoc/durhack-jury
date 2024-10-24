@@ -18,12 +18,13 @@ import alarm from '../../assets/alarm.mp3';
 import data from '../../data.json';
 import RawTextInput from '../../components/RawTextInput';
 
-const infoPages = ['paused', 'hidden', 'no-projects', 'done'];
+const infoPages = ['paused', 'hidden', 'no-projects', 'done', 'judging-ended'];
 const infoData = [
     data.judgeInfo.paused,
     data.judgeInfo.hidden,
     data.judgeInfo.noProjects,
     data.judgeInfo.done,
+    data.judgeInfo.judgingEnded,
 ];
 
 const audio = new Audio(alarm);
@@ -51,35 +52,46 @@ const JudgeLive = () => {
     useEffect(() => {
         async function fetchData() {
             // Check to see if the user is logged in
-            const loggedInRes = await postRequest<OkResponse>('/judge/auth', null);
+            const loggedInRes = await postRequest<YesNoResponse>('/judge/auth', null);
             if (loggedInRes.status !== 200) {
                 errorAlert(loggedInRes);
                 return;
             }
-            if (loggedInRes.data?.ok !== 1) {
+            if (loggedInRes.data?.yes_no !== 1) {
                 console.error(`Judge is not logged in!`);
                 navigate('/');
                 return;
             }
 
             // Check for read welcome
-            const readWelcomeRes = await getRequest<OkResponse>('/judge/welcome');
+            const readWelcomeRes = await getRequest<YesNoResponse>('/judge/welcome');
             if (readWelcomeRes.status !== 200) {
                 errorAlert(readWelcomeRes);
                 return;
             }
-            const readWelcome = readWelcomeRes.data?.ok === 1;
+            const readWelcome = readWelcomeRes.data?.yes_no === 1;
             if (!readWelcome) {
                 navigate('/judge/welcome');
             }
 
+            const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
+            if (judgingEndedRes.status !== 200) {
+                errorAlert(judgingEndedRes);
+                return;
+            }
+            if (judgingEndedRes.data?.yes_no === 1) {
+                setVerified(true)
+                setInfoPage('judging-ended');
+                return;
+            }
+
             // Check to see if judging has started
-            const startedRes = await getRequest<OkResponse>('/admin/started');
+            const startedRes = await getRequest<YesNoResponse>('/admin/started');
             if (startedRes.status !== 200) {
                 errorAlert(startedRes);
                 return;
             }
-            if (startedRes.data?.ok !== 1) {
+            if (startedRes.data?.yes_no !== 1) {
                 setVerified(true);
                 setInfoPage('paused');
                 return;
@@ -231,7 +243,7 @@ const JudgeLive = () => {
 
         // Update notes if voting
         if (isVote) {
-            const res = await postRequest<OkResponse>('/judge/notes', {
+            const res = await postRequest<YesNoResponse>('/judge/notes', {
                 notes,
                 project: judge?.current,
             });
