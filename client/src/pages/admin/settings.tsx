@@ -24,7 +24,7 @@ const AdminSettings = () => {
     const [judgingTimer, setJudgingTimer] = useState('');
     const [minViews, setMinViews] = useState('');
     const [categories, setCategories] = useState('');
-    const [rankingBatchSize, setRankingBatchSize] = useState('');
+    const [batchRankingSize, setBatchRankingSize] = useState('');
     const [loading, setLoading] = useState(true);
 
     async function getOptions() {
@@ -54,8 +54,8 @@ const AdminSettings = () => {
         // Set min views
         setMinViews(res.data.min_views.toString());
 
-        // Set ranking batch size
-        setRankingBatchSize(res.data.ranking_batch_size.toString())
+        // Set batch ranking size
+        setBatchRankingSize(res.data.batch_ranking_size.toString())
         setLoading(false);
     }
 
@@ -147,22 +147,22 @@ const AdminSettings = () => {
         getOptions();
     };
 
-    const updateRankingBatchSize = async () => {
-        // Convert rankingBatchSize to integer
-        const r = parseInt(rankingBatchSize);
+    const updateBatchRankingSize = async () => {
+        // Convert batchRankingSize to integer
+        const r = parseInt(batchRankingSize);
         if (isNaN(r) || r < 2) {
-            alert('Minimum views should be a positive integer >= 2!');
+            alert('Minimum batch ranking size should be a positive integer >= 2!');
             return;
         }
-        const res = await postRequest<YesNoResponse>('/admin/ranking-batch-size', {
-            ranking_batch_size: r,
+        const res = await postRequest<YesNoResponse>('/admin/batch-ranking-size', {
+            batch_ranking_size: r,
         });
         if (res.status !== 200 || res.data?.yes_no !== 1) {
             errorAlert(res);
             return;
         }
 
-        alert('Ranking Batch Size updated!');
+        alert('Batch Ranking Size updated!');
         getOptions();
     }
 
@@ -294,7 +294,7 @@ const AdminSettings = () => {
                     Update Categories
                 </Button>
 
-                <SubSection>Set Ranking Batch Size</SubSection>
+                <SubSection>Set Batch Ranking Size (BRS)</SubSection>
                 <Description>
                     Set how many projects judges rank at a time (must be at least 2 obviously).
                     Judges can rank and reorder projects freely before submitting a batch of the specified size.
@@ -305,17 +305,17 @@ const AdminSettings = () => {
                     type="number"
                     min="2"
                     placeholder="8"
-                    value={rankingBatchSize}
+                    value={batchRankingSize}
                     onChange={(e) => {
-                        setRankingBatchSize(e.target.value.toString());
+                        setBatchRankingSize(e.target.value.toString());
                     }}
                 />
                 <Button
                     type="primary"
-                    onClick={updateRankingBatchSize}
+                    onClick={updateBatchRankingSize}
                     className="mt-4 w-auto md:w-auto px-4 py-2"
                 >
-                    Update Ranking Batch Size
+                    Update Batch Ranking Size
                 </Button>
 
                 <Section>Judging Parameters</Section>

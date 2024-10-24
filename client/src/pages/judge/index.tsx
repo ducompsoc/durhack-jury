@@ -30,7 +30,7 @@ const Judge = () => {
     const [ranked, setRanked] = useState<SortableJudgedProject[]>([]);
     const [unranked, setUnranked] = useState<SortableJudgedProject[]>([]);
     const [allRanked, setAllRanked] = useState(false)
-    const [rankingBatchSize, setRankingBatchSize] = useState(0);
+    const [batchRankingSize, setBatchRankingSize] = useState(0);
     const [judgingIsOver, setJudgingIsOver] = useState(false);
     const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
     const [nextButtonHelperText, setNextButtonHelperText] = useState('');
@@ -97,13 +97,13 @@ const Judge = () => {
             }
             setProjCount(projCountRes.data?.count as number);
 
-            // Get Ranking Batch Size
-            const rankingBatchSizeRes = await getRequest<RankingBatchSize>('/rbs');
-            if (rankingBatchSizeRes.status !== 200) {
-                errorAlert(rankingBatchSizeRes);
+            // Get Batch Ranking Size
+            const batchRankingSizeRes = await getRequest<BatchRankingSize>('/brs');
+            if (batchRankingSizeRes.status !== 200) {
+                errorAlert(batchRankingSizeRes);
                 return;
             }
-            setRankingBatchSize(rankingBatchSizeRes.data?.rbs as number);
+            setBatchRankingSize(batchRankingSizeRes.data?.brs as number);
 
             const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
             if (judgingEndedRes.status !== 200) {
@@ -143,12 +143,12 @@ const Judge = () => {
         setLoaded(true);
     }, [judge]);
 
-    // Trigger button state ranking batch logic updates when `rankingBatchSize` is set (>0) and/or whenever `ranked` or `unranked` states chance
+    // Trigger button state ranking batch logic updates when `batchRankingSize` is set (>0) and/or whenever `ranked` or `unranked` states chance
     useEffect(() => {
-        if (rankingBatchSize > 0) {
-            setAllRanked((ranked.length === rankingBatchSize || judgingIsOver) && unranked.length === 0);
+        if (batchRankingSize > 0) {
+            setAllRanked((ranked.length === batchRankingSize || judgingIsOver) && unranked.length === 0);
 
-            if (ranked.length + unranked.length === rankingBatchSize) {
+            if (ranked.length + unranked.length === batchRankingSize) {
                 setNextButtonHelperText('Rank and submit your current batch to move on');
                 setNextButtonDisabled(true);
             } else {
@@ -156,7 +156,7 @@ const Judge = () => {
                 if (!judgingIsOver) setNextButtonDisabled(false);
             }
         }
-    }, [rankingBatchSize, judgingIsOver, ranked, unranked, loaded]);
+    }, [batchRankingSize, judgingIsOver, ranked, unranked, loaded]);
 
     if (!loaded) return <Loading disabled={!loaded} />;
 
@@ -277,8 +277,8 @@ const Judge = () => {
     };
 
     const submitBatch = async () => {
-        if (ranked.length !== rankingBatchSize && !judgingIsOver) {
-            alert(`You can only submit rankings in batches of ${rankingBatchSize} projects.`)
+        if (ranked.length !== batchRankingSize && !judgingIsOver) {
+            alert(`You can only submit rankings in batches of ${batchRankingSize} projects.`)
             return
         }
         if (ranked.length === 0) {
@@ -363,7 +363,7 @@ const Judge = () => {
                     <div className="flex justify-center text-light text-sm italic text-center">
                         {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
                         Please rank all your projects to submit.<br/>
-                        <p hidden={judgingIsOver}>You can only submit rankings in batches of {rankingBatchSize} projects.</p>
+                        <p hidden={judgingIsOver}>You can only submit rankings in batches of {batchRankingSize} projects.</p>
                     </div>
                     <Button type="primary" full square className="mt-1" disabled={!allRanked} onClick={submitBatch}>
                         Submit Rankings

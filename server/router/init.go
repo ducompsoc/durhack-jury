@@ -127,11 +127,13 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	judgeRouter.GET("/admin/timer", GetJudgingTimer)
 	adminRouter.POST("/admin/timer", SetJudgingTimer)
 	adminRouter.POST("/admin/min-views", SetMinViews)
-	adminRouter.POST("/admin/ranking-batch-size", SetRankingBatchSize)
+
+	judgeRouter.GET("/brs", GetRankingBatchSize)
+	adminRouter.POST("/admin/batch-ranking-size", SetRankingBatchSize)
+
 	adminRouter.POST("/admin/categories", SetCategories)
 	judgeRouter.GET("/categories", GetCategories)
 	judgeRouter.POST("/judge/notes", JudgeUpdateNotes)
-	judgeRouter.GET("/rbs", GetRankingBatchSize)
 
 	defaultRouter.GET("/check-judging-over", isJudgingEnded)
 	adminRouter.POST("/admin/end-judging", endJudging)

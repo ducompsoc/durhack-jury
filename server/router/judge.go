@@ -516,20 +516,20 @@ func GetCategories(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, categories)
 }
 
-// GET /rbs - Endpoint to return ranking batch size
+// GET /brs - Endpoint to return ranking batch size
 func GetRankingBatchSize(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get ranking batch size from database
-	rbs, err := database.GetRankingBatchSize(db)
+	brs, err := database.GetBatchRankingSize(db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting ranking batch size: " + err.Error()})
 		return
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"rbs": rbs})
+	ctx.JSON(http.StatusOK, gin.H{"brs": brs})
 }
 
 type UpdateScoreRequest struct {

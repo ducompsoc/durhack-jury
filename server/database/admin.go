@@ -124,10 +124,10 @@ func UpdateMinViews(db *mongo.Database, minViews int) error {
 	return err
 }
 
-// UpdateRankingBatchSize will update the min views setting
-func UpdateRankingBatchSize(db *mongo.Database, rankingBatchSize int) error {
+// UpdateBatchRankingSize will update the min views setting
+func UpdateBatchRankingSize(db *mongo.Database, batchRankingSize int) error {
 	// Update the min views
-	_, err := db.Collection("options").UpdateOne(context.Background(), gin.H{}, gin.H{"$set": gin.H{"ranking_batch_size": rankingBatchSize}})
+	_, err := db.Collection("options").UpdateOne(context.Background(), gin.H{}, gin.H{"$set": gin.H{"batch_ranking_size": batchRankingSize}})
 	return err
 }
 
