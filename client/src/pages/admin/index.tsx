@@ -16,7 +16,7 @@ const Admin = () => {
     const navigate = useNavigate();
     const [showProjects, setShowProjects] = useState(true);
     const [loading, setLoading] = useState(true);
-    const [judgingEnded, setJudgingEnded] = useState(false);
+    const [judgingIsOver, setJudgingIsOver] = useState(false);
     const [numJudges, setNumJudges] = useState(0);
     const [submittedJudges, setSubmittedJudges] = useState(0);
 
@@ -56,7 +56,7 @@ const Admin = () => {
                 errorAlert(judgingEndedRes);
                 return;
             }
-            setJudgingEnded(Boolean(judgingEndedRes.data?.yes_no));
+            setJudgingIsOver(Boolean(judgingEndedRes.data?.yes_no));
         }
         checkJudgingEnded();
     }, []);
@@ -69,11 +69,11 @@ const Admin = () => {
                 if (success) {
                     alert("Judging has now been ended. Judges will be notified and made to submit their rankings. " +
                         "Wait until all have submitted before recording final results.");
-                    setJudgingEnded(true);
+                    setJudgingIsOver(true);
                     checkSubmittedJudges();
                 } else {
                     alert("Failed to end judging.");
-                    setJudgingEnded(false);
+                    setJudgingIsOver(false);
                 }
             })
         }
@@ -120,11 +120,11 @@ const Admin = () => {
                 <Button
                     type="error"
                     onClick={endJudging}
-                    disabled={judgingEnded}
+                    disabled={judgingIsOver}
                     bold
                     className="justify-self-stretch md:w-full w-full"
-                >{judgingEnded ? `Submitted judges: ${submittedJudges}/${numJudges}` : "End Judging"}</Button>
-                <div hidden={!judgingEnded} onClick={checkSubmittedJudges} className="justify-self-start cursor-pointer" title="Refresh submitted judges">🔁</div>
+                >{judgingIsOver ? `Submitted judges: ${submittedJudges}/${numJudges}` : "End Judging"}</Button>
+                <div hidden={!judgingIsOver} onClick={checkSubmittedJudges} className="justify-self-start cursor-pointer" title="Refresh submitted judges">🔁</div>
             </div>
             <AdminToggleSwitch state={showProjects} setState={setShowProjects} />
             <AdminToolbar showProjects={showProjects} />

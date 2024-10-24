@@ -468,7 +468,7 @@ func GetScores(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, scores)
 }
 
-// GET /check-judging-over - isJudgingEnded returns the value of the judging_ended flag
+// GET /check-judging-over - isJudgingEnded returns a yes_no indicating the value of the judging_ended boolean flag
 func isJudgingEnded(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
