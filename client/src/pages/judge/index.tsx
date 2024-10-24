@@ -105,12 +105,12 @@ const Judge = () => {
             }
             setBatchRankingSize(batchRankingSizeRes.data?.brs as number);
 
-            const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
-            if (judgingEndedRes.status !== 200) {
-                errorAlert(judgingEndedRes);
+            const judgingOverRes = await getRequest<YesNoResponse>('/check-judging-over')
+            if (judgingOverRes.status !== 200) {
+                errorAlert(judgingOverRes);
                 return;
             }
-            let judgingIsOver = Boolean(judgingEndedRes.data?.yes_no)
+            let judgingIsOver = Boolean(judgingOverRes.data?.yes_no)
             setJudgingIsOver(judgingIsOver);
             setNextButtonDisabled(judgingIsOver);
         }

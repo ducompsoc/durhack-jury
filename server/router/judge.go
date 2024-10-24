@@ -9,6 +9,7 @@ import (
 	"server/database"
 	"server/judging"
 	"server/models"
+	"strconv"
 )
 
 type GetJudgeResponse struct {
@@ -133,6 +134,17 @@ func GetNextJudgeProject(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
+	// If judging is over, return an empty object (prevents any picking of new projects)
+	judgingEnded, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+	if judgingEnded {
+		ctx.JSON(http.StatusOK, gin.H{})
+		return
+	}
+
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
@@ -148,7 +160,7 @@ func GetNextJudgeProject(ctx *gin.Context) {
 	// Otherwise, get the next project for the judge
 	// TODO: This wrapping is a little ridiculous...
 	var project *models.Project
-	err := database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
+	err = database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
 		var err error
 		project, err = judging.PickNextProject(db, judge, ctx, comps)
 		return nil, err
@@ -455,6 +467,26 @@ func JudgeSubmitBatchRanking(ctx *gin.Context) {
 	err := ctx.BindJSON(&batchRankingReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+
+	// Validate batch ranking size
+	brs, err := database.GetBatchRankingSize(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting batch ranking size: " + err.Error()})
+		return
+	}
+	judgingOver, err := database.GetJudgingEnded(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judging_ended flag: " + err.Error()})
+		return
+	}
+	if !judgingOver && len(batchRankingReq.BatchRanking) != int(brs) { // If judging hasn't ended, the batch should be the size of the batch ranking size
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "batch should be at least " + strconv.FormatInt(brs, 10) + " (current BRS value) projects large."})
+		return
+	}
+	if len(batchRankingReq.BatchRanking) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "batch ranking should be at least 1 project large."}) // note: can't enforce at least 2 since judging might be ended early
 		return
 	}
 
