@@ -105,7 +105,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.GET("/admin/stats", GetAdminStats)
 	adminRouter.GET("/admin/score", GetScores)
 	adminRouter.GET("/admin/clock", GetClock)
-	adminRouter.POST("/admin/clock/pause", PauseClock)
+	adminRouter.POST("/admin/clock/pause", PauseClockHandler)
 	adminRouter.POST("/admin/clock/unpause", UnpauseClock)
 	adminRouter.POST("/admin/clock/reset", ResetClock)
 	adminRouter.POST("/admin/auth", AdminAuthenticated)

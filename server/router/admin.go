@@ -84,8 +84,7 @@ func GetClock(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"running": clock.Running, "time": clock.GetDuration()})
 }
 
-// POST /admin/clock/pause - PauseClock pauses the clock
-func PauseClock(ctx *gin.Context) {
+func PauseClock(ctx *gin.Context) *models.ClockState {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
@@ -99,11 +98,19 @@ func PauseClock(ctx *gin.Context) {
 	err := database.UpdateClock(db, clock)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error saving clock: " + err.Error()})
-		return
+		return nil
 	}
+	return clock
+}
 
-	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"clock": clock})
+// POST /admin/clock/pause - PauseClockHandler pauses the clock
+func PauseClockHandler(ctx *gin.Context) {
+	clock := PauseClock(ctx)
+
+	if clock != nil {
+		// Send OK
+		ctx.JSON(http.StatusOK, gin.H{"clock": clock})
+	}
 }
 
 // POST /admin/clock/unpause - UnpauseClock unpauses the clock
@@ -486,14 +493,20 @@ func endJudging(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
+	// Pause the clock
+	clock := PauseClock(ctx)
+
+	if clock == nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error pausing clock"})
+		return
+	}
+
 	// Save the judging_ended flag in the db
 	err := database.SetEndJudging(db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error setting judging_ended: " + err.Error()})
 		return
 	}
-
-	PauseClock(ctx)
 
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
