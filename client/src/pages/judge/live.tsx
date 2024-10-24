@@ -18,12 +18,13 @@ import alarm from '../../assets/alarm.mp3';
 import data from '../../data.json';
 import RawTextInput from '../../components/RawTextInput';
 
-const infoPages = ['paused', 'hidden', 'no-projects', 'done'];
+const infoPages = ['paused', 'hidden', 'no-projects', 'done', 'judging-ended'];
 const infoData = [
     data.judgeInfo.paused,
     data.judgeInfo.hidden,
     data.judgeInfo.noProjects,
     data.judgeInfo.done,
+    data.judgeInfo.judgingEnded,
 ];
 
 const audio = new Audio(alarm);
@@ -71,6 +72,17 @@ const JudgeLive = () => {
             const readWelcome = readWelcomeRes.data?.yes_no === 1;
             if (!readWelcome) {
                 navigate('/judge/welcome');
+            }
+
+            const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
+            if (judgingEndedRes.status !== 200) {
+                errorAlert(judgingEndedRes);
+                return;
+            }
+            if (judgingEndedRes.data?.yes_no === 1) {
+                setVerified(true)
+                setInfoPage('judging-ended');
+                return;
             }
 
             // Check to see if judging has started

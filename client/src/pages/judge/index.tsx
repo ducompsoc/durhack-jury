@@ -31,6 +31,7 @@ const Judge = () => {
     const [unranked, setUnranked] = useState<SortableJudgedProject[]>([]);
     const [allRanked, setAllRanked] = useState(false)
     const [rankingBatchSize, setRankingBatchSize] = useState(0);
+    const [judgingIsOver, setJudgingIsOver] = useState(false);
     const [nextButtonDisabled, setNextButtonDisabled] = useState(false);
     const [nextButtonHelperText, setNextButtonHelperText] = useState('');
     const [loaded, setLoaded] = useState(false);
@@ -103,6 +104,15 @@ const Judge = () => {
                 return;
             }
             setRankingBatchSize(rankingBatchSizeRes.data?.rbs as number);
+
+            const judgingEndedRes = await getRequest<YesNoResponse>('/check-judging-over')
+            if (judgingEndedRes.status !== 200) {
+                errorAlert(judgingEndedRes);
+                return;
+            }
+            let judgingIsOver = Boolean(judgingEndedRes.data?.yes_no)
+            setJudgingIsOver(judgingIsOver);
+            setNextButtonDisabled(judgingIsOver);
         }
 
         fetchData();
@@ -136,17 +146,17 @@ const Judge = () => {
     // Trigger button state ranking batch logic updates when `rankingBatchSize` is set (>0) and/or whenever `ranked` or `unranked` states chance
     useEffect(() => {
         if (rankingBatchSize > 0) {
-            setAllRanked(ranked.length === rankingBatchSize && unranked.length === 0);
+            setAllRanked((ranked.length === rankingBatchSize || judgingIsOver) && unranked.length === 0);
 
             if (ranked.length + unranked.length === rankingBatchSize) {
                 setNextButtonHelperText('Rank and submit your current batch to move on');
                 setNextButtonDisabled(true);
             } else {
                 setNextButtonHelperText('');
-                setNextButtonDisabled(false);
+                if (!judgingIsOver) setNextButtonDisabled(false);
             }
         }
-    }, [rankingBatchSize, ranked, unranked, loaded]);
+    }, [rankingBatchSize, judgingIsOver, ranked, unranked, loaded]);
 
     if (!loaded) return <Loading disabled={!loaded} />;
 
@@ -267,10 +277,15 @@ const Judge = () => {
     };
 
     const submitBatch = async () => {
-        if (ranked.length !== rankingBatchSize) {  // lucatodo: handle end of event
+        if (ranked.length !== rankingBatchSize && !judgingIsOver) {
             alert(`You can only submit rankings in batches of ${rankingBatchSize} projects.`)
             return
         }
+        if (ranked.length === 0) {
+            alert('You cannot submit an empty batch.')
+            return
+        }
+
         const submitRes = await postRequest<YesNoResponse>('/judge/submit-batch-ranking', {
             batch_ranking: ranked.map((p) => p.project_id),
         });
@@ -287,6 +302,10 @@ const Judge = () => {
         <>
             <JuryHeader withLogout />
             <Container noCenter className="px-2 pb-4">
+                <div className="w-full text-lg text-center italic bg-error" hidden={!judgingIsOver}>
+                    <p>Judging has been ended. You can no longer view new projects.</p>
+                    <p>Please rank your previously seen projects and submit.</p>
+                </div>
                 <h1 className="text-2xl my-2">Welcome, {judge?.name}!</h1>
                 <div className="w-full mb-6">
                     <Button type="primary" full square href="/judge/live" disabled={nextButtonDisabled}>
@@ -294,14 +313,15 @@ const Judge = () => {
                         <p className="text-sm italic">{nextButtonHelperText}</p>
                     </Button>
                     <div className="flex align-center justify-center mt-4">
-                        <Button type="outline" square onClick={takeBreak} className="text-lg p-2">
+                        <Button type="outline" square onClick={takeBreak} disabled={judgingIsOver} className="text-lg p-2">
                             I want to take a break!
                         </Button>
                     </div>
                 </div>
                 <div className="flex justify-evenly">
-                    <StatBlock name="Seen" value={judge?.seen_projects.length as number} />
-                    <StatBlock name="Total Projects" value={projCount} />
+                    <StatBlock name="Seen" value={judge?.seen_projects.length as number}/>
+                    <StatBlock name="Submitted Batches" value={judge?.past_rankings.length as number}/>
+                    <StatBlock name="Total Projects" value={projCount}/>
                 </div>
                 <DndContext
                     sensors={sensors}
@@ -343,11 +363,12 @@ const Judge = () => {
                     <div className="flex justify-center text-light text-sm italic text-center">
                         {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
                         Please rank all your projects to submit.<br/>
-                        You can only submit rankings in batches of {rankingBatchSize} projects.
+                        <p hidden={judgingIsOver}>You can only submit rankings in batches of {rankingBatchSize} projects.</p>
                     </div>
                     <Button type="primary" full square className="mt-1" disabled={!allRanked} onClick={submitBatch}>
                         Submit Rankings
-                        <p className="text-sm italic">And move onto next batch</p>
+                        <p className="text-sm italic" hidden={judgingIsOver}>and move onto next batch</p>
+                        <p className="text-sm italic" hidden={!judgingIsOver}>and finish judging. Thank you for your hard work!</p>
                     </Button>
                 </div>
             </Container>

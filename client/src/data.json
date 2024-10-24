@@ -15,6 +15,10 @@
         "noProjects": {
             "title": "There are no projects to judge",
             "description": "You're early! There seems to be no projects currently in the system to judge. Please let an organizer know if this is unexpected."
+        },
+        "judgingEnded": {
+            "title": "Judging has been ended",
+            "description": "Judging has been ended by an admin. Please rank and submit what projects you have already seen."
         }
     },
     "flags": {
