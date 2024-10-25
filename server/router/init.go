@@ -119,7 +119,6 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.PUT("/judge/:id", EditJudge)
 	defaultRouter.GET("/admin/started", IsClockPaused)
 	adminRouter.GET("/admin/flags", GetFlags)
-	adminRouter.POST("/project/reassign", ReassignProjectNums)
 	adminRouter.GET("/admin/options", GetOptions)
 	adminRouter.GET("/admin/export/projects", ExportProjects)
 	adminRouter.GET("/admin/export/challenges", ExportProjectsByChallenge)
