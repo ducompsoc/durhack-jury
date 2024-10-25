@@ -86,7 +86,7 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
                         className="cursor-pointer hover:text-primary duration-100"
                     ></input>
                 </td>
-                <td>{project.name}</td>
+                <td className="[&:not(:hover)]:truncate hover:break-words hover:text-wrap">{project.name}</td>
                 <td className="text-center py-1">
                     {project.location} {checked}
                 </td>
