@@ -88,7 +88,7 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
                 </td>
                 <td>{project.name}</td>
                 <td className="text-center py-1">
-                    Table {project.location} {checked}
+                    {project.location} {checked}
                 </td>
                 <td className="text-center">{project.score}</td>
                 <td className="text-center">{project.seen}</td>

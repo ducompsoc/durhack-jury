@@ -63,8 +63,8 @@ const ProjectsTable = () => {
             case ProjectSortField.Name:
                 sortFunc = (a, b) => a.name.localeCompare(b.name) * asc;
                 break;
-            case ProjectSortField.TableNumber:
-                sortFunc = (a, b) => (a.location - b.location) * asc;
+            case ProjectSortField.Location:
+                sortFunc = (a, b) => a.location.localeCompare(b.location) * asc;
                 break;
             case ProjectSortField.Score:
                 sortFunc = (a, b) => (a.score - b.score) * asc;
@@ -94,9 +94,9 @@ const ProjectsTable = () => {
                             align='left'
                         />
                         <HeaderEntry
-                            name="Table"
+                            name="Location"
                             updateSort={updateSort}
-                            sortField={ProjectSortField.TableNumber}
+                            sortField={ProjectSortField.Location}
                             sortState={sortState}
                         />
                         <HeaderEntry

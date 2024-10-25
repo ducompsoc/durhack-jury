@@ -43,9 +43,8 @@ const ProjectEntry = ({ project, ranking }: ProjectEntryProps) => {
                     <div>
                         <h3 className="text-xl grow">
                             <a href={`/judge/project/${project.project_id}`}>
-                                <b>Table {project.location}</b>
-                                {': '}
-                                {project.name}
+                                <b>{project.name}</b>
+                                &nbsp;({project.location})
                             </a>
                         </h3>
                         <p className="text-light text-xs line-clamp-1">{project.notes}</p>
