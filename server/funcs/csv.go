@@ -3,12 +3,10 @@ package funcs
 import (
 	"archive/zip"
 	"bytes"
-	"context"
 	"encoding/csv"
 	"fmt"
 	"io"
 	"net/http"
-	"server/database"
 	"server/models"
 	"server/util"
 	"strings"
@@ -24,12 +22,6 @@ func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*mod
 	// Empty CSV file
 	if content == "" {
 		return []*models.Project{}, nil
-	}
-
-	// Get the options from the database
-	options, err := database.GetOptions(db)
-	if err != nil {
-		return nil, err
 	}
 
 	// If the CSV file has a header, skip the first line
@@ -48,15 +40,15 @@ func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*mod
 			return nil, err
 		}
 
-		// Make sure the record has at least 3 elements (name, description, URL)
-		if len(record) < 3 {
-			return nil, fmt.Errorf("record contains less than 3 elements: '%s'", strings.Join(record, ","))
+		// Make sure the record has at least 4 elements (name, location, description, URL)
+		if len(record) < 4 {
+			return nil, fmt.Errorf("record contains less than 4 elements: '%s'", strings.Join(record, ","))
 		}
 
 		// Get the challenge list
-		challengeList := []string{}
-		if len(record) > 5 && record[5] != "" {
-			challengeList = strings.Split(record[5], ",")
+		var challengeList []string
+		if len(record) > 5 && record[6] != "" {
+			challengeList = strings.Split(record[6], ",")
 		}
 		for i := range challengeList {
 			challengeList[i] = strings.TrimSpace(challengeList[i])
@@ -64,25 +56,16 @@ func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*mod
 
 		// Optional fields
 		var tryLink string
-		if len(record) > 3 && record[3] != "" {
+		if len(record) > 3 && record[4] != "" {
 			tryLink = record[3]
 		}
 		var videoLink string
-		if len(record) > 4 && record[4] != "" {
+		if len(record) > 4 && record[5] != "" {
 			videoLink = record[4]
 		}
 
-		// Increment the table number
-		database.GetNextTableNum(options)
-
 		// Add project to slice
-		projects = append(projects, models.NewProject(record[0], options.CurrTableNum, record[1], record[2], tryLink, videoLink, challengeList))
-	}
-
-	// Update the options table number in the database
-	err = database.UpdateCurrTableNum(db, context.Background(), options.CurrTableNum)
-	if err != nil {
-		return nil, err
+		projects = append(projects, models.NewProject(record[0], record[1], record[2], record[3], tryLink, videoLink, challengeList))
 	}
 
 	return projects, nil
@@ -105,7 +88,8 @@ func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*mod
 //  11. Notes - ignore
 //  12. Team Colleges/Universities - ignore
 //  13. Additional Team Member Count - ignore
-//  14. (and remiaining rows) Custom questions - custom_questions (ignore for now)
+//  14. !!Table number - location
+//  15. (and remiaining columns) Custom questions - custom_questions (ignore for now)
 func ParseDevpostCSV(content string, db *mongo.Database) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
 
@@ -115,10 +99,7 @@ func ParseDevpostCSV(content string, db *mongo.Database) ([]*models.Project, err
 	}
 
 	// Skip the first line
-	r.Read()
-
-	// Get the options from the database
-	options, err := database.GetOptions(db)
+	_, err := r.Read()
 	if err != nil {
 		return nil, err
 	}
@@ -135,8 +116,8 @@ func ParseDevpostCSV(content string, db *mongo.Database) ([]*models.Project, err
 		}
 
 		// Make sure the record has 14 or more elements (see above)
-		if len(record) < 13 {
-			return nil, fmt.Errorf("record does not contain 14 or more elements (invalid devpost csv): '%s'", strings.Join(record, ","))
+		if len(record) < 14 {
+			return nil, fmt.Errorf("record does not contain 15 or more elements (invalid devpost csv): '%s'", strings.Join(record, ","))
 		}
 
 		// If the project is a Draft, skip it
@@ -153,25 +134,24 @@ func ParseDevpostCSV(content string, db *mongo.Database) ([]*models.Project, err
 			challengeList[i] = strings.TrimSpace(challengeList[i])
 		}
 
-		// Increment table number
-		database.GetNextTableNum(options)
+		// Interpret location string
+		location := ""
+		if record[14] == "" {
+			location = "No location given."
+		} else {
+			location = record[14]
+		}
 
 		// Add project to slice
 		projects = append(projects, models.NewProject(
 			record[0],
-			options.CurrTableNum,
+			location,
 			record[6],
 			record[1],
 			record[7],
 			record[8],
 			challengeList,
 		))
-	}
-
-	// Update the options table number in the database
-	err = database.UpdateCurrTableNum(db, context.Background(), options.CurrTableNum)
-	if err != nil {
-		return nil, err
 	}
 
 	return projects, nil
@@ -210,7 +190,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all ranked projects (just their location)
-		ranked := make([]int64, 0, len(judge.CurrentRankings))
+		ranked := make([]string, 0, len(judge.CurrentRankings))
 		for _, projId := range judge.CurrentRankings {
 			idx := util.IndexFunc(judge.SeenProjects, func(p models.JudgedProject) bool {
 				return p.ProjectId == projId
@@ -223,20 +203,16 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all unranked projects (filter using ranked projects)
-		unranked := make([]int64, 0, len(judge.SeenProjects)-len(judge.CurrentRankings))
+		unranked := make([]string, 0, len(judge.SeenProjects)-len(judge.CurrentRankings))
 		for _, proj := range judge.SeenProjects {
-			if util.ContainsFunc(ranked, func(table int64) bool { return table == proj.Location }) {
+			if util.ContainsFunc(ranked, func(location string) bool { return location == proj.Location }) {
 				unranked = append(unranked, proj.Location)
 			}
 		}
 
-		// Convert arrays to strings
-		rankedStr := util.IntToString(ranked)
-		unrankedStr := util.IntToString(unranked)
-
 		// Write line to CSV
 		// lucatodo: get judge info (from gocloak using admin api) to write to csv
-		w.Write([]string{judge.KeycloakUserId, strings.Join(rankedStr, ","), strings.Join(unrankedStr, ",")})
+		w.Write([]string{judge.KeycloakUserId, strings.Join(ranked, ","), strings.Join(unranked, ",")})
 	}
 
 	// Flush the writer
@@ -253,11 +229,11 @@ func CreateProjectCSV(projects []*models.Project) []byte {
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	w.Write([]string{"Name", "Table", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "Seen", "Active", "LastActivity"})
+	w.Write([]string{"Name", "Location", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "Seen", "Active", "LastActivity"})
 
 	// Write each project
 	for _, project := range projects {
-		w.Write([]string{project.Name, fmt.Sprintf("Table %d", project.Location), project.Description, project.Url, project.TryLink, project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen), fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity)})
+		w.Write([]string{project.Name, project.Location, project.Description, project.Url, project.TryLink, project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen), fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity)})
 	}
 
 	// Flush the writer

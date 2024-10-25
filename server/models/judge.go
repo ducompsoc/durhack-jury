@@ -24,7 +24,7 @@ type JudgedProject struct {
 	Categories  map[string]int     `bson:"categories" json:"categories"`
 	Notes       string             `bson:"notes" json:"notes"`
 	Name        string             `bson:"name" json:"name"`
-	Location    int64              `bson:"location" json:"location"`
+	Location    string             `bson:"location" json:"location"`
 	Description string             `bson:"description" json:"description"`
 }
 
