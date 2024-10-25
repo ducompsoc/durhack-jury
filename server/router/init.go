@@ -116,6 +116,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.POST("/project/unhide", UnhideProject)
 	adminRouter.POST("/project/prioritize", PrioritizeProject)
 	adminRouter.POST("/project/unprioritize", UnprioritizeProject)
+	adminRouter.POST("/project/update-location", UpdateProjectLocation) // should really be a PATCH I think :(
 	adminRouter.PUT("/judge/:id", EditJudge)
 	defaultRouter.GET("/admin/started", IsClockPaused)
 	adminRouter.GET("/admin/flags", GetFlags)

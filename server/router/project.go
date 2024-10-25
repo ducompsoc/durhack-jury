@@ -427,3 +427,35 @@ func UnprioritizeProject(ctx *gin.Context) {
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
 }
+
+func UpdateProjectLocation(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get ID from body
+	var projLocReq models.ProjectLocationRequest
+
+	err := ctx.BindJSON(&projLocReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+	id := projLocReq.Id
+
+	// Convert project ID string to ObjectID
+	projectObjectId, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID"})
+		return
+	}
+
+	// Update the project in the database
+	err = database.UpdateProjectLocationValue(db, &projectObjectId, projLocReq.Location)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project location in database: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
+}
