@@ -35,10 +35,6 @@ func NewProject(name string, location string, description string, url string, tr
 	}
 }
 
-func DefaultProject() *Project {
-	return NewProject("", 0, "", "", "", "", []string{})
-}
-
 // Create custom marshal function to change the format of the primitive.DateTime to a unix timestamp
 func (p *Project) MarshalJSON() ([]byte, error) {
 	type Alias Project
