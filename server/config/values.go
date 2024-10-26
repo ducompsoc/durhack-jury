@@ -6,12 +6,14 @@ import (
 )
 
 var ( // this is run first before init
-	Port           string
-	Origin         string
-	ApiOrigin      string
-	KeycloakIssuer string
-	ClientID       string
-	DatabaseName   string
+	Port         string
+	Origin       string
+	ApiOrigin    string
+	Realm        string
+	BaseUrl      string
+	AdminBaseUrl string
+	ClientID     string
+	DatabaseName string
 )
 
 func init() {
@@ -24,9 +26,11 @@ func init() {
 	Port = GetOptEnv("PORT", "3301")
 	Origin = GetOptEnv("ORIGIN", "http://jury.durhack-dev.com")
 	ApiOrigin = GetOptEnv("API_ORIGIN", "http://jury.durhack-dev.com")
-	KeycloakIssuer = "https://auth.durhack.com/realms/durhack-dev"
+	Realm = GetOptEnv("REALM", "durhack-dev")
+	BaseUrl = GetOptEnv("BASE_URL", "https://auth.durhack.com")
 	// lucatodo: accomodate additional realm structure (i.e. admin) to get user names without hard saving in Flag db etc.
 	// https://github.com/ducompsoc/durhack/blob/130a71ab674288cbe1a6e0e2f3a518773658bc9f/server/src/config/default.ts#L22C3-L30C5
+	AdminBaseUrl = GetOptEnv("ADMIN_BASE_URL", "https://admin.auth.durhack.com")
 	ClientID = GetEnv("KEYCLOAK_OAUTH2_CLIENT_ID")
 	DatabaseName = GetEnv("DATABASE_NAME")
 }
