@@ -178,7 +178,7 @@ const AdminSettings = () => {
     };
 
     const exportCsv = async (type: string) => {
-        const res = await fetch(`${import.meta.env.API_ORIGIN}/api/admin/export/${type}`, {
+        const res = await fetch(`${import.meta.env.VITE_API_ORIGIN}/api/admin/export/${type}`, {
             method: 'GET',
             headers: createHeaders(false),
         });
@@ -194,7 +194,7 @@ const AdminSettings = () => {
     };
 
     const exportByChallenge = async () => {
-        const res = await fetch(`${import.meta.env.API_ORIGIN}/api/admin/export/challenges`, {
+        const res = await fetch(`${import.meta.env.VITE_API_ORIGIN}/api/admin/export/challenges`, {
             method: 'GET',
             headers: createHeaders(false),
         });

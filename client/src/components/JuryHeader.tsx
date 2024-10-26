@@ -58,7 +58,7 @@ const JuryHeader = (props: JuryHeaderProps) => {
                 <div
                     className="absolute top-6 right-6 flex items-center cursor-pointer border-none bg-transparent hover:scale-110 duration-200"
                 >
-                    <div className="text-light text-xl mr-2"><a href={`${import.meta.env.API_ORIGIN}/api/auth/keycloak/logout`}>Logout</a></div>
+                    <div className="text-light text-xl mr-2"><a href={`${import.meta.env.VITE_API_ORIGIN}/api/auth/keycloak/logout`}>Logout</a></div>
                     <img className="w-4 h-4" src={logoutButton} alt="logout icon" />
                 </div>
             )}

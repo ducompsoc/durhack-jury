@@ -52,7 +52,7 @@ const UploadCSVForm = (props: UploadCSVFormProps) => {
                     : '/project/devpost';
 
             // Make the request
-            const response = await fetch(`${import.meta.env.API_ORIGIN}/api${path}`, {
+            const response = await fetch(`${import.meta.env.VITE_API_ORIGIN}/api${path}`, {
                 method: 'POST',
                 body: formData,
                 headers: createHeaders(false),
