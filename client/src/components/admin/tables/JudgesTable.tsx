@@ -110,7 +110,7 @@ const JudgesTable = () => {
                             sortState={sortState}
                         />
                         <HeaderEntry
-                            name="Updated"
+                            name="Last Activity"
                             updateSort={updateSort}
                             sortField={JudgeSortField.Updated}
                             sortState={sortState}

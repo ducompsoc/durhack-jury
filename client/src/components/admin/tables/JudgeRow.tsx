@@ -45,7 +45,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
     const hideJudge = async () => {
         const res = await postRequest<YesNoResponse>(judge.active ? '/judge/hide' : '/judge/unhide', {id: judge.id});
         if (res.status === 200) {
-            alert(`Judge ${judge.active ? 'hidden' : 'un-hidden'} successfully!`);
+            alert(`Judge account ${judge.active ? 'disabled' : 're-enabled'} successfully!`);
             await fetchJudges();
         } else {
             errorAlert(res);
@@ -86,7 +86,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                                 className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
                                 onClick={() => doAction('hide')}
                             >
-                                {judge.active ? 'Hide' : 'Un-hide'}
+                                {judge.active ? 'Restrict/Disable' : 'Unrestrict/Re-enable'}
                             </div>
                         </div>
                     )}
