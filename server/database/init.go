@@ -31,8 +31,8 @@ func InitDb() *mongo.Database {
 	}
 	fmt.Println("Successfully connected to database!")
 
-	// Return the "jury" database
-	db := client.Database("jury")
+	// Return the <DatabaseName> database
+	db := client.Database(config.DatabaseName)
 
 	// Create indexes for token_set and judges tables/collections
 	tokenSetIndexModel := mongo.IndexModel{Keys: bson.D{{"user_id", true}}}
