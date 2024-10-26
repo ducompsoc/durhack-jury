@@ -21,6 +21,11 @@ import (
 func NewRouter(db *mongo.Database) *gin.Engine {
 	// Create the router
 	router := gin.Default()
+	router.ForwardedByClientIP = true
+	err := router.SetTrustedProxies([]string{"127.0.0.1"})
+	if err != nil {
+		log.Fatalf("error setting gin router's trusted proxies: %s\n", err.Error())
+	}
 
 	// Get the clock state from the database
 	clock := getClockFromDb(db)
