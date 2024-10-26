@@ -87,7 +87,8 @@ func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) 
 //  11. Notes - ignore
 //  12. Team Colleges/Universities - ignore
 //  13. Additional Team Member Count - ignore
-//  14. !!Table number - location
+//  14. !!Megateam/Guild - location (part 1)
+//  15. !!Table number - location (part 2)
 //  15. (and remiaining columns) Custom questions - custom_questions (ignore for now)
 func ParseDevpostCSV(content string) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
@@ -136,9 +137,9 @@ func ParseDevpostCSV(content string) ([]*models.Project, error) {
 		// Interpret location string
 		location := ""
 		if record[14] == "" {
-			location = "No location given."
+			location = "No location."
 		} else {
-			location = record[14]
+			location = truncate(record[14], 6) + "|" + record[15]
 		}
 
 		// Add project to slice
@@ -154,6 +155,15 @@ func ParseDevpostCSV(content string) ([]*models.Project, error) {
 	}
 
 	return projects, nil
+}
+
+// Adapted from https://stackoverflow.com/a/74700627/7253717
+func truncate(s string, maxLen int) string {
+	runes := []rune(s)
+	if len(runes) <= maxLen {
+		return s
+	}
+	return string(runes[0:maxLen])
 }
 
 // AddCSVData adds a CSV file to the response
