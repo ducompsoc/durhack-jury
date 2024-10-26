@@ -253,7 +253,7 @@ const JudgeLive = () => {
         }
 
         resetTimer();
-        getJudgeData();
+        await getJudgeData();
     };
 
     // Display an error page if an error condition holds

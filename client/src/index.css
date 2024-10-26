@@ -11,7 +11,7 @@ body {
     /* -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale; */
     background-color: theme('colors.background');
-    font-family: theme('fontFamily.text');
+    font-family: theme('fontFamily.text'), sans-serif;
     min-height: 100vh;
     margin: 0;
     display: flex;
@@ -20,7 +20,7 @@ body {
 
 button,
 input {
-    font-family: theme('fontFamily.text');
+    font-family: theme('fontFamily.text'), sans-serif;
 }
 
 ::placeholder {

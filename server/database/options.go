@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"server/models"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ func GetOptions(db *mongo.Database) (*models.Options, error) {
 	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
 
 	// If options does not exist, create it
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		options = *models.NewOptions()
 		_, err = db.Collection("options").InsertOne(context.Background(), options)
 		return &options, err

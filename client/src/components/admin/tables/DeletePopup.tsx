@@ -25,8 +25,8 @@ const DeletePopup = ({ element, close }: DeletePopupProps) => {
         const resource = isProject(element) ? 'project' : 'judge';
         const res = await deleteRequest(`/${resource}/${element.id}`);
         if (res.status === 200) {
-            fetchStats();
-            isProject(element) ? fetchProjects() : fetchJudges();
+            await fetchStats();
+            isProject(element) ? await fetchProjects() : await fetchJudges();
             alert(`${resource} deleted successfully!`);
         } else {
             errorAlert(res);

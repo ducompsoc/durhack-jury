@@ -57,7 +57,7 @@ const ProjectsTable = () => {
         setChecked(Array(unsortedProjects.length).fill(false));
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        let sortFunc = (_: Project, b: Project) => 0;
+        let sortFunc = (a: Project, b: Project) => 0;
         const asc = sortState.ascending ? 1 : -1;
         switch (sortState.field) {
             case ProjectSortField.Name:

@@ -2,7 +2,6 @@ package router
 
 import (
 	"net/http"
-	"server/config"
 	"server/database"
 	"server/funcs"
 	"server/models"
@@ -15,30 +14,6 @@ import (
 
 type LoginAdminRequest struct {
 	Password string `json:"password"`
-}
-
-// lucatodo: remove old judge and admin login logic
-// POST /admin/login - LoginAdmin authenticates an admin
-func LoginAdmin(ctx *gin.Context) {
-	// Get the password from the environmental variable
-	password := config.GetEnv("JURY_ADMIN_PASSWORD")
-
-	// Get password guess from request
-	var req LoginAdminRequest
-	err := ctx.BindJSON(&req)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing request: " + err.Error()})
-		return
-	}
-
-	// Return status OK if the password matches
-	if req.Password == password {
-		ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
-		return
-	}
-
-	// Return status Unauthorized if the password does not match
-	ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid or missing password field"})
 }
 
 // POST /admin/auth - Checks if an admin is authenticated

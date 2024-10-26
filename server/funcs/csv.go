@@ -12,11 +12,10 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // Read CSV file and return a slice of project structs
-func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*models.Project, error) {
+func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
 
 	// Empty CSV file
@@ -90,7 +89,7 @@ func ParseProjectCsv(content string, hasHeader bool, db *mongo.Database) ([]*mod
 //  13. Additional Team Member Count - ignore
 //  14. !!Table number - location
 //  15. (and remiaining columns) Custom questions - custom_questions (ignore for now)
-func ParseDevpostCSV(content string, db *mongo.Database) ([]*models.Project, error) {
+func ParseDevpostCSV(content string) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
 
 	// Empty CSV file
@@ -244,10 +243,10 @@ func CreateProjectCSV(projects []*models.Project) []byte {
 
 // CreateProjectChallengeZip creates a zip file with a CSV for each challenge
 func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
-	csvList := [][]byte{}
+	var csvList [][]byte
 
 	// Get list of challenges
-	challengeList := []string{}
+	var challengeList []string
 	for _, project := range projects {
 		for _, challenge := range project.ChallengeList {
 			if !contains(challengeList, challenge) {
@@ -258,7 +257,7 @@ func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
 
 	// Create a CSV for each challenge
 	for _, challenge := range challengeList {
-		currChallengeProjects := []*models.Project{}
+		var currChallengeProjects []*models.Project
 		for _, project := range projects {
 			if contains(project.ChallengeList, challenge) {
 				currChallengeProjects = append(currChallengeProjects, project)
@@ -266,8 +265,8 @@ func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
 		}
 
 		// Create CSV for the challenge
-		csv := CreateProjectCSV(currChallengeProjects)
-		csvList = append(csvList, csv)
+		challengeCSV := CreateProjectCSV(currChallengeProjects)
+		csvList = append(csvList, challengeCSV)
 	}
 
 	// Create buffer for zip file
@@ -277,13 +276,13 @@ func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
 	w := zip.NewWriter(zipBuffer)
 
 	// Write each CSV to the zip file
-	for i, csv := range csvList {
+	for i, challengeCSV := range csvList {
 		f, err := w.Create(fmt.Sprintf("%s.csv", challengeList[i]))
 		if err != nil {
 			return nil, err
 		}
 
-		_, err = f.Write(csv)
+		_, err = f.Write(challengeCSV)
 		if err != nil {
 			return nil, err
 		}

@@ -1,9 +1,9 @@
-import {useEffect, useRef, useState} from 'react';
-import { errorAlert, fixIfFloatDigits, timeSince } from '../../../util';
+import {FocusEvent, useEffect, useRef, useState} from 'react';
+import {errorAlert, timeSince} from '../../../util';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
-import { postRequest } from '../../../api';
+import {postRequest} from '../../../api';
 
 interface ProjectRowProps {
     project: Project;
@@ -12,7 +12,7 @@ interface ProjectRowProps {
     handleCheckedChange: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
 }
 
-const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowProps) => {
+const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProps) => {
     const [popup, setPopup] = useState(false);
     const [editPopup, setEditPopup] = useState(false);
     const [deletePopup, setDeletePopup] = useState(false);
@@ -57,13 +57,13 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
         const res = await postRequest<YesNoResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
         if (res.status === 200) {
             alert(`Project ${project.active ? 'hidden' : 'un-hidden'} successfully!`);
-            fetchProjects();
+            await fetchProjects();
         } else {
             errorAlert(res);
         }
     };
 
-    const onLocationChange = async (e) => {
+    const onInputFocusLoss = async (e: FocusEvent<HTMLInputElement>) => {
         const res = await postRequest<YesNoResponse>('/project/update-location', {id: project.id, location: e.target.value});
         if (res.status === 200) {
             fetchProjects();
@@ -102,7 +102,7 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
                         name="location"
                         defaultValue={project.location}
                         type="text"
-                        onBlur={(e) => onLocationChange(e)}
+                        onBlur={(e) => onInputFocusLoss(e)}
                     />
                 </td>
                 <td className="text-center">{project.score}</td>

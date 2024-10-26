@@ -144,8 +144,3 @@ func AuthoriseAdmin() gin.HandlerFunc {
 		ctx.Next()
 	}
 }
-
-// When auth invalid, send a 401 error
-func no(msg string, ctx *gin.Context) {
-	ctx.AbortWithStatusJSON(401, gin.H{"error": msg})
-}

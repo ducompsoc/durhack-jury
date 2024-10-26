@@ -6,7 +6,7 @@ class CustomPointerSensor extends PointerSensor {
     static activators: {
         eventName: 'onPointerDown';
         handler: (
-            { nativeEvent }: PointerEvent<Element>,
+            { nativeEvent }: PointerEvent,
             { onActivation }: PointerSensorOptions
         ) => boolean;
     }[] = [

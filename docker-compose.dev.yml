@@ -37,6 +37,6 @@ services:
             context: './'
             dockerfile: client/dev.Dockerfile
         ports:
-            - 3300:3300
+            - "3300:3300"
         volumes:
             - ./client:/client

@@ -40,7 +40,7 @@ func AddDevpostCsv(ctx *gin.Context) {
 	}
 
 	// Parse the CSV file
-	projects, err := funcs.ParseDevpostCSV(string(content), db)
+	projects, err := funcs.ParseDevpostCSV(string(content))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing CSV file: " + err.Error()})
 		return
@@ -101,7 +101,7 @@ func AddProject(ctx *gin.Context) {
 	// Insert project and update the next table num field in options
 	err = database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
 		// Insert project
-		err := database.InsertProject(db, ctx, project)
+		err := database.InsertProject(db, project)
 		return nil, err
 	})
 	if err != nil {
@@ -199,7 +199,7 @@ func AddProjectsCsv(ctx *gin.Context) {
 	}
 
 	// Parse the CSV file
-	projects, err := funcs.ParseProjectCsv(string(content), hasHeader, db)
+	projects, err := funcs.ParseProjectCsv(string(content), hasHeader)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error parsing CSV file: " + err.Error()})
 		return

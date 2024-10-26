@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"errors"
 	"server/models"
 	"server/util"
 
@@ -30,7 +31,7 @@ func InsertProjects(db *mongo.Database, projects []*models.Project) error {
 }
 
 // InsertProject inserts a project into the database
-func InsertProject(db *mongo.Database, ctx context.Context, project *models.Project) error {
+func InsertProject(db *mongo.Database, project *models.Project) error {
 	_, err := db.Collection("projects").InsertOne(context.Background(), project)
 	return err
 }
@@ -144,7 +145,7 @@ func FindBusyProjects(db *mongo.Database, ctx mongo.SessionContext) ([]*primitiv
 func FindProjectById(db *mongo.Database, id *primitive.ObjectID) (*models.Project, error) {
 	var project models.Project
 	err := db.Collection("projects").FindOne(context.Background(), gin.H{"_id": id}).Decode(&project)
-	if err == mongo.ErrNoDocuments {
+	if errors.Is(err, mongo.ErrNoDocuments) {
 		return nil, nil
 	}
 	if err != nil {
@@ -205,13 +206,13 @@ func UpdateProjectLocationValue(db *mongo.Database, id *primitive.ObjectID, loca
 
 // UpdateProjects will update ALL projects in the database
 func UpdateProjects(db *mongo.Database, projects []*models.Project) error {
-	models := make([]mongo.WriteModel, 0, len(projects))
+	mongoModels := make([]mongo.WriteModel, 0, len(projects))
 	for _, project := range projects {
-		models = append(models, mongo.NewUpdateOneModel().SetFilter(gin.H{"_id": project.Id}).SetUpdate(gin.H{"$set": project}))
+		mongoModels = append(mongoModels, mongo.NewUpdateOneModel().SetFilter(gin.H{"_id": project.Id}).SetUpdate(gin.H{"$set": project}))
 	}
 
 	opts := options.BulkWrite().SetOrdered(false)
-	_, err := db.Collection("projects").BulkWrite(context.Background(), models, opts)
+	_, err := db.Collection("projects").BulkWrite(context.Background(), mongoModels, opts)
 	return err
 }
 

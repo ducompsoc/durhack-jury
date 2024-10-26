@@ -20,7 +20,7 @@ interface RadioButtonProps {
     selected: boolean;
 
     /* Function to run on click */
-    onClick: (e: React.MouseEvent<Element>) => void;
+    onClick: (e: React.MouseEvent) => void;
 
     /* Color of the popup -- use colors defined in tailwind config */
     color: string;

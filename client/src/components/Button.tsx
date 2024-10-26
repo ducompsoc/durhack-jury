@@ -9,7 +9,7 @@ interface ButtonProps {
     href?: string;
 
     /* If href is not defined, function should be written to handle button click */
-    onClick?: (e: React.MouseEvent<Element>) => void;
+    onClick?: (e: React.MouseEvent) => void;
 
     /* Type of the button */
     type: 'primary' | 'outline' | 'text' | 'error';

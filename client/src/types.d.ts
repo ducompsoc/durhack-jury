@@ -68,10 +68,6 @@ interface YesNoResponse {
     yes_no: number;
 }
 
-interface TokenResponse {
-    token: string;
-}
-
 interface JudgedProject {
     project_id: string;
     categories: { [name: string]: number };

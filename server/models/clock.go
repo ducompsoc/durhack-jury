@@ -4,21 +4,21 @@ import "time"
 
 type ClockState struct {
 	StartTime int64 `json:"start_time" bson:"start_time"`
-	PauseTime      int64 `json:"pause_time" bson:"pause_time"`
+	PauseTime int64 `json:"pause_time" bson:"pause_time"`
 	Running   bool  `json:"running" bson:"running"`
 }
 
 func NewClockState() *ClockState {
 	return &ClockState{
 		StartTime: 0,
-		PauseTime:      0,
+		PauseTime: 0,
 		Running:   false,
 	}
 }
 
 // Gets the current clock time in milliseconds
 func GetCurrTime() int64 {
-	return int64(time.Now().UnixNano() / 1000000)
+	return time.Now().UnixNano() / 1000000
 }
 
 func (c *ClockState) Pause() {

@@ -18,7 +18,6 @@ const Description = ({ children: c }: { children: React.ReactNode }) => (
 );
 
 const AdminSettings = () => {
-    const [reassignPopup, setReassignPopup] = useState(false);
     const [clockResetPopup, setClockResetPopup] = useState(false);
     const [dropPopup, setDropPopup] = useState(false);
     const [judgingTimer, setJudgingTimer] = useState('');
@@ -89,7 +88,7 @@ const AdminSettings = () => {
         }
 
         alert('Timer updated!');
-        getOptions();
+        await getOptions();
     };
 
     const updateMinViews = async () => {
@@ -110,7 +109,7 @@ const AdminSettings = () => {
         }
 
         alert('Min views updated!');
-        getOptions();
+        await getOptions();
     };
 
     const updateCategories = async () => {
@@ -134,7 +133,7 @@ const AdminSettings = () => {
         }
 
         alert('Categories updated!');
-        getOptions();
+        await getOptions();
     };
 
     const updateBatchRankingSize = async () => {
@@ -153,7 +152,7 @@ const AdminSettings = () => {
         }
 
         alert('Batch Ranking Size updated!');
-        getOptions();
+        await getOptions();
     }
 
     const resetClock = async () => {

@@ -135,7 +135,7 @@ func (c *Comparisons) FindLeastCompared(projects []*models.Project, prevSeen []m
 	defer c.Mutex.Unlock()
 
 	minProj := projects[0]
-	min := 0x7FFFFFFF
+	minCompares := 0x7FFFFFFF
 	// Loop through all potential projects and find the one with the most seen
 	for _, v := range projects {
 		curr := 0
@@ -144,8 +144,8 @@ func (c *Comparisons) FindLeastCompared(projects []*models.Project, prevSeen []m
 			pId := c.IdNumMap[p.ProjectId]
 			curr += c.Arr[vId][pId]
 		}
-		if curr < min {
-			min = curr
+		if curr < minCompares {
+			minCompares = curr
 			minProj = v
 		}
 	}
