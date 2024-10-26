@@ -57,11 +57,11 @@ func getKeycloakOIDCProvider() *DurHackKeycloakProvider {
 
 	ctx := context.Background()
 
-	baseKeycloakURL, err := url.JoinPath(config.BaseUrl, "/realms/", config.Realm)
+	keycloakProviderUrl, err := url.JoinPath(config.KeycloakBaseUrl, "/realms/", config.KeycloakRealm)
 	if err != nil {
 		log.Fatal(err)
 	}
-	provider, err := oidc.NewProvider(ctx, baseKeycloakURL)
+	provider, err := oidc.NewProvider(ctx, keycloakProviderUrl)
 	if err != nil {
 		log.Fatal(err)
 	}
