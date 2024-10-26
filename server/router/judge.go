@@ -259,6 +259,9 @@ func JudgeSkip(ctx *gin.Context) {
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
+	// Get the user info from the context to save the judge name
+	judgeName := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo).GetNames()
+
 	// Get the comparisons object
 	comps := ctx.MustGet("comps").(*judging.Comparisons)
 
@@ -271,7 +274,7 @@ func JudgeSkip(ctx *gin.Context) {
 	}
 
 	// Skip the project
-	err = judging.SkipCurrentProject(db, judge, comps, skipReq.Reason, true)
+	err = judging.SkipCurrentProject(db, judge, judgeName, comps, skipReq.Reason, true)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -512,6 +515,9 @@ func JudgeBreak(ctx *gin.Context) {
 	// Get the judge from the context
 	judge := ctx.MustGet("judge").(*models.Judge)
 
+	// Get the user info from the context to save the judge name
+	judgeName := ctx.MustGet("user").(*auth.DurHackKeycloakUserInfo).GetNames()
+
 	// Get the comparisons from the context
 	comps := ctx.MustGet("comps").(*judging.Comparisons)
 
@@ -522,7 +528,7 @@ func JudgeBreak(ctx *gin.Context) {
 	}
 
 	// Basically skip the project for the judge
-	err := judging.SkipCurrentProject(db, judge, comps, "break", false)
+	err := judging.SkipCurrentProject(db, judge, judgeName, comps, "break", false)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error skipping project: " + err.Error()})
 		return

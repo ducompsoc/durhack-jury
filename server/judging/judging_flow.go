@@ -14,7 +14,7 @@ import (
 
 // SkipCurrentProject skips the current project for a judge.
 // This is in the judging module instead of the database module to avoid dependency cycles.
-func SkipCurrentProject(db *mongo.Database, judge *models.Judge, comps *Comparisons, reason string, getNew bool) error {
+func SkipCurrentProject(db *mongo.Database, judge *models.Judge, judgeName string, comps *Comparisons, reason string, getNew bool) error {
 	// Get skipped project from database
 	skippedProject, err := database.FindProjectById(db, judge.Current)
 	if err != nil {
@@ -26,7 +26,7 @@ func SkipCurrentProject(db *mongo.Database, judge *models.Judge, comps *Comparis
 		// If skipping for any reason other than wanting a break, add the project to the skipped list
 		if reason != "break" {
 			// Create a new skip object
-			skip, err := models.NewFlag(skippedProject, judge, reason)
+			skip, err := models.NewFlag(skippedProject, judge, judgeName, reason)
 			if err != nil {
 				return nil, errors.New("error creating flag object: " + err.Error())
 			}

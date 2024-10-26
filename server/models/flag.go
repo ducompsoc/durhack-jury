@@ -33,7 +33,7 @@ type Flag struct {
 	Reason          string              `json:"reason" bson:"reason"`
 }
 
-func NewFlag(project *Project, judge *Judge, reason string) (*Flag, error) {
+func NewFlag(project *Project, judge *Judge, judgeName string, reason string) (*Flag, error) {
 	// Check if the reason is valid
 	valid := false
 	for _, r := range validReasons {
@@ -53,6 +53,7 @@ func NewFlag(project *Project, judge *Judge, reason string) (*Flag, error) {
 		Time:            primitive.NewDateTimeFromTime(time.Now()),
 		ProjectName:     project.Name,
 		ProjectLocation: project.Location,
+		JudgeName:       judgeName,
 		Reason:          reason,
 	}, nil
 }
