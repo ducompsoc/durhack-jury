@@ -7,6 +7,7 @@ import { errorAlert } from '../../../util';
 
 interface NewProjectData {
     name: string;
+    location: string;
     description: string;
     url: string;
     link: string;
@@ -45,6 +46,7 @@ const NewProjectForm = () => {
                 <h1 className="text-3xl mb-4">Add Project</h1>
                 <form className="flex flex-col w-full space-y-4" onSubmit={handleSubmit(onSubmit)}>
                     <TextInput name="name" placeholder="Name" register={register} />
+                    <TextInput name="location" placeholder="Team location" register={register} />
                     <TextArea
                         name="description"
                         placeholder="Description"

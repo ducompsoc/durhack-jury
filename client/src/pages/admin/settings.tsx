@@ -64,16 +64,6 @@ const AdminSettings = () => {
         getOptions();
     }, []);
 
-    const reassignTables = async () => {
-        const res = await postRequest<YesNoResponse>('/project/reassign', null);
-        if (res.status !== 200 || res.data?.yes_no !== 1) {
-            errorAlert(res);
-            return;
-        }
-        alert('Table numbers reassigned!');
-        setReassignPopup(false);
-    };
-
     const updateTimer = async () => {
         // Convert judging timer to time
         const [minutes, seconds] = judgingTimer.split(':');
@@ -320,21 +310,6 @@ const AdminSettings = () => {
 
                 <Section>Judging Parameters</Section>
 
-                <SubSection>Reassign Project Numbers</SubSection>
-                <Description>
-                    Reassign all project numbers to the projects. This will keep the relative order
-                    but reassign the project numbers starting from the first project.
-                </Description>
-                <Button
-                    type="primary"
-                    onClick={() => {
-                        setReassignPopup(true);
-                    }}
-                    className="mt-4 mb-8 w-auto md:w-auto px-4 py-2 bg-gold text-black"
-                >
-                    Reassign
-                </Button>
-
                 <SubSection>Set Minimum Project Views</SubSection>
                 <Description>
                     Set the minimum amount of times that a project should be seen during judging.
@@ -417,17 +392,6 @@ const AdminSettings = () => {
                     Drop Database
                 </Button>
             </div>
-            <TextPopup
-                enabled={reassignPopup}
-                setEnabled={setReassignPopup}
-                onSubmit={reassignTables}
-                submitText="Reassign"
-                title="Heads Up!"
-                red
-            >
-                Are you sure you want to reassign project numbers? This should NOT be done DURING
-                judging; only beforehand!!
-            </TextPopup>
             <TextPopup
                 enabled={clockResetPopup}
                 setEnabled={setClockResetPopup}

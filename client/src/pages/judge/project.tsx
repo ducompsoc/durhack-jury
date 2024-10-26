@@ -66,7 +66,7 @@ const Project = () => {
                         {project.name}
                     </a>
                 </h1>
-                <h2 className="text-xl font-bold text-light mb-2">Table {project.location}</h2>
+                <h2 className="text-xl font-bold text-light mb-2">Location: {project.location}</h2>
                 <Ratings
                     prior={project.categories}
                     project={project}

@@ -1,7 +1,7 @@
 interface Project {
     id: string;
     name: string;
-    location: number;
+    location: string;
     description: string;
     url: string;
     try_link: string;
@@ -59,9 +59,9 @@ type VotePopupState = 'vote' | 'skip' | 'flag';
 
 interface VotingProjectInfo {
     curr_name: string;
-    curr_location: number;
+    curr_location: string;
     prev_name: string;
-    prev_location: number;
+    prev_location: string;
 }
 
 interface YesNoResponse {
@@ -77,7 +77,7 @@ interface JudgedProject {
     categories: { [name: string]: number };
     notes: string;
     name: string;
-    location: number;
+    location: string;
     description: string;
 }
 
@@ -109,7 +109,7 @@ interface Flag {
     time: number;
     project_name: string;
     judge_name: string;
-    project_location: number;
+    project_location: string;
     reason: string;
 }
 

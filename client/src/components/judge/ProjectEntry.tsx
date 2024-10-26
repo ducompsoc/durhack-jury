@@ -11,11 +11,11 @@ const ProjectEntry = ({ project, ranking }: ProjectEntryProps) => {
         return null;
     }
 
-    // Will truncate a string to 8 characters,
-    // adding a dot at the end if the length is > than 8 chars
-    const truncate = (s: string) => {
-        if (s.length <= 8) return s;
-        return s.substring(0, 4) + '.';
+    // Will truncate a string to width characters exactly,
+    // adding a dot at the end if the length is > than width chars
+    const truncate = (s: string, width: number = 8) => {
+        if (s.length <= width) return s;
+        return s.substring(0, width-1) + '.';
     };
 
     let rankColor = 'text-lightest';
@@ -38,22 +38,20 @@ const ProjectEntry = ({ project, ranking }: ProjectEntryProps) => {
             {ranking !== -1 && (
                 <p className={twMerge('font-bold text-xl text-center w-6 shrink-0', rankColor)}>{ranking}</p>
             )}
-            <div className="m-1 pl-2 py-1 bg-background border-solid border-2 border-lightest rounded-md grow">
+            <div className="m-1 pl-2 py-1 bg-background border-solid border-2 border-lightest rounded-md grow min-w-0">
                 <div className="flex flex-row">
-                    <div>
+                    <div className="min-w-0">
                         <h3 className="text-xl grow">
                             <a href={`/judge/project/${project.project_id}`}>
-                                <b>Table {project.location}</b>
-                                {': '}
-                                {project.name}
+                                <b>{truncate(project.name, 20)}</b>&nbsp;({truncate(project.location, 20)})
                             </a>
                         </h3>
                         <p className="text-light text-xs line-clamp-1">{project.notes}</p>
-                        <div className="text-light flex flex-row">
+                        <div className="text-light flex flex-wrap">
                             {Object.entries(project.categories).map(([name, score], i) => (
                                 <div key={i}>
                                     <span className="text-lighter text-xs mr-1">
-                                        {truncate(name)}
+                                        {truncate(name, 15)}
                                     </span>
                                     <span className="mr-2">{score}</span>
                                 </div>

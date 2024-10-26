@@ -41,12 +41,12 @@ const ProjectDisplay = (props: ProjectDisplayProps) => {
 
     return (
         <div className={twMerge('px-2', props.className)}>
-            <h1 className="text-3xl mb-1 font-bold">
+            <h1 className="text-3xl mb-1 font-bold break-words text-wrap">
                 <a href={project.url} target="_blank" rel="noopener noreferrer">
                     {project.name}
                 </a>
             </h1>
-            <h2 className="text-xl mb-1">Table {project.location}</h2>
+            <h2 className="text-xl mb-1">Location: {project.location}</h2>
             <Paragraph className="text-light" text={project.description} />
         </div>
     );

@@ -198,6 +198,11 @@ func SetProjectPrioritized(db *mongo.Database, id *primitive.ObjectID, prioritiz
 	return err
 }
 
+func UpdateProjectLocationValue(db *mongo.Database, id *primitive.ObjectID, location string) error {
+	_, err := db.Collection("projects").UpdateOne(context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"location": location}})
+	return err
+}
+
 // UpdateProjects will update ALL projects in the database
 func UpdateProjects(db *mongo.Database, projects []*models.Project) error {
 	models := make([]mongo.WriteModel, 0, len(projects))

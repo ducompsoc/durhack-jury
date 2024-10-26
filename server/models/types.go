@@ -27,6 +27,11 @@ type IdRequest struct {
 	Id string `json:"id"`
 }
 
+type ProjectLocationRequest struct {
+	IdRequest
+	Location string `json:"location"`
+}
+
 type EditJudgeRequest struct {
 	Notes string `json:"notes"`
 }

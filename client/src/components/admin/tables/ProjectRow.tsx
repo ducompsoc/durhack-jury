@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import {useEffect, useRef, useState} from 'react';
 import { errorAlert, fixIfFloatDigits, timeSince } from '../../../util';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
@@ -63,6 +63,15 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
         }
     };
 
+    const onLocationChange = async (e) => {
+        const res = await postRequest<YesNoResponse>('/project/update-location', {id: project.id, location: e.target.value});
+        if (res.status === 200) {
+            fetchProjects();
+        } else {
+            errorAlert(res);
+        }
+    }
+
     return (
         <>
             <tr
@@ -86,9 +95,15 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
                         className="cursor-pointer hover:text-primary duration-100"
                     ></input>
                 </td>
-                <td>{project.name}</td>
+                <td className="[&:not(:hover)]:truncate hover:break-words hover:text-wrap">{project.name}</td>
                 <td className="text-center py-1">
-                    Table {project.location} {checked}
+                    <input
+                        className="w-full md:w-2/3"
+                        name="location"
+                        defaultValue={project.location}
+                        type="text"
+                        onBlur={(e) => onLocationChange(e)}
+                    />
                 </td>
                 <td className="text-center">{project.score}</td>
                 <td className="text-center">{project.seen}</td>
@@ -99,12 +114,6 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
                             className="absolute flex flex-col bg-background rounded-md border-lightest border-2 font-normal text-sm"
                             ref={ref}
                         >
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
-                                onClick={() => doAction('edit')}
-                            >
-                                Edit
-                            </div>
                             <div
                                 className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
                                 onClick={() => doAction('hide')}

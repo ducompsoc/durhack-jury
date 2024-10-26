@@ -28,7 +28,7 @@ type Flag struct {
 	JudgeId         *primitive.ObjectID `json:"judge_id" bson:"judge_id"`
 	Time            primitive.DateTime  `json:"time" bson:"time"`
 	ProjectName     string              `json:"project_name" bson:"project_name"`
-	ProjectLocation int64               `json:"project_location" bson:"project_location"`
+	ProjectLocation string              `json:"project_location" bson:"project_location"`
 	JudgeName       string              `json:"judge_name" bson:"judge_name"`
 	Reason          string              `json:"reason" bson:"reason"`
 }
