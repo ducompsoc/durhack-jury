@@ -100,6 +100,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                     <input
                         className="w-full md:w-2/3"
                         name="location"
+                        key={project.id}
                         defaultValue={project.location}
                         type="text"
                         onBlur={(e) => onInputFocusLoss(e)}
