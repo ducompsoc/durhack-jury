@@ -43,7 +43,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
     };
 
     const hideJudge = async () => {
-        const res = await postRequest<OkResponse>(judge.active ? '/judge/hide' : '/judge/unhide', {id: judge.id});
+        const res = await postRequest<YesNoResponse>(judge.active ? '/judge/hide' : '/judge/unhide', {id: judge.id});
         if (res.status === 200) {
             alert(`Judge ${judge.active ? 'hidden' : 'un-hidden'} successfully!`);
             fetchJudges();

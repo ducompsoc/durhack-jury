@@ -54,7 +54,7 @@ func AddDevpostCsv(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 type AddProjectRequest struct {
@@ -110,7 +110,7 @@ func AddProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // GET /project/list - ListProjects lists all projects in the database
@@ -213,7 +213,7 @@ func AddProjectsCsv(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // DELETE /project/:id - DeleteProject deletes a project from the database
@@ -239,7 +239,7 @@ func DeleteProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /project/stats - ProjectStats returns stats about projects
@@ -329,7 +329,7 @@ func HideProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /project/unhide - UnhideProject unhides a project
@@ -361,7 +361,7 @@ func UnhideProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /project/prioritize - PrioritizeProject prioritizes a project
@@ -393,7 +393,7 @@ func PrioritizeProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 // POST /project/unprioritize - UnprioritizeProject unprioritizes a project
@@ -425,7 +425,7 @@ func UnprioritizeProject(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
 func UpdateProjectLocation(ctx *gin.Context) {

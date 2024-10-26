@@ -8,7 +8,6 @@ export async function getRequest<T>(path: string): Promise<FetchResponse<T>> {
             credentials: 'include',
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
-        if (!response.ok) throw new Error(response.statusText);
 
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
@@ -31,7 +30,6 @@ export async function postRequest<T>(
             body: body ? JSON.stringify(body) : null,
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
-        if (!response.ok) throw new Error(response.statusText);
 
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
@@ -54,7 +52,6 @@ export async function putRequest<T>(
             body: body ? JSON.stringify(body) : null,
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
-        if (!response.ok) throw new Error(response.statusText);
 
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };
@@ -67,7 +64,7 @@ export async function putRequest<T>(
 
 export async function deleteRequest(
     path: string
-): Promise<FetchResponse<OkResponse>> {
+): Promise<FetchResponse<YesNoResponse>> {
     try {
         const options: RequestInit = {
             method: 'DELETE',
@@ -75,7 +72,6 @@ export async function deleteRequest(
             credentials: 'include',
         };
         const response = await fetch(`${BACKEND_URL}${path}`, options);
-        if (!response.ok) throw new Error(response.statusText);
 
         const data = await response.json();
         return { status: response.status, error: data.error ? data.error : '', data };

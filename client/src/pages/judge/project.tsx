@@ -33,7 +33,7 @@ const Project = () => {
         if (!project) return;
 
         async function updateNotes() {
-            const res = await postRequest<OkResponse>('/judge/notes', {
+            const res = await postRequest<YesNoResponse>('/judge/notes', {
                 notes,
                 project: project?.project_id,
             });
