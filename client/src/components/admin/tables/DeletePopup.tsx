@@ -12,22 +12,16 @@ interface DeletePopupProps {
     close: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-function isProject(e: DeleteElement): e is Project {
-    return 'mu' in e;
-}
-
 const DeletePopup = ({ element, close }: DeletePopupProps) => {
     const fetchStats = useAdminStore((state) => state.fetchStats);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
-    const fetchJudges = useAdminStore((state) => state.fetchJudges);
 
     const deleteElement = async () => {
-        const resource = isProject(element) ? 'project' : 'judge';
-        const res = await deleteRequest(`/${resource}/${element.id}`);
+        const res = await deleteRequest(`/project/${element.id}`);
         if (res.status === 200) {
             await fetchStats();
-            isProject(element) ? await fetchProjects() : await fetchJudges();
-            alert(`${resource} deleted successfully!`);
+            await fetchProjects();
+            alert('Project deleted successfully!');
         } else {
             errorAlert(res);
         }
