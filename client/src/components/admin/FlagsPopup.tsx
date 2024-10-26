@@ -98,7 +98,7 @@ const FlagsPopup = ({ close }: FlagsPopupProps) => {
                             className="flex flex-row items-center text-xl border-b-2 border-backgroundDark py-1"
                         >
                             <h2 className="basis-2/5 text-left text-lg text-black">
-                                {`[T${flag.project_location}] ${flag.project_name}`}
+                                {`[${flag.project_location}] ${flag.project_name.substring(0, 15)}`}
                             </h2>
                             <h2 className="basis-1/5 text-left text-lg text-black">
                                 {flag.judge_name}
