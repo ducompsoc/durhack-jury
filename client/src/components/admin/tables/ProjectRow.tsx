@@ -54,7 +54,7 @@ const ProjectRow = ({ project, idx, checked, handleCheckedChange }: ProjectRowPr
     };
 
     const hideProject = async () => {
-        const res = await postRequest<OkResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
+        const res = await postRequest<YesNoResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
         if (res.status === 200) {
             alert(`Project ${project.active ? 'hidden' : 'un-hidden'} successfully!`);
             fetchProjects();

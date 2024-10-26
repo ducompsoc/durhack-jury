@@ -64,8 +64,8 @@ interface VotingProjectInfo {
     prev_location: number;
 }
 
-interface OkResponse {
-    ok: number;
+interface YesNoResponse {
+    yes_no: number;
 }
 
 interface TokenResponse {
@@ -98,8 +98,8 @@ interface ProjectCount {
     count: number;
 }
 
-interface RankingBatchSize {
-    rbs: number;
+interface BatchRankingSize {
+    brs: number;
 }
 
 interface Flag {
@@ -118,7 +118,7 @@ interface Options {
     clock: ClockState;
     judging_timer: number;
     categories: string[];
-    ranking_batch_size: number;
+    batch_ranking_size: number;
     min_views: number;
 }
 

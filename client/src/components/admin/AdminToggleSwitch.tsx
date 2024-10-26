@@ -5,7 +5,7 @@ const AdminToggleSwitch = (props: {
     setState: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
     return (
-        <div className="w-full flex flex-row items-center justify-center my-10">
+        <div className="w-full flex flex-row items-center justify-center">
             <div className="bg-primaryLight flex flex-row rounded-full relative">
                 <div
                     className={`absolute top-0 left-0 w-44 h-16 transition-transform duration-300 ease-in-out ${
