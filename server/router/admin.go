@@ -136,7 +136,7 @@ func ResetClock(ctx *gin.Context) {
 	}
 
 	// Send OK
-	ctx.JSON(http.StatusOK, gin.H{"clock": clock, "ok": 1})
+	ctx.JSON(http.StatusOK, gin.H{"clock": clock, "yes_no": 1})
 }
 
 func IsClockPaused(ctx *gin.Context) {
