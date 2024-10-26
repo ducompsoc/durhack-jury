@@ -1,4 +1,4 @@
-const BACKEND_URL = import.meta.env.VITE_JURY_URL;
+const BACKEND_URL = import.meta.env.API_ORIGIN + '/api';
 
 export async function getRequest<T>(path: string): Promise<FetchResponse<T>> {
     try {

@@ -12,7 +12,7 @@ const App = () => {
             <h2 className="text-primary text-3xl text-center font-bold mb-24">
                 {import.meta.env.VITE_JURY_NAME}
             </h2>
-            <Button href={`${import.meta.env.VITE_JURY_URL}/auth/keycloak/login`} type="primary">
+            <Button href={`${import.meta.env.API_ORIGIN}/api/auth/keycloak/login`} type="primary">
                 Login
                 <p className="text-sm italic">via auth.durhack.com</p>
             </Button>
