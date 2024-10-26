@@ -73,14 +73,37 @@ const JudgeWelcome = () => {
                     to facilitate hackathon judging.
                 </p>
                 <p className="my-2">
+                    Originally created by&nbsp;
+                    <a className="text-primary" href="https://github.com/hackutd/jury" target="_blank">MichaelZhao21</a>
+                    &nbsp;inspired by&nbsp;
+                    <a className="text-primary" href="https://github.com/anishathalye/gavel" target="_blank">Gavel by
+                        anishathalye</a>
+                    &nbsp;and adapted for use in DurHack 2024 by&nbsp;
+                    <a className="text-primary" href="https://github.com/ducompsoc/durhack-jury" target="_blank">Luca
+                        (tameTNT)</a>.
+                </p>
+                <p className="my-2">
                     Once you get started, you will be presented with a project and its location.
-                    Please go to that project and listen to their presentation. Once completed,
-                    please score their project on the respective categories and click "Done".
+                    Please go to that project and listen to their presentation
+                    (use the inbuilt timer to time their pitch if you like).
+                    You can also make notes in the textbox at the bottom of the screen.
+                    Once completed, please score their project on the respective categories and click "Done".
+                    Your notes, as well as your scores, are saved and can be reviewed and changed any time
+                    by clicking on the project name.
                 </p>
                 <p className="my-2">
                     Once you have scored a project, you will be taken to the ranking screen. Here,
-                    you can rank the project against others you have seen. You can also view the
-                    projects you&apos;ve seen previously and adjust their scores.
+                    you can rank the project relative to others you have seen. You can also view the
+                    projects you&apos;ve seen previously and adjust their scores
+                    (rankings are saved so rank as you go!).
+                </p>
+                <p className="my-2">
+                    You will rank projects in
+                    batches (size determined by the organizers). Once you have seen the set number of projects,
+                    you will not be able to see any more and must rank those that you have seen so far.
+                    Press submit to submit your current rankings as a batch and be able to see more projects.
+                    When judging is ended by an organiser, you will not be able to view any further projects but will
+                    be able to rank and submit any you have already seen, even if this is less than the set batch size.
                 </p>
                 <p className="my-2">
                     If a team is busy being judged, click the &apos;busy&apos; button. This will NOT
@@ -90,6 +113,10 @@ const JudgeWelcome = () => {
                     If a team is absent or you suspect a team may be cheating, please report it to
                     the organizers with the &apos;flag&apos; button. We will look into the matter
                     and take the proper action.
+                </p>
+                <p className="my-2">
+                    If you encounter any issues with the system, please contact a member of the
+                    organising team.
                 </p>
                 <Checkbox checked={checkRead} onChange={setCheckRead}>
                     Before you continue, please acknowledge that you have read and understand the
