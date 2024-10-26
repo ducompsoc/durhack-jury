@@ -110,9 +110,8 @@ const Judge = () => {
                 errorAlert(judgingOverRes);
                 return;
             }
-            let judgingIsOver = Boolean(judgingOverRes.data?.yes_no)
-            setJudgingIsOver(judgingIsOver);
-            setNextButtonDisabled(judgingIsOver);
+            let judgingOverResBool = Boolean(judgingOverRes.data?.yes_no)
+            setJudgingIsOver(judgingOverResBool);
         }
 
         fetchData();
@@ -156,7 +155,10 @@ const Judge = () => {
                 if (!judgingIsOver) setNextButtonDisabled(false);
             }
         }
-    }, [batchRankingSize, judgingIsOver, ranked, unranked, loaded]);
+        if (judgingIsOver) {
+            setNextButtonDisabled(true);
+        }
+    }, [batchRankingSize, judgingIsOver, ranked, unranked, loaded, judgingIsOver]);
 
     if (!loaded) return <Loading disabled={!loaded} />;
 
