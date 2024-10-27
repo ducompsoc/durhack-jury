@@ -53,7 +53,9 @@ func GetBatchRankingSize(db *mongo.Database) (int64, error) {
 
 // GetJudgingEnded gets the judgingEnded flag from the database
 func GetJudgingEnded(db *mongo.Database) (bool, error) {
-	var options models.Options
-	err := db.Collection("options").FindOne(context.Background(), gin.H{}).Decode(&options)
-	return options.JudgingEnded, err
+	options, err := GetOptions(db)
+	if options != nil {
+		return options.JudgingEnded, err
+	}
+	return false, err
 }
