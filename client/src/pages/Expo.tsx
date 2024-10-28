@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import Container from '../components/Container';
 import { getRequest } from '../api';
-import { errorAlert } from '../util';
+import {errorAlert, truncate} from '../util';
 
 const Expo = () => {
     const [rawProjects, setRawProjects] = useState<PublicProject[]>([]);
@@ -40,7 +40,7 @@ const Expo = () => {
         <Container noCenter>
             <h1 className="mt-4 text-4xl text-center font-bold">Project Expo</h1>
             <h2 className="text-2xl text-center font-bold text-primary">
-                {import.meta.env.VITE_JURY_NAME}
+                <a href="/">{import.meta.env.VITE_JURY_NAME}</a>
             </h2>
             <table className="mb-4">
                 <thead>
@@ -59,7 +59,7 @@ const Expo = () => {
                                 'px-4 py-2 cursor-pointer text-left ' + (!nameSort && 'underline')
                             }
                         >
-                            Table
+                            Location
                         </th>
                     </tr>
                 </thead>
@@ -68,7 +68,7 @@ const Expo = () => {
                         <tr key={idx}>
                             <td className="px-4 py-2">
                                 <a href={project.url} target="_blank" rel="noopener noreferrer">
-                                    {project.name}
+                                    {truncate(project.name, 20)}
                                 </a>
                             </td>
                             <td className="px-4 py-2">{project.location}</td>

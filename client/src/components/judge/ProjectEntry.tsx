@@ -1,5 +1,6 @@
 import { twMerge } from 'tailwind-merge';
 import DragHamburger from './dnd/DragHamburger';
+import {truncate} from "../../util";
 
 interface ProjectEntryProps {
     project: SortableJudgedProject;
@@ -10,13 +11,6 @@ const ProjectEntry = ({ project, ranking }: ProjectEntryProps) => {
     if (!project) {
         return null;
     }
-
-    // Will truncate a string to width characters exactly,
-    // adding a dot at the end if the length is > than width chars
-    const truncate = (s: string, width: number = 8) => {
-        if (s.length <= width) return s;
-        return s.substring(0, width-1) + '.';
-    };
 
     let rankColor = 'text-lightest';
     switch (ranking) {
