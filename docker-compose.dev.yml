@@ -3,8 +3,24 @@ services:
     go-dev:
         container_name: jury-dev-backend
         environment:
-            - MONGODB_URI=${MONGODB_URI}
+            - GIN_MODE=${GIN_MODE}
+
+            - VITE_JURY_NAME=${JURY_NAME}
             - JURY_ADMIN_PASSWORD=${JURY_ADMIN_PASSWORD}
+
+            - ORIGIN=${ORIGIN:?}
+            - API_ORIGIN=${API_ORIGIN:?}
+
+            - KEYCLOAK_REALM=${KEYCLOAK_REALM}
+            - KEYCLOAK_BASE_URL=${KEYCLOAK_BASE_URL}
+            - KEYCLOAK_ADMIN_BASE_URL=${KEYCLOAK_ADMIN_BASE_URL}
+
+            - KEYCLOAK_OAUTH2_CLIENT_ID=${KEYCLOAK_OAUTH2_CLIENT_ID}
+            - KEYCLOAK_OAUTH2_CLIENT_SECRET=${KEYCLOAK_OAUTH2_CLIENT_SECRET}
+
+            - MONGODB_URI=${MONGODB_URI}
+            - DATABASE_NAME=${DATABASE_NAME}
+
             - EMAIL_HOST=${EMAIL_HOST}
             - EMAIL_PORT=${EMAIL_PORT}
             - EMAIL_FROM=${EMAIL_FROM}
@@ -12,12 +28,8 @@ services:
             - EMAIL_USERNAME=${EMAIL_USERNAME}
             - EMAIL_PASSWORD=${EMAIL_PASSWORD}
             - SENDGRID_API_KEY=${SENDGRID_API_KEY}
-            - VITE_JURY_NAME=${JURY_NAME}
-            - PORT=3301
-            - KEYCLOAK_OAUTH2_CLIENT_ID=${KEYCLOAK_OAUTH2_CLIENT_ID}
-            - KEYCLOAK_OAUTH2_CLIENT_SECRET=${KEYCLOAK_OAUTH2_CLIENT_SECRET}
-            - ORIGIN=${ORIGIN:?}
-            - API_ORIGIN=${API_ORIGIN:?}
+
+            - PORT=${API_PORT:-3301}
         build:
             context: './'
             dockerfile: dev.Dockerfile
@@ -32,7 +44,7 @@ services:
         container_name: jury-dev-frontend
         environment:
             - VITE_JURY_NAME=${JURY_NAME}
-            - VITE_JURY_URL=${API_ORIGIN}/api
+            - VITE_API_ORIGIN=${API_ORIGIN}
         build:
             context: './'
             dockerfile: client/dev.Dockerfile
