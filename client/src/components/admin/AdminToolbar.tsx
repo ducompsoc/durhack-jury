@@ -5,7 +5,7 @@ import FlagsPopup from './FlagsPopup';
 const AdminToolbar = (props: { showProjects: boolean }) => {
     const [showFlags, setShowFlags] = useState(false);
     return (
-        <div className="flex flex-row px-8 py-4">
+        <div className="flex flex-row px-8 py-4 items-center">
             <div>
                 {props.showProjects && (
                     <Button
@@ -37,7 +37,10 @@ const AdminToolbar = (props: { showProjects: boolean }) => {
                     </Button>
                 )}
             </div>
-            {showFlags && <FlagsPopup close={setShowFlags} />}
+            <div className="ml-4 italic">
+                Click on headings to sort by that column.
+            </div>
+            {showFlags && <FlagsPopup close={setShowFlags}/>}
         </div>
     );
 };
