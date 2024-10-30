@@ -5,9 +5,11 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
 	"server/models"
+	"server/ranking"
 	"server/util"
 	"strings"
 
@@ -231,18 +233,27 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 }
 
 // Create a CSV file from a list of projects
-func CreateProjectCSV(projects []*models.Project) []byte {
+func CreateProjectCSV(projects []*models.Project, scores []ranking.RankedObject) []byte {
 	csvBuffer := &bytes.Buffer{}
 
 	// Create a new CSV writer
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	w.Write([]string{"Name", "Location", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "Seen", "Active", "LastActivity"})
+	w.Write([]string{"Name", "Location", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "TimesSeen", "Active", "LastActivity", "Score"})
+
+	// Create a map to store scores by project ID
+	scoreMap := make(map[primitive.ObjectID]float64)
+	for _, ps := range scores {
+		scoreMap[ps.Id] = ps.Score
+	}
 
 	// Write each project
 	for _, project := range projects {
-		w.Write([]string{project.Name, project.Location, project.Description, project.Url, project.TryLink, project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen), fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity)})
+		w.Write([]string{project.Name, project.Location, project.Description, project.Url, project.TryLink,
+			project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen),
+			fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity),
+			fmt.Sprintf("%.1f", scoreMap[project.Id])})
 	}
 
 	// Flush the writer
@@ -252,7 +263,7 @@ func CreateProjectCSV(projects []*models.Project) []byte {
 }
 
 // CreateProjectChallengeZip creates a zip file with a CSV for each challenge
-func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
+func CreateProjectChallengeZip(projects []*models.Project, scores []ranking.RankedObject) ([]byte, error) {
 	var csvList [][]byte
 
 	// Get list of challenges
@@ -275,7 +286,7 @@ func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
 		}
 
 		// Create CSV for the challenge
-		challengeCSV := CreateProjectCSV(currChallengeProjects)
+		challengeCSV := CreateProjectCSV(currChallengeProjects, scores)
 		csvList = append(csvList, challengeCSV)
 	}
 

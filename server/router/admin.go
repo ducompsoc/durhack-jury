@@ -209,9 +209,14 @@ func ExportProjects(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting projects: " + err.Error()})
 		return
 	}
+	err, errStr, scores := ranking.GetScoresFromDB(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": errStr + err.Error()})
+		return
+	}
 
 	// Create the CSV
-	csvData := funcs.CreateProjectCSV(projects)
+	csvData := funcs.CreateProjectCSV(projects, scores)
 
 	// Send CSV
 	funcs.AddCsvData("projects", csvData, ctx)
@@ -229,9 +234,14 @@ func ExportProjectsByChallenge(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting projects: " + err.Error()})
 		return
 	}
+	err, errStr, scores := ranking.GetScoresFromDB(db)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": errStr + err.Error()})
+		return
+	}
 
 	// Create the zip file
-	zipData, err := funcs.CreateProjectChallengeZip(projects)
+	zipData, err := funcs.CreateProjectChallengeZip(projects, scores)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error creating zip file: " + err.Error()})
 		return
