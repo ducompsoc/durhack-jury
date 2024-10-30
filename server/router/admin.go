@@ -400,44 +400,11 @@ func GetScores(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
-	// Get all the projects
-	projects, err := database.FindAllProjects(db)
+	err, errStr, scores := ranking.GetScoresFromDB(db)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting projects: " + err.Error()})
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": errStr + err.Error()})
 		return
 	}
-
-	// Get all the judges
-	judges, err := database.FindAllJudges(db)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judges: " + err.Error()})
-		return
-	}
-
-	// Create judge ranking objects
-	// Create an array of {CurrentRankings: [], Unranked: []}
-	judgeRankings := make([]ranking.JudgeRankings, 0)
-	for _, judge := range judges {
-		//for _, proj := range judge.SeenProjects {
-		//	if !contains(judge.CurrentRankings, proj.ProjectId) {
-		//		unranked = append(unranked, proj.ProjectId)
-		//	}
-		//}
-
-		judgeRankings = append(judgeRankings, ranking.JudgeRankings{
-			Rankings: judge.PastRankings,
-			//Unranked: unranked,
-		})
-	}
-
-	// Map all projects to their object IDs
-	projectIds := make([]primitive.ObjectID, 0)
-	for _, proj := range projects {
-		projectIds = append(projectIds, proj.Id)
-	}
-
-	// Calculate the scores
-	scores := ranking.CalcCopelandRanking(judgeRankings, projectIds)
 
 	// Send OK
 	ctx.JSON(http.StatusOK, scores)
