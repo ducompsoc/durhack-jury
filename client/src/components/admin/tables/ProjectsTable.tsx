@@ -74,8 +74,12 @@ const ProjectsTable = () => {
             case ProjectSortField.Name:
                 sortFunc = (a, b) => a.name.localeCompare(b.name) * asc;
                 break;
-            case ProjectSortField.Location:
-                sortFunc = (a, b) => a.location.localeCompare(b.location) * asc;
+            case ProjectSortField.GuildLocation:
+                sortFunc = (a, b) => {
+                    const guildComparison = a.guild.localeCompare(b.guild) * asc;
+                    if (guildComparison !== 0) return guildComparison;  // if guilds are different, just use those to sort
+                    return a.location.localeCompare(b.location) * asc;  // otherwise, secondary sort by location
+                };
                 break;
             case ProjectSortField.Score:
                 sortFunc = (a, b) => (a.score - b.score) * asc;
@@ -188,9 +192,15 @@ const ProjectsTable = () => {
                         align='left'
                     />
                     <HeaderEntry
+                        name="Guild"
+                        updateSort={updateSort}
+                        sortField={ProjectSortField.GuildLocation}
+                        sortState={sortState}
+                    />
+                    <HeaderEntry
                         name="Location"
                         updateSort={updateSort}
-                        sortField={ProjectSortField.Location}
+                        sortField={ProjectSortField.GuildLocation}
                         sortState={sortState}
                     />
                     <HeaderEntry
