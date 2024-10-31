@@ -332,6 +332,42 @@ func HideProject(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
+// POST /project/hide-unhide-many - HideUnhideManyProjects hides projects in bulk (used for guilds being away)
+func HideUnhideManyProjects(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get ID from body
+	var multiHideReq models.MultiIdHideRequest
+	err := ctx.BindJSON(&multiHideReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+	ids := multiHideReq.Ids
+
+	// Convert project ID strings to ObjectIDs
+	projectObjectIds := make([]primitive.ObjectID, len(ids))
+	for _, id := range ids {
+		projectObjectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID (in array): " + id})
+			return
+		}
+		projectObjectIds = append(projectObjectIds, projectObjectId)
+	}
+
+	// Update the project in the database
+	err = database.SetProjectsHidden(db, &projectObjectIds, multiHideReq.Hide)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
+}
+
 // POST /project/unhide - UnhideProject unhides a project
 func UnhideProject(ctx *gin.Context) {
 	// Get the database from the context

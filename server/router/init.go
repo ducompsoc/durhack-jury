@@ -118,6 +118,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.POST("/judge/hide", HideJudge)
 	adminRouter.POST("/judge/unhide", UnhideJudge)
 	adminRouter.POST("/project/hide", HideProject)
+	adminRouter.POST("/project/hide-unhide-many", HideUnhideManyProjects)
 	adminRouter.POST("/project/unhide", UnhideProject)
 	adminRouter.POST("/project/prioritize", PrioritizeProject)
 	adminRouter.POST("/project/unprioritize", UnprioritizeProject)
