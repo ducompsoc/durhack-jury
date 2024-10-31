@@ -245,7 +245,7 @@ func CreateProjectCSV(projects []*models.Project, scores []ranking.RankedObject)
 
 	// Write each project
 	for _, project := range projects {
-		w.Write([]string{project.Name, project.Location, project.Description, project.Url, project.TryLink,
+		w.Write([]string{project.Name, project.GetLocationString(), project.Description, project.Url, project.TryLink,
 			project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen),
 			fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity),
 			fmt.Sprintf("%.1f", scoreMap[project.Id])})

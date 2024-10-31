@@ -22,7 +22,11 @@ type Project struct {
 }
 
 func (p *Project) GetLocationString() string {
-	return p.Guild + "|" + p.Location
+	if p.Guild == "" {
+		return p.Location
+	} else {
+		return p.Guild + "|" + p.Location
+	}
 }
 
 func NewProject(name string, guild string, location string, description string, url string, tryLink string, videoLink string, challengeList []string) *Project {
