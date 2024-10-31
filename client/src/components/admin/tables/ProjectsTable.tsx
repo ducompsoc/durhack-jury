@@ -4,6 +4,8 @@ import useAdminStore from '../../../store';
 import HeaderEntry from './HeaderEntry';
 import { ProjectSortField } from '../../../enums';
 import Button from "../../Button";
+import {postRequest} from "../../../api";
+import {errorAlert} from "../../../util";
 
 const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);
@@ -81,7 +83,7 @@ const ProjectsTable = () => {
         setProjects(unsortedProjects.sort(sortFunc));
     }, [unsortedProjects, sortState]);
 
-    const bulkHide = () => {
+    const bulkHide = async (hide: boolean) => {
         let toHide: string[] = [];
         // I hate this btw. But react complains if it's just one consistent type...
         if (Array.isArray(checked)) {  // checked is still an array from initialisation
@@ -97,24 +99,50 @@ const ProjectsTable = () => {
                 }
             });
         }
-        console.log(toHide);
+
+        if (toHide.length === 0) {
+            alert('No projects selected!');
+            return;
+        }
+
+        const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: hide});
+        if (res.status === 200) {
+            alert(`Projects ${hide ? 'hidden' : 'un-hidden'} successfully!`);
+            await fetchProjects();
+        } else {
+            errorAlert(res);
+        }
     }
 
     return (
         <div className="w-full px-8 pb-4">
-            <div className="ml-4">
-                <Button
-                    type="primary"
-                    square
-                    bold
-                    full
-                    className="py-2 px-4 rounded-md"
-                    onClick={() => {
-                        bulkHide();
-                    }}
-                >
-                    Hide Selected
-                </Button>
+            <div className="flex">
+                <div className="">
+                    <Button
+                        type="primary"
+                        square
+                        full
+                        className="py-2 px-4 rounded-md"
+                        onClick={() => {
+                            bulkHide(true);
+                        }}
+                    >
+                        Hide Selected
+                    </Button>
+                </div>
+                <div className="ml-4">
+                    <Button
+                        type="primary"
+                        square
+                        full
+                        className="py-2 px-4 rounded-md"
+                        onClick={() => {
+                            bulkHide(false);
+                        }}
+                    >
+                        Unhide Selected
+                    </Button>
+                </div>
             </div>
             <table className="table-fixed w-full text-lg">
                 <tbody>
