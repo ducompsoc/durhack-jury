@@ -124,11 +124,15 @@ const ProjectsTable = () => {
     const selectByGuild = () => {
         const selectedGuild = (document.getElementById('guild-select') as HTMLSelectElement).value;
         let toCheck: number[] = [];
-        projects.forEach((project, idx) => {
-            if (project.guild === selectedGuild) {
-                toCheck.push(idx);
-            }
-        });
+        if (selectedGuild === 'all') {
+            toCheck = projects.map((_, idx) => idx);
+        } else {
+            projects.forEach((project, idx) => {
+                if (project.guild === selectedGuild) {
+                    toCheck.push(idx);
+                }
+            });
+        }
 
         setChecked(() => {
             let newChecked: {[key: number]: boolean} = {};
@@ -175,6 +179,7 @@ const ProjectsTable = () => {
                         {guilds.sort().map((guild, idx) => (
                             <option key={idx} value={guild}>{guild}</option>
                         ))}
+                        <option key="all-guild" value="all" className="italic">*Select all*</option>
                         <option key="nil-guild" value="nil" className="italic">*Deselect all*</option>
                     </select>
                     <Button type="outline" square className="ml-2 py-2 px-4 rounded-md" onClick={selectByGuild}>
