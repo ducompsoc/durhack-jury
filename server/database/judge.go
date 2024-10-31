@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"server/models"
 	"server/util"
@@ -98,7 +99,7 @@ func AggregateJudgeStats(db *mongo.Database) (*models.JudgeStats, error) {
 	return &stats, nil
 }
 
-// lucatodo: implement API on Jury to allow keycloak client to delete a judge 'remotely'
+// durhacktodo: implement API on Jury to allow keycloak client to delete a judge 'remotely'
 // DeleteJudgeById deletes a judge from the database by their id
 func DeleteJudgeById(db *mongo.Database, id primitive.ObjectID) error {
 	_, err := db.Collection("judges").DeleteOne(context.Background(), gin.H{"_id": id})

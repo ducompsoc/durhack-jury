@@ -26,7 +26,7 @@ interface PublicProject {
 }
 
 interface Judge {
-    // lucatodo: update this schema based on actual return and then update usages
+    // todo: update this schema based on actual return and then update usages
     id: string;
     name: string;
     code: string;

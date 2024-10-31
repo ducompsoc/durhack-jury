@@ -130,7 +130,7 @@ func PickNextProject(db *mongo.Database, judge *models.Judge, ctx mongo.SessionC
 //  2. Filter out all projects that the judge has already seen
 //  3. Filter out all projects that the judge has flagged (except for busy projects)
 //  4. Filter out projects that are currently being judged (if no projects remain after filter, ignore step)
-//  5. Filter out all projects that have less than the minimum number of views (if no projects remain after filter, ignore step)
+//  5. Filter out all projects that have more than the current smallest number of views (if no projects remain after filter, ignore step)
 func FindPreferredItems(db *mongo.Database, judge *models.Judge, ctx mongo.SessionContext) ([]*models.Project, error) {
 	// TODO: Ensure judge does not get the project they _just_ skipped -- ideally we would keep a list of projects that the judge has skipped and clear it when the judge finds a project they don't skip (after voting)
 
@@ -200,7 +200,7 @@ func FindPreferredItems(db *mongo.Database, judge *models.Judge, ctx mongo.Sessi
 		projects = freeProjects
 	}
 
-	// Get the minimum number of views of the remaining projects
+	// Get the current smallest number of views of the remaining projects
 	minSeen := projects[0].Seen
 	for _, proj := range projects {
 		if proj.Seen < minSeen {
@@ -208,7 +208,7 @@ func FindPreferredItems(db *mongo.Database, judge *models.Judge, ctx mongo.Sessi
 		}
 	}
 
-	// Filter out projects that have more than the minimum number of views
+	// Filter out projects that have more than the current smallest number of views
 	var minViewProjects []*models.Project
 	for _, proj := range projects {
 		if proj.Seen == minSeen {

@@ -177,7 +177,7 @@ func AddZipFile(name string, content []byte, ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/octet-stream", content)
 }
 
-// Create a CSV file from the judges but only the rankings  lucatodo: update for new ranking object structures (2D array)
+// Create a CSV file from the judges but only the rankings
 func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	csvBuffer := &bytes.Buffer{}
 
@@ -185,7 +185,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	// lucatodo: remove unranked concept
+	// todo: remove unranked concept
 	w.Write([]string{"Name", "Code", "Ranked", "Unranked"})
 
 	// Write each judge
@@ -196,7 +196,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all ranked projects (just their location)
-		ranked := make([]string, 0, len(judge.CurrentRankings))
+		ranked := make([]string, 0, len(judge.CurrentRankings)) // todo: update for new ranking object structures (2D array)
 		for _, projId := range judge.CurrentRankings {
 			idx := util.IndexFunc(judge.SeenProjects, func(p models.JudgedProject) bool {
 				return p.ProjectId == projId
@@ -217,7 +217,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Write line to CSV
-		// lucatodo: get judge info (from gocloak using admin api) to write to csv
+		// durhacktodo: get judge info (from gocloak using admin api) to write to csv
 		w.Write([]string{judge.KeycloakUserId, strings.Join(ranked, ","), strings.Join(unranked, ",")})
 	}
 
