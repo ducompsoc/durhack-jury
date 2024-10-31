@@ -176,7 +176,8 @@ const Judge = () => {
             return;
         }
 
-        alert('You can now take a break! Press "Next project" to continue judging.');
+        alert('Your current project was freed up for another judge. You can now take a break! ' +
+              'Just press "Next project" to continue judging.');
     };
 
     const handleDragStart = (event: DragStartEvent) => {

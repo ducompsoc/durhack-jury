@@ -46,7 +46,7 @@ const ProjectDisplay = (props: ProjectDisplayProps) => {
                     {project.name}
                 </a>
             </h1>
-            <h2 className="text-xl mb-1">Location (Guild|Table): {project.location}</h2>
+            <h2 className="text-xl mb-1">Location: {project.guild}|{project.location}</h2>
             <Paragraph className="text-light" text={project.description} />
         </div>
     );

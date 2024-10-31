@@ -278,7 +278,7 @@ const AdminSettings = () => {
                 <Button
                     type="primary"
                     onClick={updateCategories}
-                    className="mt-4 w-auto md:w-auto px-4 py-2 mb-8"  // lucatodo:  add white inner outline to buttons on focus?
+                    className="mt-4 w-auto md:w-auto px-4 py-2 mb-8"
                 >
                     Update Categories
                 </Button>

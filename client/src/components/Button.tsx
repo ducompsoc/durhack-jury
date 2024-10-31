@@ -51,6 +51,7 @@ const Button = (props: ButtonProps) => {
         : 'cursor-auto text-lighter bg-backgroundDark';
     const boldFormat = props.bold ? 'font-bold' : 'font-normal';
     const widthFormat = props.full ? 'w-full' : 'w-3/4 md:w-2/3';
+    const focusFormat = 'focus:outline-none focus:ring-inset focus:ring-4 focus:ring-backgroundDark focus:ring-opacity-100';
     const formatting = twMerge(
         defaultFormat,
         borderFormat,
@@ -58,6 +59,7 @@ const Button = (props: ButtonProps) => {
         squareFormat,
         boldFormat,
         widthFormat,
+        focusFormat,
         props.className
     );
 

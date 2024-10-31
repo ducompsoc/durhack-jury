@@ -1,6 +1,7 @@
 export enum JudgeSortField {
     Name,
     Email,
+    KeycloakUserId,
     Seen,
     BatchesSubmitted,
     Updated,
@@ -9,7 +10,7 @@ export enum JudgeSortField {
 
 export enum ProjectSortField {
     Name,
-    Location,
+    GuildLocation,
     Score,
     Seen,
     Updated,

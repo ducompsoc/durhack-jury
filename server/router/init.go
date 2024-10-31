@@ -3,6 +3,7 @@ package router
 import (
 	"log"
 	"net/url"
+
 	"server/config"
 	"server/database"
 	"server/judging"
@@ -67,13 +68,14 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	router.Use(sessions.Sessions("durhack-jury-session", store))
 
 	// Create router groups for judge and admins
-	// lucatodo: document routing behaviour r.e. login and auth
+	// todo: document routing behaviour r.e. login and auth
 	authenticatedRouter := router.Group("", Authenticate())
 	judgeRouter := authenticatedRouter.Group("/api", AuthoriseJudge())
 	adminRouter := authenticatedRouter.Group("/api", AuthoriseAdmin())
 	defaultRouter := router.Group("/api")
 
-	// lucatodo: improved error handling middleware: https://stackoverflow.com/questions/69948784/how-to-handle-errors-in-gin-middleware/69948929#69948929
+	// todo: improved error handling middleware: https://stackoverflow.com/questions/69948784/how-to-handle-errors-in-gin-middleware/69948929#69948929
+	// also todo: proper error handling of database errors (instead of fmt.Println -> logging in middleware)
 	// Authenticated login routes
 	defaultRouter.GET("/auth/keycloak/login", BeginKeycloakOAuth2Flow())
 	defaultRouter.GET("/auth/keycloak/callback", KeycloakOAuth2FlowCallback(), HandleLoginSuccess())
@@ -118,6 +120,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	adminRouter.POST("/judge/hide", HideJudge)
 	adminRouter.POST("/judge/unhide", UnhideJudge)
 	adminRouter.POST("/project/hide", HideProject)
+	adminRouter.POST("/project/hide-unhide-many", HideUnhideManyProjects)
 	adminRouter.POST("/project/unhide", UnhideProject)
 	adminRouter.POST("/project/prioritize", PrioritizeProject)
 	adminRouter.POST("/project/unprioritize", UnprioritizeProject)

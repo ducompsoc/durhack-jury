@@ -1,6 +1,7 @@
 interface Project {
     id: string;
     name: string;
+    guild: string;
     location: string;
     description: string;
     url: string;
@@ -15,7 +16,8 @@ interface Project {
 
 interface PublicProject {
     name: string;
-    location: number;
+    guild: string;
+    location: string;
     description: string;
     url: string;
     try_link: string;
@@ -24,11 +26,12 @@ interface PublicProject {
 }
 
 interface Judge {
-    // lucatodo: update this schema based on actual return and then update usages
+    // todo: update this schema based on actual return and then update usages
     id: string;
     name: string;
     code: string;
     email: string;
+    keycloak_user_id: string;
     notes: string;
     read_welcome: boolean;
     seen: number;
@@ -42,6 +45,7 @@ interface Judge {
 
 interface Stats {
     projects: number;
+    hidden_projects: number;
     avg_project_seen: number;
     avg_judge_seen: number;
     judges: number;
@@ -73,6 +77,7 @@ interface JudgedProject {
     categories: { [name: string]: number };
     notes: string;
     name: string;
+    guild: string;
     location: string;
     description: string;
 }

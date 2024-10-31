@@ -189,7 +189,15 @@ func CountProjectDocuments(db *mongo.Database) (int64, error) {
 
 // SetProjectHidden sets the active field of a project
 func SetProjectHidden(db *mongo.Database, id *primitive.ObjectID, hidden bool) error {
-	_, err := db.Collection("projects").UpdateOne(context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": !hidden}})
+	_, err := db.Collection("projects").UpdateOne(
+		context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": !hidden}})
+	return err
+}
+
+// SetProjectsHidden sets the active fields of many projects in bulk
+func SetProjectsHidden(db *mongo.Database, ids *[]primitive.ObjectID, hidden bool) error {
+	_, err := db.Collection("projects").UpdateMany(
+		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$set": gin.H{"active": !hidden}})
 	return err
 }
 

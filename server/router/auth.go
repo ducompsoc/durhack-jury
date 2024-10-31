@@ -3,16 +3,17 @@ package router
 import (
 	"context"
 	"fmt"
+	"net/http"
+	"net/url"
+	"slices"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 	mongoOptions "go.mongodb.org/mongo-driver/mongo/options"
 	"golang.org/x/oauth2"
-	"net/http"
-	"net/url"
 	"server/auth"
 	"server/config"
-	"slices"
 )
 
 func getOrGenerateCodeVerifier(ctx *gin.Context) (string, error) {
@@ -110,7 +111,7 @@ func KeycloakOAuth2FlowCallback() gin.HandlerFunc {
 			mongoOptions.Update().SetUpsert(true),
 		)
 
-		if err != nil { // lucatodo: proper error handling of database errors (fmt.Println -> logging in middleware)
+		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			fmt.Println(err.Error())
 			return

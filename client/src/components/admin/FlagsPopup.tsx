@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getRequest } from '../../api';
-import { errorAlert, timeSince } from '../../util';
+import {errorAlert, timeSince, truncate} from '../../util';
 
 interface FlagsPopupProps {
     /* Function to modify the popup state variable */
@@ -98,7 +98,7 @@ const FlagsPopup = ({ close }: FlagsPopupProps) => {
                             className="flex flex-row items-center text-xl border-b-2 border-backgroundDark py-1"
                         >
                             <h2 className="basis-2/5 text-left text-lg text-black">
-                                {`[${flag.project_location}] ${flag.project_name.substring(0, 15)}`}
+                                {`[${flag.project_location}] ${truncate(flag.project_name, 20)}`}
                             </h2>
                             <h2 className="basis-1/5 text-left text-lg text-black">
                                 {flag.judge_name}
