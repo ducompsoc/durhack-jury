@@ -12,7 +12,7 @@ const ProjectsTable = () => {
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
     const [projects, setProjects] = useState<Project[]>([]);
     const [guilds, setGuilds] = useState<string[]>([]);
-    const [checked, setChecked] = useState<boolean[]>([]);
+    const [checked, setChecked] = useState<{[key: number]: boolean}>({});
     const [sortState, setSortState] = useState<SortState<ProjectSortField>>({
         field: ProjectSortField.None,
         ascending: true,
@@ -58,7 +58,14 @@ const ProjectsTable = () => {
 
     // When projects change, update projects and sort
     useEffect(() => {
-        setChecked(Array(unsortedProjects.length).fill(false));
+        // Reset checked state to an object with all indexes false
+        setChecked(() => {
+            let newChecked: {[key: number]: boolean} = {};
+            unsortedProjects.forEach((_, idx) => {
+                newChecked[idx] = false;
+            });
+            return newChecked;
+        });
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let sortFunc = (a: Project, b: Project) => 0;
@@ -86,20 +93,11 @@ const ProjectsTable = () => {
 
     const bulkHide = async (hide: boolean) => {
         let toHide: string[] = [];
-        // I hate this btw. But react complains if it's just one consistent type...
-        if (Array.isArray(checked)) {  // checked is still an array from initialisation
-            // checked.forEach((value, index) => {
-            //     if (value) {
-            //         toHide.push(projects[index].id);
-            //     }
-            // });  // in this case we know that it's an array of all false
-        } else {  // checked has been made a dictionary
-            Object.entries(checked).forEach(([key, value]) => {
-                if (value) {
-                    toHide.push(projects[parseInt(key)].id);
-                }
-            });
-        }
+        Object.entries(checked).forEach(([key, value]) => {
+            if (value) {
+                toHide.push(projects[parseInt(key)].id);
+            }
+        });
 
         if (toHide.length === 0) {
             alert('No projects selected!');
@@ -118,6 +116,24 @@ const ProjectsTable = () => {
     useEffect(() => {
         setGuilds(Array.from(new Set(projects.map(p => p.guild))));
     }, [projects]);
+
+    const selectByGuild = () => {
+        const selectedGuild = (document.getElementById('guild-select') as HTMLSelectElement).value;
+        let toCheck: number[] = [];
+        projects.forEach((project, idx) => {
+            if (project.guild === selectedGuild) {
+                toCheck.push(idx);
+            }
+        });
+
+        setChecked(() => {
+            let newChecked: {[key: number]: boolean} = {};
+            toCheck.forEach((idx) => {
+                newChecked[idx] = true;
+            });
+            return newChecked;
+        });
+    }
 
     return (
         <div className="w-full px-8 pb-4">
@@ -149,13 +165,15 @@ const ProjectsTable = () => {
                     </Button>
                 </div>
                 <div className="flex flex-nowrap items-center pl-8">
-                    <label form="guild-select" className="text-2xl mr-2 align-middle">Guild:</label>
-                    <select name="guilds" id="guild-select" className="rounded-md align-middle">
+                    <p className="text-2xl mr-2 align-middle">Guild:</p>
+                    <select className="rounded-md align-middle" id="guild-select">
                         {guilds.map((guild, idx) => (
                             <option key={idx} value={guild}>{guild}</option>
                         ))}
+                        <option key="nil-guild" value="nil" className="italic">*Deselect all*</option>
                     </select>
-                    <Button type="outline" square className="ml-2 py-2 px-4 rounded-md">Bulk select</Button>
+                    <Button type="outline" square className="ml-2 py-2 px-4 rounded-md" onClick={selectByGuild}>
+                        Bulk select</Button>
                 </div>
             </div>
             <table className="table-fixed w-full text-lg">

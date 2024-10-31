@@ -88,7 +88,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 <td className="px-2">
                     <input
                         type="checkbox"
-                        checked={checked}
+                        checked={checked || false}
                         onChange={(e) => {
                             handleCheckedChange(e, idx);
                         }}
