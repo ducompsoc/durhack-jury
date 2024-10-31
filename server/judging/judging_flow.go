@@ -3,10 +3,11 @@ package judging
 import (
 	"errors"
 	"math/rand"
+	"slices"
+
 	"server/database"
 	"server/models"
 	"server/util"
-	"slices"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -65,6 +66,9 @@ func SkipCurrentProject(db *mongo.Database, judge *models.Judge, judgeName strin
 			return nil, err
 		}
 
+		if project == nil { // Handle no projects left to get
+			return nil, nil
+		}
 		// Update the judge
 		return database.UpdateAfterPickedWithTx(db, project, judge, ctx)
 	})
