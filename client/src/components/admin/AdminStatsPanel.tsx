@@ -72,7 +72,8 @@ const AdminStatsPanel = () => {
             <PauseButton paused={paused} setPaused={setPaused} clock={time} />
             <div className="flex justify-evenly basis-2/5">
                 <StatBlock name="Projects" value={stats.projects} />
-                <StatBlock name="Avg Times Seen/Project" value={stats.avg_project_seen} />
+                <StatBlock name="Hidden Projects" value={stats.hidden_projects} />
+                <StatBlock name="Avg Seen/Project" value={stats.avg_project_seen} />
             </div>
             <StatBlock
                 name="Judging Time"

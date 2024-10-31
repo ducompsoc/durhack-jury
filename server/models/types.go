@@ -14,6 +14,7 @@ type ProjectStats struct {
 
 type Stats struct {
 	Projects       int64   `json:"projects"`
+	HiddenProjects int64   `json:"hidden_projects"`
 	Judges         int64   `json:"judges"`
 	AvgProjectSeen float64 `json:"avg_project_seen"`
 	AvgJudgeSeen   float64 `json:"avg_judge_seen"`

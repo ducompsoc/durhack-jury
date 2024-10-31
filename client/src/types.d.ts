@@ -44,6 +44,7 @@ interface Judge {
 
 interface Stats {
     projects: number;
+    hidden_projects: number;
     avg_project_seen: number;
     avg_judge_seen: number;
     judges: number;
