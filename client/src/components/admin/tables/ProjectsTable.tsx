@@ -217,7 +217,7 @@ const ProjectsTable = () => {
                         sortState={sortState}
                     />
                     <HeaderEntry
-                        name="Seen"
+                        name="Seen (and not skipped)"
                         updateSort={updateSort}
                         sortField={ProjectSortField.Seen}
                         sortState={sortState}
