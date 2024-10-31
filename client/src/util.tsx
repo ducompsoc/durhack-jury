@@ -65,7 +65,7 @@ function errorAlert<T>(res: FetchResponse<T>) {
 // adding a dot at the end if the length is > than width chars
 function truncate(s: string, width: number = 8) {
     if (s.length <= width) return s;
-    return s.substring(0, width-1) + '.';
+    return s.substring(0, width-2) + '..';
 }
 
 export { timeSince, arrow, fixIfFloat, fixIfFloatDigits, errorAlert, showTopFive, truncate };

@@ -7,9 +7,12 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"server/models"
-	"server/util"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"server/models"
+	"server/ranking"
+	"server/util"
 
 	"github.com/gin-gonic/gin"
 )
@@ -64,7 +67,7 @@ func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) 
 		}
 
 		// Add project to slice
-		projects = append(projects, models.NewProject(record[0], record[1], record[2], record[3], tryLink, videoLink, challengeList))
+		projects = append(projects, models.NewProject(record[0], "", record[1], record[2], record[3], tryLink, videoLink, challengeList))
 	}
 
 	return projects, nil
@@ -87,9 +90,10 @@ func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) 
 //  11. Notes - ignore
 //  12. Team Colleges/Universities - ignore
 //  13. Additional Team Member Count - ignore
-//  14. !!Megateam/Guild - location (part 1)
-//  15. !!Table number - location (part 2)
-//  15. (and remiaining columns) Custom questions - custom_questions (ignore for now)
+//  14. !Megateam/Guild - guild  [column O in excel]
+//  15. !Table number - location [column P in excel]
+//
+// (16+.and remiaining columns) Custom questions - custom_questions (ignore for now)
 func ParseDevpostCSV(content string) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
 
@@ -134,18 +138,11 @@ func ParseDevpostCSV(content string) ([]*models.Project, error) {
 			challengeList[i] = strings.TrimSpace(challengeList[i])
 		}
 
-		// Interpret location string
-		location := ""
-		if record[14] == "" {
-			location = "No location."
-		} else {
-			location = truncate(record[14], 6) + "|" + record[15]
-		}
-
 		// Add project to slice
 		projects = append(projects, models.NewProject(
 			record[0],
-			location,
+			record[14],
+			record[15],
 			record[6],
 			record[1],
 			record[7],
@@ -180,7 +177,7 @@ func AddZipFile(name string, content []byte, ctx *gin.Context) {
 	ctx.Data(http.StatusOK, "application/octet-stream", content)
 }
 
-// Create a CSV file from the judges but only the rankings  lucatodo: update for new ranking object structures (2D array)
+// Create a CSV file from the judges but only the rankings
 func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	csvBuffer := &bytes.Buffer{}
 
@@ -188,7 +185,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	// lucatodo: remove unranked concept
+	// todo: remove unranked concept
 	w.Write([]string{"Name", "Code", "Ranked", "Unranked"})
 
 	// Write each judge
@@ -199,7 +196,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all ranked projects (just their location)
-		ranked := make([]string, 0, len(judge.CurrentRankings))
+		ranked := make([]string, 0, len(judge.CurrentRankings)) // todo: update for new ranking object structures (2D array)
 		for _, projId := range judge.CurrentRankings {
 			idx := util.IndexFunc(judge.SeenProjects, func(p models.JudgedProject) bool {
 				return p.ProjectId == projId
@@ -207,8 +204,8 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 			if idx == -1 {
 				continue
 			}
-
-			ranked = append(ranked, judge.SeenProjects[idx].Location)
+			proj := judge.SeenProjects[idx]
+			ranked = append(ranked, proj.GetLocationString())
 		}
 
 		// Create a list of all unranked projects (filter using ranked projects)
@@ -220,7 +217,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Write line to CSV
-		// lucatodo: get judge info (from gocloak using admin api) to write to csv
+		// durhacktodo: get judge info (from gocloak using admin api) to write to csv
 		w.Write([]string{judge.KeycloakUserId, strings.Join(ranked, ","), strings.Join(unranked, ",")})
 	}
 
@@ -231,18 +228,27 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 }
 
 // Create a CSV file from a list of projects
-func CreateProjectCSV(projects []*models.Project) []byte {
+func CreateProjectCSV(projects []*models.Project, scores []ranking.RankedObject) []byte {
 	csvBuffer := &bytes.Buffer{}
 
 	// Create a new CSV writer
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	w.Write([]string{"Name", "Location", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "Seen", "Active", "LastActivity"})
+	w.Write([]string{"Name", "Location", "Description", "URL", "TryLink", "VideoLink", "ChallengeList", "TimesSeen", "Active", "LastActivity", "Score"})
+
+	// Create a map to store scores by project ID
+	scoreMap := make(map[primitive.ObjectID]float64)
+	for _, ps := range scores {
+		scoreMap[ps.Id] = ps.Score
+	}
 
 	// Write each project
 	for _, project := range projects {
-		w.Write([]string{project.Name, project.Location, project.Description, project.Url, project.TryLink, project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen), fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity)})
+		w.Write([]string{project.Name, project.GetLocationString(), project.Description, project.Url, project.TryLink,
+			project.VideoLink, strings.Join(project.ChallengeList, ","), fmt.Sprintf("%d", project.Seen),
+			fmt.Sprintf("%t", project.Active), fmt.Sprintf("%d", project.LastActivity),
+			fmt.Sprintf("%.1f", scoreMap[project.Id])})
 	}
 
 	// Flush the writer
@@ -252,7 +258,7 @@ func CreateProjectCSV(projects []*models.Project) []byte {
 }
 
 // CreateProjectChallengeZip creates a zip file with a CSV for each challenge
-func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
+func CreateProjectChallengeZip(projects []*models.Project, scores []ranking.RankedObject) ([]byte, error) {
 	var csvList [][]byte
 
 	// Get list of challenges
@@ -275,7 +281,7 @@ func CreateProjectChallengeZip(projects []*models.Project) ([]byte, error) {
 		}
 
 		// Create CSV for the challenge
-		challengeCSV := CreateProjectCSV(currChallengeProjects)
+		challengeCSV := CreateProjectCSV(currChallengeProjects, scores)
 		csvList = append(csvList, challengeCSV)
 	}
 

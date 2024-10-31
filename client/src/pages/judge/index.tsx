@@ -176,7 +176,8 @@ const Judge = () => {
             return;
         }
 
-        alert('You can now take a break! Press "Next project" to continue judging.');
+        alert('Your current project was freed up for another judge. You can now take a break! ' +
+              'Just press "Next project" to continue judging.');
     };
 
     const handleDragStart = (event: DragStartEvent) => {
@@ -362,8 +363,7 @@ const Judge = () => {
                     </DragOverlay>
                 </DndContext>
                 <div className="w-full mt-4">
-                    <div className="flex justify-center text-light text-sm italic text-center">
-                        {/* lucatodo: text updates if judging is ended manually to allow 'early' submission (see issue #4) */}
+                    <div className="justify-center text-light text-sm italic text-center">
                         Please rank all your projects to submit.<br/>
                         <p hidden={judgingIsOver}>You can only submit rankings in batches of {batchRankingSize} projects.</p>
                     </div>

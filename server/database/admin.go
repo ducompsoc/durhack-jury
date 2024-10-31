@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+
 	"server/models"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,7 @@ func AggregateStats(db *mongo.Database) (*models.Stats, error) {
 
 	// Get the average project seen using an aggregation pipeline
 	projCursor, err := db.Collection("projects").Aggregate(context.Background(), []gin.H{
-		{"$match": gin.H{"active": true}},
+		// {"$match": gin.H{"active": true}},
 		{"$group": gin.H{
 			"_id": nil,
 			"avgSeen": gin.H{
@@ -49,6 +50,11 @@ func AggregateStats(db *mongo.Database) (*models.Stats, error) {
 		} else {
 			return nil, err
 		}
+	}
+
+	numHiddenProjects, err := db.Collection("projects").CountDocuments(context.Background(), gin.H{"active": false})
+	if err != nil {
+		return nil, err
 	}
 
 	// Get the average judge seen using an aggregation pipeline
@@ -82,6 +88,7 @@ func AggregateStats(db *mongo.Database) (*models.Stats, error) {
 
 	// Set stats from aggregations
 	stats.Projects = totalProjects
+	stats.HiddenProjects = numHiddenProjects
 	stats.Judges = totalJudges
 	stats.AvgProjectSeen = projAvgSeen.AvgSeen
 	stats.AvgJudgeSeen = judgeAvgSeen.AvgSeen

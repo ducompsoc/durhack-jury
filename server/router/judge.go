@@ -207,6 +207,7 @@ func addUrlToJudgedProject(project *models.JudgedProject, url string) *JudgedPro
 			ProjectId:   project.ProjectId,
 			Categories:  project.Categories,
 			Name:        project.Name,
+			Guild:       project.Guild,
 			Location:    project.Location,
 			Description: project.Description,
 			Notes:       project.Notes,

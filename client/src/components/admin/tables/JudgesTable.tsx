@@ -92,13 +92,13 @@ const JudgesTable = () => {
                             align="left"
                         />
                         <HeaderEntry
-                            name="Email"
+                            name="Keycloak UserID"
                             updateSort={updateSort}
-                            sortField={JudgeSortField.Email}
+                            sortField={JudgeSortField.KeycloakUserId}
                             sortState={sortState}
                         />
                         <HeaderEntry
-                            name="Seen"
+                            name="Projects fully seen (not skipped)"
                             updateSort={updateSort}
                             sortField={JudgeSortField.Seen}
                             sortState={sortState}

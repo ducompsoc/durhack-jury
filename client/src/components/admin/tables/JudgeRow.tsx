@@ -72,7 +72,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                     ></input>
                 </td>
                 <td>{judge.name}</td>
-                <td className="text-center">{judge.code}</td>
+                <td className="text-center">{judge.keycloak_user_id}</td>
                 <td className="text-center">{judge.seen}</td>
                 <td className="text-center">{judge.past_rankings ? judge.past_rankings.length : 0}</td>
                 <td className="text-center">{timeSince(judge.last_activity)}</td>

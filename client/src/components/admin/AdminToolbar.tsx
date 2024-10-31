@@ -14,7 +14,6 @@ const AdminToolbar = (props: { showProjects: boolean }) => {
                         bold
                         full
                         className="py-2 px-4 rounded-md"
-                        // lucatodo: remove ability to add judges from this admin portal
                         href='/admin/add-projects'
                     >
                         Add Projects
@@ -38,7 +37,7 @@ const AdminToolbar = (props: { showProjects: boolean }) => {
                 )}
             </div>
             <div className="ml-4 italic">
-                Click on headings to sort by that column.
+                Click on headings to sort by that column. This will clear your selections.
             </div>
             {showFlags && <FlagsPopup close={setShowFlags}/>}
         </div>

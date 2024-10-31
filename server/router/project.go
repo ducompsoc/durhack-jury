@@ -2,10 +2,11 @@ package router
 
 import (
 	"net/http"
+	"strings"
+
 	"server/database"
 	"server/funcs"
 	"server/models"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -59,6 +60,7 @@ func AddDevpostCsv(ctx *gin.Context) {
 
 type AddProjectRequest struct {
 	Name          string `json:"name"`
+	Guild         string `json:"guild"`
 	Location      string `json:"location"`
 	Description   string `json:"description"`
 	Url           string `json:"url"`
@@ -96,7 +98,7 @@ func AddProject(ctx *gin.Context) {
 	}
 
 	// Create the project
-	project := models.NewProject(projectReq.Name, projectReq.Location, projectReq.Description, projectReq.Url, projectReq.TryLink, projectReq.VideoLink, challengeList)
+	project := models.NewProject(projectReq.Name, projectReq.Guild, projectReq.Location, projectReq.Description, projectReq.Url, projectReq.TryLink, projectReq.VideoLink, challengeList)
 
 	// Insert project and update the next table num field in options
 	err = database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
@@ -131,6 +133,7 @@ func ListProjects(ctx *gin.Context) {
 
 type PublicProject struct {
 	Name          string `json:"name"`
+	Guild         string `json:"guild"`
 	Location      string `json:"location"`
 	Description   string `json:"description"`
 	Url           string `json:"url"`
@@ -155,6 +158,7 @@ func ListPublicProjects(ctx *gin.Context) {
 	for i, project := range projects {
 		publicProjects[i] = PublicProject{
 			Name:          project.Name,
+			Guild:         project.Guild,
 			Location:      project.Location,
 			Description:   project.Description,
 			Url:           project.Url,
@@ -325,6 +329,42 @@ func HideProject(ctx *gin.Context) {
 	err = database.SetProjectHidden(db, &projectObjectId, true)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
+}
+
+// POST /project/hide-unhide-many - HideUnhideManyProjects hides projects in bulk (used for guilds being away)
+func HideUnhideManyProjects(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get ID from body
+	var multiHideReq models.MultiIdHideRequest
+	err := ctx.BindJSON(&multiHideReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+	ids := multiHideReq.Ids
+
+	// Convert project ID strings to ObjectIDs
+	projectObjectIds := make([]primitive.ObjectID, len(ids))
+	for _, id := range ids {
+		projectObjectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID (in array): " + id})
+			return
+		}
+		projectObjectIds = append(projectObjectIds, projectObjectId)
+	}
+
+	// Update the project in the database
+	err = database.SetProjectsHidden(db, &projectObjectIds, multiHideReq.Hide)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
 		return
 	}
 
