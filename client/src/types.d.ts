@@ -31,6 +31,7 @@ interface Judge {
     name: string;
     code: string;
     email: string;
+    keycloak_user_id: string;
     notes: string;
     read_welcome: boolean;
     seen: number;

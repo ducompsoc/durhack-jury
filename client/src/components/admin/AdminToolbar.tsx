@@ -14,7 +14,6 @@ const AdminToolbar = (props: { showProjects: boolean }) => {
                         bold
                         full
                         className="py-2 px-4 rounded-md"
-                        // lucatodo: remove ability to add judges from this admin portal
                         href='/admin/add-projects'
                     >
                         Add Projects
