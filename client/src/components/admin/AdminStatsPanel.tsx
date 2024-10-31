@@ -68,7 +68,7 @@ const AdminStatsPanel = () => {
     }, [paused, time]);
 
     return (
-        <div className="flex flex-row mt-8 w-full">
+        <div className="flex flex-row mt-8 w-full cursor-pointer" onClick={fetchStats} title="Click to refresh stats">
             <PauseButton paused={paused} setPaused={setPaused} clock={time} />
             <div className="flex justify-evenly basis-2/5">
                 <StatBlock name="Projects" value={stats.projects} />
@@ -81,8 +81,8 @@ const AdminStatsPanel = () => {
                 className={'basis-1/5' + (paused ? ' text-error' : '')}
             />
             <div className="flex justify-evenly basis-2/5">
-                <StatBlock name="Avg Projects Seen/Judge" value={stats.avg_judge_seen} />
-                <StatBlock name="Judges" value={stats.judges} />
+                <StatBlock name="Avg Projects Seen/Judge" value={stats.avg_judge_seen}/>
+                <StatBlock name="Judges" value={stats.judges}/>
             </div>
         </div>
     );

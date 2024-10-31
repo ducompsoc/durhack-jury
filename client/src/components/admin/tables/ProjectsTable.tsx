@@ -110,7 +110,7 @@ const ProjectsTable = () => {
 
         const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: hide});
         if (res.status === 200) {
-            alert(`Projects ${hide ? 'hidden' : 'un-hidden'} successfully!`);
+            alert(`${toHide.length} project(s) ${hide ? 'hidden' : 'unhidden'} successfully!`);
             await fetchProjects();
         } else {
             errorAlert(res);
@@ -168,16 +168,18 @@ const ProjectsTable = () => {
                         Unhide Selected
                     </Button>
                 </div>
+                <p className="text-2l text-nowrap">{Object.values(checked).filter(Boolean).length} project(s) currently selected</p>
                 <div className="flex flex-nowrap items-center pl-8">
                     <p className="text-2xl mr-2 align-middle">Guild:</p>
                     <select className="rounded-md align-middle" id="guild-select">
-                        {guilds.map((guild, idx) => (
+                        {guilds.sort().map((guild, idx) => (
                             <option key={idx} value={guild}>{guild}</option>
                         ))}
                         <option key="nil-guild" value="nil" className="italic">*Deselect all*</option>
                     </select>
                     <Button type="outline" square className="ml-2 py-2 px-4 rounded-md" onClick={selectByGuild}>
-                        Bulk select</Button>
+                        Bulk select
+                    </Button>
                 </div>
             </div>
             <table className="table-fixed w-full text-lg">
