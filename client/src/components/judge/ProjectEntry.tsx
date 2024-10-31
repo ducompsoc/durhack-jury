@@ -37,7 +37,7 @@ const ProjectEntry = ({ project, ranking }: ProjectEntryProps) => {
                     <div className="min-w-0">
                         <h3 className="text-xl grow">
                             <a href={`/judge/project/${project.project_id}`}>
-                                <b>{truncate(project.name, 10)}</b>&nbsp;({truncate(project.location, 20)})
+                                <b>{truncate(project.name, 15)}</b>&nbsp;({truncate(project.guild, 5)}|{truncate(project.location, 10)})
                             </a>
                         </h3>
                         <p className="text-light text-xs line-clamp-1">{project.notes}</p>
