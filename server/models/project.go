@@ -9,6 +9,7 @@ import (
 type Project struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name          string             `bson:"name" json:"name"`
+	Guild         string             `bson:"guild" json:"guild"`
 	Location      string             `bson:"location" json:"location"`
 	Description   string             `bson:"description" json:"description"`
 	Url           string             `bson:"url" json:"url"`
@@ -20,9 +21,14 @@ type Project struct {
 	LastActivity  primitive.DateTime `bson:"last_activity" json:"last_activity"`
 }
 
-func NewProject(name string, location string, description string, url string, tryLink string, videoLink string, challengeList []string) *Project {
+func (p *Project) GetLocationString() string {
+	return p.Guild + "|" + p.Location
+}
+
+func NewProject(name string, guild string, location string, description string, url string, tryLink string, videoLink string, challengeList []string) *Project {
 	return &Project{
 		Name:          name,
+		Guild:         guild,
 		Location:      location,
 		Description:   description,
 		Url:           url,

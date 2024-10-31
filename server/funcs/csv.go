@@ -5,13 +5,14 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"io"
 	"net/http"
+	"strings"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"server/models"
 	"server/ranking"
 	"server/util"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -66,7 +67,7 @@ func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) 
 		}
 
 		// Add project to slice
-		projects = append(projects, models.NewProject(record[0], record[1], record[2], record[3], tryLink, videoLink, challengeList))
+		projects = append(projects, models.NewProject(record[0], "", record[1], record[2], record[3], tryLink, videoLink, challengeList))
 	}
 
 	return projects, nil
@@ -89,9 +90,10 @@ func ParseProjectCsv(content string, hasHeader bool) ([]*models.Project, error) 
 //  11. Notes - ignore
 //  12. Team Colleges/Universities - ignore
 //  13. Additional Team Member Count - ignore
-//  14. !!Megateam/Guild - location (part 1)
-//  15. !!Table number - location (part 2)
-//  15. (and remiaining columns) Custom questions - custom_questions (ignore for now)
+//  14. !Megateam/Guild - guild  [column O in excel]
+//  15. !Table number - location [column P in excel]
+//
+// (16+.and remiaining columns) Custom questions - custom_questions (ignore for now)
 func ParseDevpostCSV(content string) ([]*models.Project, error) {
 	r := csv.NewReader(strings.NewReader(content))
 
@@ -136,18 +138,11 @@ func ParseDevpostCSV(content string) ([]*models.Project, error) {
 			challengeList[i] = strings.TrimSpace(challengeList[i])
 		}
 
-		// Interpret location string
-		location := ""
-		if record[14] == "" {
-			location = "No location."
-		} else {
-			location = truncate(record[14], 6) + "|" + record[15]
-		}
-
 		// Add project to slice
 		projects = append(projects, models.NewProject(
 			record[0],
-			location,
+			record[14],
+			record[15],
 			record[6],
 			record[1],
 			record[7],
@@ -209,8 +204,8 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 			if idx == -1 {
 				continue
 			}
-
-			ranked = append(ranked, judge.SeenProjects[idx].Location)
+			proj := judge.SeenProjects[idx]
+			ranked = append(ranked, proj.GetLocationString())
 		}
 
 		// Create a list of all unranked projects (filter using ranked projects)

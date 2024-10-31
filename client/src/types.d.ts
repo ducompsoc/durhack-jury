@@ -1,6 +1,7 @@
 interface Project {
     id: string;
     name: string;
+    guild: string;
     location: string;
     description: string;
     url: string;
@@ -15,6 +16,7 @@ interface Project {
 
 interface PublicProject {
     name: string;
+    guild: string;
     location: number;
     description: string;
     url: string;
@@ -73,6 +75,7 @@ interface JudgedProject {
     categories: { [name: string]: number };
     notes: string;
     name: string;
+    guild: string;
     location: string;
     description: string;
 }

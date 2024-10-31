@@ -52,7 +52,7 @@ func NewFlag(project *Project, judge *Judge, judgeName string, reason string) (*
 		JudgeId:         &judge.Id,
 		Time:            primitive.NewDateTimeFromTime(time.Now()),
 		ProjectName:     project.Name,
-		ProjectLocation: project.Location,
+		ProjectLocation: project.GetLocationString(),
 		JudgeName:       judgeName,
 		Reason:          reason,
 	}, nil

@@ -24,8 +24,13 @@ type JudgedProject struct {
 	Categories  map[string]int     `bson:"categories" json:"categories"`
 	Notes       string             `bson:"notes" json:"notes"`
 	Name        string             `bson:"name" json:"name"`
+	Guild       string             `bson:"guild" json:"guild"`
 	Location    string             `bson:"location" json:"location"`
 	Description string             `bson:"description" json:"description"`
+}
+
+func (jp *JudgedProject) GetLocationString() string {
+	return jp.Guild + "|" + jp.Location
 }
 
 func NewJudge(keycloakUserId string) *Judge {
@@ -48,6 +53,7 @@ func JudgeProjectFromProject(project *Project, categories map[string]int) *Judge
 		ProjectId:   project.Id,
 		Categories:  categories,
 		Name:        project.Name,
+		Guild:       project.Guild,
 		Location:    project.Location,
 		Description: project.Description,
 		Notes:       "",

@@ -59,6 +59,7 @@ func AddDevpostCsv(ctx *gin.Context) {
 
 type AddProjectRequest struct {
 	Name          string `json:"name"`
+	Guild         string `json:"guild"`
 	Location      string `json:"location"`
 	Description   string `json:"description"`
 	Url           string `json:"url"`
@@ -96,7 +97,7 @@ func AddProject(ctx *gin.Context) {
 	}
 
 	// Create the project
-	project := models.NewProject(projectReq.Name, projectReq.Location, projectReq.Description, projectReq.Url, projectReq.TryLink, projectReq.VideoLink, challengeList)
+	project := models.NewProject(projectReq.Name, projectReq.Guild, projectReq.Location, projectReq.Description, projectReq.Url, projectReq.TryLink, projectReq.VideoLink, challengeList)
 
 	// Insert project and update the next table num field in options
 	err = database.WithTransaction(db, func(ctx mongo.SessionContext) (interface{}, error) {
