@@ -30,7 +30,11 @@ const Expo = () => {
         if (nameSort) {
             sortedProjects.sort((a, b) => a.name.localeCompare(b.name));
         } else {
-            sortedProjects.sort((a, b) => a.location - b.location);
+            sortedProjects.sort((a, b) => {
+                let guildCompare = a.guild.localeCompare(b.guild);
+                if (guildCompare !== 0) return guildCompare;
+                return a.location.localeCompare(b.location);
+            });
         }
 
         setProjects(sortedProjects);
@@ -71,7 +75,7 @@ const Expo = () => {
                                     {truncate(project.name, 20)}
                                 </a>
                             </td>
-                            <td className="px-4 py-2">{project.location}</td>
+                            <td className="px-4 py-2">{project.guild}|{project.location}</td>
                         </tr>
                     ))}
                 </tbody>

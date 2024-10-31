@@ -2,10 +2,11 @@ package router
 
 import (
 	"net/http"
+	"strings"
+
 	"server/database"
 	"server/funcs"
 	"server/models"
-	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -132,6 +133,7 @@ func ListProjects(ctx *gin.Context) {
 
 type PublicProject struct {
 	Name          string `json:"name"`
+	Guild         string `json:"guild"`
 	Location      string `json:"location"`
 	Description   string `json:"description"`
 	Url           string `json:"url"`
@@ -156,6 +158,7 @@ func ListPublicProjects(ctx *gin.Context) {
 	for i, project := range projects {
 		publicProjects[i] = PublicProject{
 			Name:          project.Name,
+			Guild:         project.Guild,
 			Location:      project.Location,
 			Description:   project.Description,
 			Url:           project.Url,

@@ -17,7 +17,7 @@ interface Project {
 interface PublicProject {
     name: string;
     guild: string;
-    location: number;
+    location: string;
     description: string;
     url: string;
     try_link: string;
