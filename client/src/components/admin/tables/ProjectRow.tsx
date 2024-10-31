@@ -98,7 +98,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 <td className="[&:not(:hover)]:truncate hover:break-words hover:text-wrap">{project.name}</td>
                 <td className="text-center py-1">
                     <input
-                        className="w-full md:w-2/3"
+                        className="w-full md:w-2/3 rounded-2xl"
                         name="location"
                         key={project.id}
                         defaultValue={project.location}

@@ -11,6 +11,7 @@ const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
     const [projects, setProjects] = useState<Project[]>([]);
+    const [guilds, setGuilds] = useState<string[]>([]);
     const [checked, setChecked] = useState<boolean[]>([]);
     const [sortState, setSortState] = useState<SortState<ProjectSortField>>({
         field: ProjectSortField.None,
@@ -114,10 +115,14 @@ const ProjectsTable = () => {
         }
     }
 
+    useEffect(() => {
+        setGuilds(Array.from(new Set(projects.map(p => p.guild))));
+    }, [projects]);
+
     return (
         <div className="w-full px-8 pb-4">
-            <div className="flex">
-                <div className="">
+            <div className="flex flex-row w-full space-x-4 items-center text-center">
+                <div>
                     <Button
                         type="primary"
                         square
@@ -130,7 +135,7 @@ const ProjectsTable = () => {
                         Hide Selected
                     </Button>
                 </div>
-                <div className="ml-4">
+                <div>
                     <Button
                         type="primary"
                         square
@@ -142,6 +147,15 @@ const ProjectsTable = () => {
                     >
                         Unhide Selected
                     </Button>
+                </div>
+                <div className="flex flex-nowrap items-center pl-8">
+                    <label form="guild-select" className="text-2xl mr-2 align-middle">Guild:</label>
+                    <select name="guilds" id="guild-select" className="rounded-md align-middle">
+                        {guilds.map((guild, idx) => (
+                            <option key={idx} value={guild}>{guild}</option>
+                        ))}
+                    </select>
+                    <Button type="outline" square className="ml-2 py-2 px-4 rounded-md">Bulk select</Button>
                 </div>
             </div>
             <table className="table-fixed w-full text-lg">
