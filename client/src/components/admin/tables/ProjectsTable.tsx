@@ -9,14 +9,14 @@ const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
     const [projects, setProjects] = useState<Project[]>([]);
-    const [checked, setChecked] = useState<{ [key: number]: boolean }>({});
+    const [checked, setChecked] = useState<boolean[]>([]);
     const [sortState, setSortState] = useState<SortState<ProjectSortField>>({
         field: ProjectSortField.None,
         ascending: true,
     });
 
     const handleCheckedChange = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
-        setChecked({
+        setChecked({  // this change of type is to stop React complaining about "a component is changing an uncontrolled input to be controlled"
             ...checked,
             [i]: e.target.checked,
         });
@@ -55,12 +55,7 @@ const ProjectsTable = () => {
 
     // When projects change, update projects and sort
     useEffect(() => {
-        // Reset checked state of all projects
-        const newCheckedState: { [key: number]: boolean } = {}
-        for (let i = 0; i < projects.length; i++) {
-            newCheckedState[i] = false;
-        }
-        setChecked(newCheckedState);
+        setChecked(Array(unsortedProjects.length).fill(false));
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         let sortFunc = (a: Project, b: Project) => 0;
@@ -87,11 +82,20 @@ const ProjectsTable = () => {
     }, [unsortedProjects, sortState]);
 
     const bulkHide = () => {
-        const toHide: string[] = [];
-        for (let i = 0; i < projects.length; i++) {
-            if (checked[i]) {
-                toHide.push(projects[i].id);
-            }
+        let toHide: string[] = [];
+        // I hate this btw. But react complains if it's just one consistent type...
+        if (Array.isArray(checked)) {  // checked is still an array from initialisation
+            // checked.forEach((value, index) => {
+            //     if (value) {
+            //         toHide.push(projects[index].id);
+            //     }
+            // });  // in this case we know that it's an array of all false
+        } else {  // checked has been made a dictionary
+            Object.entries(checked).forEach(([key, value]) => {
+                if (value) {
+                    toHide.push(projects[parseInt(key)].id);
+                }
+            });
         }
         console.log(toHide);
     }
