@@ -1,3 +1,5 @@
+import {JudgeSortField, ProjectSortField} from "./enums";
+
 interface Project {
     id: string;
     name: string;
@@ -26,28 +28,26 @@ interface PublicProject {
 }
 
 interface Judge {
-    // todo: update this schema based on actual return and then update usages
+    email: string | undefined;  // only returned for /api/judge - todo: should be a new type
+    name: string | undefined;  // only returned for /api/judge
     id: string;
-    name: string;  // only sometimes returned (for /api/judge)
-    code: string;
-    email: string;  // only sometimes returned (for /api/judge)
     keycloak_user_id: string;
-    notes: string;
+    active: boolean;
     read_welcome: boolean;
+    notes: string;
+    current: string;
     seen: number;
     seen_projects: JudgedProject[];
     current_rankings: string[];
     past_rankings: string[][];
-    active: boolean;
-    current: string;
     last_activity: number;
 }
 
 interface JudgeWithKeycloak {
-    judge: Judge;
+    judge: Judge;  // see above
+    preferred_names: string | undefined;  // can just be unset by user
     first_names: string;
     last_names: string;
-    preferred_names: string | undefined;
 }
 
 interface Stats {

@@ -3,6 +3,7 @@ import useAdminStore from '../../../store';
 import HeaderEntry from './HeaderEntry';
 import { JudgeSortField } from '../../../enums';
 import JudgeRow from './JudgeRow';
+import {JudgeWithKeycloak, SortField, SortState} from "../../../types";
 
 const JudgesTable = () => {
     const unsortedJudges = useAdminStore((state) => state.judges);
