@@ -10,9 +10,9 @@ import (
 
 var (
 	keycloakAdminClient                     *gocloak.GoCloak
-	KeycloakAdminClient                     = getKeycloakAdminClient()
-	keycloakAdminClientAccessToken          *string
-	keycloakAdminClientAccessTokenExpiresAt *int64 // Seconds since epoch
+	KeycloakAdminClient                             = getKeycloakAdminClient()
+	keycloakAdminClientAccessToken          *string = nil
+	keycloakAdminClientAccessTokenExpiresAt *int64  = nil // Seconds since epoch
 )
 
 func getKeycloakAdminClient() *gocloak.GoCloak {
@@ -41,7 +41,8 @@ func GetKeycloakAdminClientAccessToken(ctx context.Context) (*string, error) {
 		return nil, err
 	}
 	// 10 seconds just to accommodate request time
-	*keycloakAdminClientAccessTokenExpiresAt = time.Now().Unix() + int64(jwt.ExpiresIn) - 10
-	*keycloakAdminClientAccessToken = jwt.AccessToken
+	expiresAt := time.Now().Unix() + int64(jwt.ExpiresIn) - 10
+	keycloakAdminClientAccessTokenExpiresAt = &expiresAt
+	keycloakAdminClientAccessToken = &jwt.AccessToken
 	return keycloakAdminClientAccessToken, nil
 }
