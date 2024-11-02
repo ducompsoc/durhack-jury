@@ -1,7 +1,5 @@
 export enum JudgeSortField {
-    Name,
-    Email,
-    KeycloakUserId,
+    LastNames,
     Seen,
     BatchesSubmitted,
     Updated,

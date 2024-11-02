@@ -5,7 +5,7 @@ import useAdminStore from '../../../store';
 import {twMerge} from 'tailwind-merge';
 
 interface JudgeRowProps {
-    judge: Judge;
+    judge: JudgeWithKeycloak;
     idx: number;
     checked: boolean;
     handleCheckedChange: (e: React.ChangeEvent<HTMLInputElement>, idx: number) => void;
@@ -43,9 +43,9 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
     };
 
     const hideJudge = async () => {
-        const res = await postRequest<YesNoResponse>(judge.active ? '/judge/hide' : '/judge/unhide', {id: judge.id});
+        const res = await postRequest<YesNoResponse>(judge.judge.active ? '/judge/hide' : '/judge/unhide', {id: judge.judge.id});
         if (res.status === 200) {
-            alert(`Judge account ${judge.active ? 'disabled' : 're-enabled'} successfully!`);
+            alert(`Judge account ${judge.judge.active ? 'disabled' : 're-enabled'} successfully!`);
             await fetchJudges();
         } else {
             errorAlert(res);
@@ -58,7 +58,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                 key={idx}
                 className={twMerge(
                     'border-t-2 border-backgroundDark duration-150',
-                    checked ? 'bg-primary/20' : !judge.active ? 'bg-lightest' : 'bg-background'
+                    checked ? 'bg-primary/20' : !judge.judge.active ? 'bg-lightest' : 'bg-background'
                 )}
             >
                 <td className="px-2">
@@ -71,11 +71,10 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                         className="cursor-pointer hover:text-primary duration-100"
                     ></input>
                 </td>
-                <td>{judge.name}</td>
-                <td className="text-center">{judge.keycloak_user_id}</td>
-                <td className="text-center">{judge.seen}</td>
-                <td className="text-center">{judge.past_rankings ? judge.past_rankings.length : 0}</td>
-                <td className="text-center">{timeSince(judge.last_activity)}</td>
+                <td>{judge.preferred_names ?? judge.first_names} {judge.last_names}</td>
+                <td className="text-center">{judge.judge.seen}</td>
+                <td className="text-center">{judge.judge.past_rankings ? judge.judge.past_rankings.length : 0}</td>
+                <td className="text-center">{timeSince(judge.judge.last_activity)}</td>
                 <td className="text-right font-bold flex align-center justify-end">
                     {popup && (
                         <div
@@ -86,7 +85,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                                 className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
                                 onClick={() => doAction('hide')}
                             >
-                                {judge.active ? 'Restrict/Disable' : 'Unrestrict/Re-enable'}
+                                {judge.judge.active ? 'Restrict/Disable' : 'Unrestrict/Re-enable'}
                             </div>
                         </div>
                     )}

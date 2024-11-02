@@ -7,7 +7,7 @@ import JudgeRow from './JudgeRow';
 const JudgesTable = () => {
     const unsortedJudges = useAdminStore((state) => state.judges);
     const fetchJudges = useAdminStore((state) => state.fetchJudges);
-    const [judges, setJudges] = useState<Judge[]>([]);
+    const [judges, setJudges] = useState<JudgeWithKeycloak[]>([]);
     const [checked, setChecked] = useState<boolean[]>([]);
     const [sortState, setSortState] = useState<SortState<JudgeSortField>>({
         field: JudgeSortField.None,
@@ -56,23 +56,20 @@ const JudgesTable = () => {
     useEffect(() => {
         setChecked(Array(unsortedJudges.length).fill(false));
 
-        let sortFunc = (a: Judge, b: Judge) => 0;
+        let sortFunc = (a: JudgeWithKeycloak, b: JudgeWithKeycloak) => 0;
         const asc = sortState.ascending ? 1 : -1;
         switch (sortState.field) {
-            case JudgeSortField.Name:
-                sortFunc = (a, b) => a.name.localeCompare(b.name) * asc;
-                break;
-            case JudgeSortField.Email:
-                sortFunc = (a, b) => a.email.localeCompare(b.email) * asc;
+            case JudgeSortField.LastNames:
+                sortFunc = (a, b) => a.last_names.localeCompare(b.last_names) * asc;
                 break;
             case JudgeSortField.Seen:
-                sortFunc = (a, b) => (a.seen - b.seen) * asc;
+                sortFunc = (a, b) => (a.judge.seen - b.judge.seen) * asc;
                 break;
             case JudgeSortField.BatchesSubmitted:
-                sortFunc = (a, b) => (a.past_rankings.length - b.past_rankings.length) * asc;
+                sortFunc = (a, b) => (a.judge.past_rankings.length - b.judge.past_rankings.length) * asc;
                 break;
             case JudgeSortField.Updated:
-                sortFunc = (a, b) => (a.last_activity - b.last_activity) * asc;
+                sortFunc = (a, b) => (a.judge.last_activity - b.judge.last_activity) * asc;
                 break;
         }
         setJudges(unsortedJudges.sort(sortFunc));
@@ -87,15 +84,9 @@ const JudgesTable = () => {
                         <HeaderEntry
                             name="Name"
                             updateSort={updateSort}
-                            sortField={JudgeSortField.Name}
+                            sortField={JudgeSortField.LastNames}
                             sortState={sortState}
                             align="left"
-                        />
-                        <HeaderEntry
-                            name="Keycloak UserID"
-                            updateSort={updateSort}
-                            sortField={JudgeSortField.KeycloakUserId}
-                            sortState={sortState}
                         />
                         <HeaderEntry
                             name="Projects fully seen (not skipped)"
@@ -117,7 +108,7 @@ const JudgesTable = () => {
                         />
                         <th className="text-right w-24">Actions</th>
                     </tr>
-                    {judges.map((judge: Judge, idx) => (
+                    {judges.map((judge: JudgeWithKeycloak, idx) => (
                         <JudgeRow
                             key={idx}
                             idx={idx}

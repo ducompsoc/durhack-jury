@@ -7,7 +7,7 @@ interface AdminStore {
     fetchStats: () => Promise<void>;
     projects: Project[];
     fetchProjects: () => Promise<void>;
-    judges: Judge[];
+    judges: JudgeWithKeycloak[];
     fetchJudges: () => Promise<void>;
 }
 
@@ -59,12 +59,12 @@ const useAdminStore = create<AdminStore>()((set) => ({
     judges: [],
 
     fetchJudges: async () => {
-        const judgeRes = await getRequest<Judge[]>('/judge/list');
+        const judgeRes = await getRequest<JudgeWithKeycloak[]>('/judge/list');
         if (judgeRes.status !== 200) {
             errorAlert(judgeRes);
             return;
         }
-        set({ judges: judgeRes.data as Judge[] });
+        set({ judges: judgeRes.data as JudgeWithKeycloak[] });
     }
 }));
 

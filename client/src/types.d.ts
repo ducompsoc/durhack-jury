@@ -28,9 +28,9 @@ interface PublicProject {
 interface Judge {
     // todo: update this schema based on actual return and then update usages
     id: string;
-    name: string;
+    name: string;  // only sometimes returned (for /api/judge)
     code: string;
-    email: string;
+    email: string;  // only sometimes returned (for /api/judge)
     keycloak_user_id: string;
     notes: string;
     read_welcome: boolean;
@@ -41,6 +41,13 @@ interface Judge {
     active: boolean;
     current: string;
     last_activity: number;
+}
+
+interface JudgeWithKeycloak {
+    judge: Judge;
+    first_names: string;
+    last_names: string;
+    preferred_names: string | undefined;
 }
 
 interface Stats {
