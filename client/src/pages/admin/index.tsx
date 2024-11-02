@@ -9,6 +9,7 @@ import {getRequest, postRequest} from '../../api';
 import { errorAlert } from '../../util';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
+import useAdminStore from "../../store";
 
 // TODO: Add FAB to 'return to top'
 // TODO: Make pause button/settings have hover effects
@@ -17,7 +18,7 @@ const Admin = () => {
     const [showProjects, setShowProjects] = useState(true);
     const [loading, setLoading] = useState(true);
     const [judgingIsOver, setJudgingIsOver] = useState(false);
-    const [numJudges, setNumJudges] = useState(0);
+    const stats = useAdminStore((state) => state.stats);
     const [submittedJudges, setSubmittedJudges] = useState(0);
 
     useEffect(() => {
@@ -37,17 +38,6 @@ const Admin = () => {
             errorAlert(loggedInRes);
         }
         checkLoggedIn();
-
-        async function getNumJudges() {
-            const judgeListRes = await getRequest<Judge[]>('/judge/list')
-            if (judgeListRes.status !== 200) {
-                errorAlert(judgeListRes);
-                return;
-            }
-            setNumJudges(judgeListRes.data?.length as number);
-
-        }
-        getNumJudges();
         checkSubmittedJudges();
 
         async function checkJudgingEnded() {
@@ -123,7 +113,7 @@ const Admin = () => {
                     disabled={judgingIsOver}
                     bold
                     className="justify-self-stretch md:w-full w-full"
-                >{judgingIsOver ? `Submitted judges: ${submittedJudges}/${numJudges}` : "End Judging"}</Button>
+                >{judgingIsOver ? `Submitted judges: ${submittedJudges}/${stats.num_judges}` : "End Judging"}</Button>
                 <div hidden={!judgingIsOver} onClick={checkSubmittedJudges} className="justify-self-start cursor-pointer" title="Refresh submitted judges">🔁</div>
             </div>
             <AdminToggleSwitch state={showProjects} setState={setShowProjects} />
