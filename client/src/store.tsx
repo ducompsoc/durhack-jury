@@ -13,11 +13,11 @@ interface AdminStore {
 
 const useAdminStore = create<AdminStore>()((set) => ({
     stats: {
-        projects: 0,
+        num_projects: 0,
         hidden_projects: 0,
         avg_project_seen: 0,
         avg_judge_seen: 0,
-        judges: 0,
+        num_judges: 0,
     },
 
     fetchStats: async () => {

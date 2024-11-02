@@ -51,11 +51,11 @@ interface JudgeWithKeycloak {
 }
 
 interface Stats {
-    projects: number;
+    num_projects: number;
     hidden_projects: number;
     avg_project_seen: number;
     avg_judge_seen: number;
-    judges: number;
+    num_judges: number;
 }
 
 type SortField = ProjectSortField | JudgeSortField;
