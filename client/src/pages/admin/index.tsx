@@ -77,15 +77,15 @@ const Admin = () => {
 
     async function checkSubmittedJudges() {
         console.log("Refreshing submitted judge count by counting current_projects array lengths")
-        const justListRes = await getRequest<Judge[]>('/judge/list')
-        if (justListRes.status !== 200) {
-            errorAlert(justListRes);
+        const judgeListRes = await getRequest<JudgeWithKeycloak[]>('/judge/list')
+        if (judgeListRes.status !== 200) {
+            errorAlert(judgeListRes);
             return;
         }
-        if (justListRes.data){
+        if (judgeListRes.data){
             let numSubmitted = 0
-            justListRes.data.forEach(j => {
-                if (j.past_rankings.flat().length == j.seen) numSubmitted++
+            judgeListRes.data.forEach(j => {
+                if (j.judge.past_rankings.flat().length == j.judge.seen) numSubmitted++
             })
             setSubmittedJudges(numSubmitted)
         }
