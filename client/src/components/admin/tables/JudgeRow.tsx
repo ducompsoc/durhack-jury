@@ -3,6 +3,7 @@ import {errorAlert, timeSince} from '../../../util';
 import {postRequest} from '../../../api';
 import useAdminStore from '../../../store';
 import {twMerge} from 'tailwind-merge';
+import {JudgeWithKeycloak, YesNoResponse} from "../../../types";
 
 interface JudgeRowProps {
     judge: JudgeWithKeycloak;
@@ -71,7 +72,7 @@ const JudgeRow = ({ judge, idx, checked, handleCheckedChange }: JudgeRowProps) =
                         className="cursor-pointer hover:text-primary duration-100"
                     ></input>
                 </td>
-                <td>{judge.preferred_names ?? judge.first_names} {judge.last_names}</td>
+                <td><span>{judge.preferred_names ?? judge.first_names} {judge.last_names}</span></td>
                 <td className="text-center">{judge.judge.seen}</td>
                 <td className="text-center">{judge.judge.past_rankings ? judge.judge.past_rankings.length : 0}</td>
                 <td className="text-center">{timeSince(judge.judge.last_activity)}</td>
