@@ -10,6 +10,7 @@ import { errorAlert } from '../../util';
 import { useNavigate } from 'react-router-dom';
 import Button from '../../components/Button';
 import useAdminStore from "../../store";
+import {JudgeWithKeycloak, YesNoResponse} from "../../types";
 
 // TODO: Add FAB to 'return to top'
 // TODO: Make pause button/settings have hover effects
@@ -84,7 +85,7 @@ const Admin = () => {
         }
         if (judgeListRes.data){
             let numSubmitted = 0
-            judgeListRes.data.forEach(j => {
+            judgeListRes.data.forEach((j: JudgeWithKeycloak) => {
                 if (j.judge.past_rankings.flat().length == j.judge.seen) numSubmitted++
             })
             setSubmittedJudges(numSubmitted)

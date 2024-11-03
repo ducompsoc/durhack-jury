@@ -6,6 +6,7 @@ import { ProjectSortField } from '../../../enums';
 import Button from "../../Button";
 import {postRequest} from "../../../api";
 import {errorAlert} from "../../../util";
+import {Project, SortField, SortState, YesNoResponse} from "../../../types";
 
 const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);

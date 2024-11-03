@@ -4,6 +4,7 @@ import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
 import {postRequest} from '../../../api';
+import {Project, YesNoResponse} from "../../../types";
 
 interface ProjectRowProps {
     project: Project;
