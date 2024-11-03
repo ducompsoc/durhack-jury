@@ -212,13 +212,13 @@ const ProjectsTable = () => {
                         sortState={sortState}
                     />
                     <HeaderEntry
-                        name="Live Score"
+                        name="Current Batch-rank Score [normalised]"
                         updateSort={updateSort}
                         sortField={ProjectSortField.Score}
                         sortState={sortState}
                     />
                     <HeaderEntry
-                        name="Seen (and not skipped)"
+                        name="Judge views"
                         updateSort={updateSort}
                         sortField={ProjectSortField.Seen}
                         sortState={sortState}
