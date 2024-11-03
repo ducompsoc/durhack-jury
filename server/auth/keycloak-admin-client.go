@@ -32,7 +32,7 @@ func getKeycloakAdminClient() *gocloak.GoCloak {
 }
 
 func GetKeycloakAdminClientAccessToken(ctx context.Context) (*string, error) {
-	if keycloakAdminClientAccessToken != nil && *keycloakAdminClientAccessTokenExpiresAt <= time.Now().Unix() {
+	if keycloakAdminClientAccessToken != nil && *keycloakAdminClientAccessTokenExpiresAt >= time.Now().Unix() {
 		return keycloakAdminClientAccessToken, nil
 	}
 
