@@ -4,6 +4,7 @@ import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
 import {postRequest} from '../../../api';
+import {Project, YesNoResponse} from "../../../types";
 
 interface ProjectRowProps {
     project: Project;
@@ -107,7 +108,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                         onBlur={(e) => onInputFocusLoss(e)}
                     />
                 </td>
-                <td className="text-center">{project.score}</td>
+                <td className="text-center">{project.score} [{project.seen > 0 ? (project.score/project.seen).toFixed(2) : project.score}]</td>
                 <td className="text-center">{project.seen}</td>
                 <td className="text-center">{timeSince(project.last_activity)}</td>
                 <td className="text-right font-bold flex align-center justify-end">

@@ -1,11 +1,16 @@
 package router
 
 import (
+	"context"
+	"encoding/json"
+	"github.com/Nerzal/gocloak/v13"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"golang.org/x/sync/errgroup"
 	"net/http"
 	"server/auth"
+	"server/config"
 	"server/database"
 	"server/judging"
 	"server/models"
@@ -71,6 +76,24 @@ func SetJudgeReadWelcome(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
+type judgeWithKeycloak struct {
+	Judge          models.Judge `json:"judge"`
+	PreferredNames *string      `json:"preferred_names"`
+	FirstNames     string       `json:"first_names"`
+	LastNames      string       `json:"last_names"`
+}
+
+func (j *judgeWithKeycloak) MarshalJSON() ([]byte, error) {
+	type Alias judgeWithKeycloak
+	return json.Marshal(&struct {
+		*Alias
+		LastActivity int64 `json:"last_activity"`
+	}{
+		Alias:        (*Alias)(j),
+		LastActivity: int64(j.Judge.LastActivity),
+	})
+}
+
 // GET /judge/list - Endpoint to get a list of all judges
 func ListJudges(ctx *gin.Context) {
 	// Get the database from the context
@@ -83,8 +106,65 @@ func ListJudges(ctx *gin.Context) {
 		return
 	}
 
+	keycloakAdminClient := auth.KeycloakAdminClient
+
+	judgesWithKeycloak := make([]*judgeWithKeycloak, len(judges))
+	errGroup, _ := errgroup.WithContext(context.Background())
+	for i, judge := range judges {
+		errGroup.Go(func() error {
+			judgeKeycloakInfo, err := getJudgeKeycloakInfo(keycloakAdminClient, judge.KeycloakUserId)
+			if err != nil {
+				return err
+			}
+			judgesWithKeycloak[i] = &judgeWithKeycloak{
+				*judge,
+				judgeKeycloakInfo.PreferredNames,
+				judgeKeycloakInfo.FirstNames,
+				judgeKeycloakInfo.LastNames,
+			}
+			return nil
+		})
+	}
+	err = errGroup.Wait()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting judge info from keycloak: " + err.Error()})
+		return
+	}
+
 	// Send OK
-	ctx.JSON(http.StatusOK, judges)
+	ctx.JSON(http.StatusOK, judgesWithKeycloak)
+}
+
+type judgeKeycloak struct {
+	PreferredNames *string
+	FirstNames     string
+	LastNames      string
+}
+
+func getJudgeKeycloakInfo(adminClient *gocloak.GoCloak, userID string) (*judgeKeycloak, error) {
+	accessToken, err := auth.GetKeycloakAdminClientAccessToken(context.Background())
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := adminClient.GetUserByID(context.Background(), *accessToken, config.KeycloakRealm, userID)
+	if err != nil {
+		return nil, err
+	}
+	userAttributes := *user.Attributes
+	preferredNamesAttribute, preferredNamesAttributeExist := userAttributes["preferredNames"]
+	var preferredNames *string
+	if preferredNamesAttributeExist {
+		preferredNames = &preferredNamesAttribute[0]
+	} else {
+		preferredNames = nil
+	}
+	attributes := judgeKeycloak{
+		preferredNames,
+		userAttributes["firstNames"][0],
+		userAttributes["lastNames"][0],
+	}
+	return &attributes, nil
 }
 
 // GET /judge/stats - Endpoint to get stats about the judges
