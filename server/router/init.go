@@ -75,7 +75,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	defaultRouter := router.Group("/api")
 
 	// todo: improved error handling middleware: https://stackoverflow.com/questions/69948784/how-to-handle-errors-in-gin-middleware/69948929#69948929
-	// also todo: proper error handling of database errors (instead of fmt.Println -> logging in middleware)
+	// todo: proper error handling of database errors (instead of fmt.Println -> logging in middleware)
 	// Authenticated login routes
 	defaultRouter.GET("/auth/keycloak/login", BeginKeycloakOAuth2Flow())
 	defaultRouter.GET("/auth/keycloak/callback", KeycloakOAuth2FlowCallback(), HandleLoginSuccess())
@@ -169,6 +169,7 @@ func useVar(key string, v any) gin.HandlerFunc {
 
 // getClockFromDb gets the clock state from the database
 // and on init will pause the clock
+// todo: fix the clock just pausing itself and jumping forward in time (see upstream - likely a concurrency issue)
 func getClockFromDb(db *mongo.Database) models.ClockState {
 	// Get the clock state from the database
 	options, err := database.GetOptions(db)

@@ -6,6 +6,7 @@ import (
 	"server/util"
 )
 
+// todo: clean up old unused env vars (and remove these checks)
 var requiredEnvs = [...]string{"JURY_ADMIN_PASSWORD", "EMAIL_FROM"}
 var smtpEnvs = []string{"EMAIL_HOST", "EMAIL_USERNAME", "EMAIL_PASSWORD"}
 var sendgridEnvs = []string{"SENDGRID_API_KEY", "EMAIL_FROM_NAME"}

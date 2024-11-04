@@ -1,4 +1,5 @@
 import {JudgeSortField, ProjectSortField} from "./enums";
+// todo: don't use these magic .d files - messes with imports
 
 interface Project {
     id: string;
@@ -28,7 +29,7 @@ interface PublicProject {
 }
 
 interface Judge {
-    email: string | undefined;  // only returned for /api/judge - todo: should be a new type
+    email: string | undefined;  // only returned for /api/judge - todo: should be a new separate type
     name: string | undefined;  // only returned for /api/judge
     id: string;
     keycloak_user_id: string;

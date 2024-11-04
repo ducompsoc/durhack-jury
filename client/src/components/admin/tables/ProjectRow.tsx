@@ -75,6 +75,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
 
     return (
         <>
+            {/*todo: highlight projects that are repeatedly (can be a variable) flagged as absent*/}
             <tr
                 key={idx}
                 className={

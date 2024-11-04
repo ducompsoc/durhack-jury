@@ -367,6 +367,7 @@ const Judge = () => {
                         Please rank all your projects to submit.<br/>
                         <p hidden={judgingIsOver}>You can only submit rankings in batches of {batchRankingSize} projects.</p>
                     </div>
+                    {/* todo: hide submit button after final submission (and mark as done for easier count on dashbaord?) */}
                     <Button type="primary" full square className="mt-1" disabled={!allRanked} onClick={submitBatch}>
                         Submit Rankings
                         <p className="text-sm italic" hidden={judgingIsOver}>and move onto next batch</p>

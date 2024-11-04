@@ -152,6 +152,9 @@ func HandleLoginSuccess() gin.HandlerFunc {
 		}
 
 		// Handle everyone else
+		// todo: add a page for this that handles non-/judge or /admin group users
+		// todo: also handle if user times out session cookie and needs to re-login
+		//  so requests aren't authenticated and so HTML is sent back when JSON is expected
 		urlPath, err := url.JoinPath(config.Origin, "/error?status=403&message=Forbidden")
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)

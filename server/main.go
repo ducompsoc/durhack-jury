@@ -6,6 +6,7 @@ import (
 	"server/router"
 )
 
+// todo: run go tidy and go fmt to get replace tabs with 4 spaces
 func main() {
 	// Check for all necessary env variables
 	config.CheckEnv()

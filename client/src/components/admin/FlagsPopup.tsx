@@ -25,6 +25,7 @@ const FlagsPopup = ({ close }: FlagsPopupProps) => {
     }, []);
 
     useEffect(() => {
+        // todo: fix flag sorting (time doesn't work?)
         switch (sortMethod) {
             case 0:
                 // Sort by project_name
@@ -47,6 +48,8 @@ const FlagsPopup = ({ close }: FlagsPopupProps) => {
 
     return (
         <>
+            {/*todo: group flags per project so that list doesn't become so overwhelming? - might need to be a new tab/page*/}
+            {/*todo: be able to action flags from the UI - hide that group directly, etc.*/}
             <div
                 className="fixed left-0 top-0 z-20 w-screen h-screen bg-black/30"
                 onClick={() => close(false)}

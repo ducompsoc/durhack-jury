@@ -209,6 +209,7 @@ func ExportProjects(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error getting projects: " + err.Error()})
 		return
 	}
+	// todo: option to not include batches smaller than current batch size in score (judge ending submission period)
 	err, errStr, scores := ranking.GetScoresFromDB(db)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": errStr + err.Error()})

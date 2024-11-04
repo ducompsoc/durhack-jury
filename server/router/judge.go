@@ -355,11 +355,15 @@ func JudgeSkip(ctx *gin.Context) {
 	}
 
 	// Skip the project
+	// todo: don't include judge name here, instead, on the admin side, get the judge name via keycloak using the keycloak user id
 	err = judging.SkipCurrentProject(db, judge, judgeName, comps, skipReq.Reason, true)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	// todo: automatically purge projects that are absent and/or notify project members
+	//  (using devpost's personal information email field) that they have been missed by a judge
+	//  and that they need to 're-activate' themselves - hide them in the meantime
 
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})

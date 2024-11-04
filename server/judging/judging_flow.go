@@ -132,7 +132,9 @@ func PickNextProject(db *mongo.Database, judge *models.Judge, ctx mongo.SessionC
 //  4. Filter out projects that are currently being judged (if no projects remain after filter, ignore step)
 //  5. Filter out all projects that have more than the current smallest number of views (if no projects remain after filter, ignore step)
 func FindPreferredItems(db *mongo.Database, judge *models.Judge, ctx mongo.SessionContext) ([]*models.Project, error) {
-	// TODO: Ensure judge does not get the project they _just_ skipped -- ideally we would keep a list of projects that the judge has skipped and clear it when the judge finds a project they don't skip (after voting)
+	// todo: Ensure judge does not get the project they _just_ skipped -- ideally we would keep a list of projects that the judge has skipped and clear it when the judge finds a project they don't skip (after judging it)
+	// todo: preference too for projects that are near where the judge currently is (clustering)
+	//  (so they don't need to run around as much) - see upstream for this maybe?
 
 	// Get the list of all active projects
 	projects, err := database.FindActiveProjects(db, ctx)

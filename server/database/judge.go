@@ -99,7 +99,7 @@ func AggregateJudgeStats(db *mongo.Database) (*models.JudgeStats, error) {
 	return &stats, nil
 }
 
-// durhacktodo: implement API on Jury to allow keycloak client to delete a judge 'remotely'
+// todo: rename functions and routes to deleting judge data since the keycloak account still exists
 // DeleteJudgeById deletes a judge from the database by their id
 func DeleteJudgeById(db *mongo.Database, id primitive.ObjectID) error {
 	_, err := db.Collection("judges").DeleteOne(context.Background(), gin.H{"_id": id})

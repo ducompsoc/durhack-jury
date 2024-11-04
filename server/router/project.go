@@ -241,6 +241,7 @@ func DeleteProject(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error deleting project from database: " + err.Error()})
 		return
 	}
+	// todo: also remove project from all judges' current lists so that they don't get an error
 
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})

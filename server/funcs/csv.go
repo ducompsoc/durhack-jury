@@ -185,7 +185,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 	w := csv.NewWriter(csvBuffer)
 
 	// Write the header
-	// todo: remove unranked concept
+	// todo: remove unranked concept fully from export too
 	w.Write([]string{"Name", "Code", "Ranked", "Unranked"})
 
 	// Write each judge
@@ -196,7 +196,8 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Create a list of all ranked projects (just their location)
-		ranked := make([]string, 0, len(judge.CurrentRankings)) // todo: update for new ranking object structures (2D array)
+		// todo: update for new ranking object structures which requires past_rankings to be considered (2D array)
+		ranked := make([]string, 0, len(judge.CurrentRankings))
 		for _, projId := range judge.CurrentRankings {
 			idx := util.IndexFunc(judge.SeenProjects, func(p models.JudgedProject) bool {
 				return p.ProjectId == projId
@@ -217,7 +218,7 @@ func CreateJudgeRankingCSV(judges []*models.Judge) []byte {
 		}
 
 		// Write line to CSV
-		// durhacktodo: get judge info (from gocloak using admin api) to write to csv
+		// todo: get judge info (using admin api as when getting judges for listing) to write to csv
 		w.Write([]string{judge.KeycloakUserId, strings.Join(ranked, ","), strings.Join(unranked, ",")})
 	}
 
