@@ -179,6 +179,8 @@ func UpdateAfterPickedWithTx(db *mongo.Database, project *models.Project, judge 
 		gin.H{"_id": judge.Id},
 		gin.H{"$set": gin.H{"current": project.Id, "last_activity": util.Now()}},
 	)
+	// todo: keep track of a full list of projects that a judge has been allocated at any time (including skipped, flagged, etc.)
+	//  basically just every 'next project' surfaced. This will be useful for debugging and analysis after events.
 	return nil, err
 }
 
