@@ -70,6 +70,7 @@ func NewRouter(db *mongo.Database) *gin.Engine {
 	// Create router groups for judge and admins
 	// todo: document routing behaviour r.e. login and auth
 	authenticatedRouter := router.Group("", Authenticate())
+	// todo: maybe add an additional role for volunteers who can sign-out groups when hackers leave or update a group's location
 	judgeRouter := authenticatedRouter.Group("/api", AuthoriseJudge())
 	adminRouter := authenticatedRouter.Group("/api", AuthoriseAdmin())
 	defaultRouter := router.Group("/api")
