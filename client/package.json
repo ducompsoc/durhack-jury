@@ -34,7 +34,7 @@
         "vite": "^5.2.2"
     },
     "scripts": {
-        "docker": "yarn install && yarn start",
+        "docker": "pnpm install && yarn start",
         "start": "vite",
         "build": "vite build",
         "lint": "eslint src --ext .js,.jsx,.ts,.tsx"
@@ -57,5 +57,5 @@
             "last 1 safari version"
         ]
     },
-    "packageManager": "yarn@4.5.1+sha512.341db9396b6e289fecc30cd7ab3af65060e05ebff4b3b47547b278b9e67b08f485ecd8c79006b405446262142c7a38154445ef7f17c1d5d1de7d90bf9ce7054d"
+    "packageManager": "pnpm@10.20.0+sha512.cf9998222162dd85864d0a8102e7892e7ba4ceadebbf5a31f9c2fce48dfce317a9c53b9f6464d1ef9042cba2e02ae02a9f7c143a2b438cd93c91840f0192b9dd"
 }
