@@ -21,7 +21,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 48,
     fontWeight: 500,
     verticalAlign: "top",
-    borderRight: "1px solid hsl(var(--foreground) / 0.5)",
+    borderRight: "1px solid rgba(0, 0, 0, .3)",
   },
   h2: {
     fontSize: 28,
@@ -31,12 +31,32 @@ const styles: Record<string, React.CSSProperties> = {
   wrap: {
     display: "inline-block",
   },
+  retry: {
+    width: "5rem",
+    paddingTop: "0.5rem",
+    paddingBottom: "0.5rem",
+    borderRadius: "10px",
+    backgroundColor: "var(--primary)",
+    color: "white",
+  }
+}
+
+type RetryButtonProps = {
+  retryHref?: string | URL | null | undefined
+} & React.ComponentProps<"a">
+
+function RetryButton({ retryHref, style, ...props }: RetryButtonProps) {
+  if (retryHref == null) return null
+  return <a href={retryHref.toString()} style={{ ...styles.retry, ...style }} {...props}>
+    Retry
+  </a>
 }
 
 export type HttpErrorProps = {
-  statusCode?: string
+  statusCode?: string | null | undefined
   message: string
-} & React.HTMLAttributes<HTMLDivElement>
+  retryHref?: string | URL | null | undefined
+} & React.ComponentProps<"div">
 
 export function ServerErrorPage({ style, ...props }: HttpErrorProps) {
   style ??= {}
@@ -44,7 +64,7 @@ export function ServerErrorPage({ style, ...props }: HttpErrorProps) {
   return <ServerError style={style} {...props} />
 }
 
-export function ServerError({ statusCode, message, style, ...props }: HttpErrorProps) {
+export function ServerError({ statusCode, message, retryHref, style, ...props }: HttpErrorProps) {
   return (
     <main style={{ ...styles.error, ...style }} {...props}>
       <div style={styles.desc}>
@@ -53,6 +73,7 @@ export function ServerError({ statusCode, message, style, ...props }: HttpErrorP
           <h2 style={styles.h2}>{message}.</h2>
         </div>
       </div>
+      <RetryButton retryHref={retryHref} />
     </main>
   )
 }
