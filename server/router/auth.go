@@ -155,25 +155,25 @@ func HandleLoginSuccess() gin.HandlerFunc {
 		// todo: add a page for this that handles non-/judge or /admin group users
 		// todo: also handle if user times out session cookie and needs to re-login
 		//  so requests aren't authenticated and so HTML is sent back when JSON is expected
-		urlPath, err := url.JoinPath(config.Origin, "/error")
+		errorRawUrl, err := url.JoinPath(config.Origin, "/error")
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			fmt.Println(err.Error())
 			return
 		}
-		url, err := url.Parse(urlPath)
+		errorUrl, err := url.Parse(errorRawUrl)
 		if err != nil {
 			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
 			fmt.Println(err.Error())
 			return
 		}
-		urlQuery := url.Query()
+		urlQuery := errorUrl.Query()
 		urlQuery.Set("status", "403")
 		urlQuery.Set("message", "Forbidden")
 		urlQuery.Set("retry_href", url.JoinPath(config.ApiOrigin, "/api/auth/keycloak/login").String())
-		url.RawQuery = urlQuery.Encode()
+		errorUrl.RawQuery = urlQuery.Encode()
 
-		ctx.Redirect(http.StatusFound, url.String())
+		ctx.Redirect(http.StatusFound, errorUrl.String())
 		return
 	}
 }
