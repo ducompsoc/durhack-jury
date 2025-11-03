@@ -168,7 +168,7 @@ func HandleLoginSuccess() gin.HandlerFunc {
 			return
 		}
 		urlQuery := errorUrl.Query()
-		urlQuery.Set("status", "403")
+		urlQuery.Set("status_code", "403")
 		urlQuery.Set("message", "Forbidden")
 		retryRawUrl, err := url.JoinPath(config.ApiOrigin, "/api/auth/keycloak/login")
 		if err != nil {
