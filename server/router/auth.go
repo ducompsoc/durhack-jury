@@ -170,7 +170,13 @@ func HandleLoginSuccess() gin.HandlerFunc {
 		urlQuery := errorUrl.Query()
 		urlQuery.Set("status", "403")
 		urlQuery.Set("message", "Forbidden")
-		urlQuery.Set("retry_href", url.JoinPath(config.ApiOrigin, "/api/auth/keycloak/login").String())
+		retryRawUrl, err := url.JoinPath(config.ApiOrigin, "/api/auth/keycloak/login")
+		if err != nil {
+			_ = ctx.AbortWithError(http.StatusInternalServerError, err)
+			fmt.Println(err.Error())
+			return
+		}
+		urlQuery.Set("retry_href", retryRawUrl)
 		errorUrl.RawQuery = urlQuery.Encode()
 
 		ctx.Redirect(http.StatusFound, errorUrl.String())
