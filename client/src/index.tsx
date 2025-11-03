@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Home from './pages/Home';
+import Error from './pages/Error';
 import Judge from './pages/judge';
 import Admin from './pages/admin';
 import AddProjects from './pages/admin/AddProjects';
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
     {
         path: '/',
         element: <Home />,
+    },
+    {
+        path: '/error',
+        element: <Error />
     },
     {
         path: '/judge/welcome',
