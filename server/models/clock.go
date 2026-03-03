@@ -3,16 +3,21 @@ package models
 import "time"
 
 type ClockState struct {
-	StartTime int64 `json:"start_time" bson:"start_time"`
-	PauseTime int64 `json:"pause_time" bson:"pause_time"`
-	Running   bool  `json:"running" bson:"running"`
+	// The duration (in milliseconds) elapsed while the clock was running, not including
+	// time elapsed since the most recent resume.
+	ElapsedDuration int64 `json:"elapsed_duration" bson:"elapsed_duration"`
+	// The timestamp (milliseconds since UNIX epoch) of the most recent clock resume.
+	// If `Running` is `false`, this value has no meaning and should be zero.
+	ResumedTime int64 `json:"resumed_time" bson:"resumed_time"`
+	// Whether the clock is presently running (a.k.a. resumed).
+	Running bool `json:"running" bson:"running"`
 }
 
 func NewClockState() *ClockState {
 	return &ClockState{
-		StartTime: 0,
-		PauseTime: 0,
-		Running:   false,
+		ElapsedDuration: 0,
+		ResumedTime:     0,
+		Running:         false,
 	}
 }
 
@@ -25,8 +30,9 @@ func (c *ClockState) Pause() {
 	if !c.Running {
 		return
 	}
+	c.ElapsedDuration += GetCurrTime() - c.ResumedTime
 	c.Running = false
-	c.PauseTime = GetCurrTime()
+	c.ResumedTime = 0
 }
 
 func (c *ClockState) Resume() {
@@ -34,18 +40,18 @@ func (c *ClockState) Resume() {
 		return
 	}
 	c.Running = true
-	c.StartTime = GetCurrTime()
+	c.ResumedTime = GetCurrTime()
 }
 
 func (c *ClockState) Reset() {
-	c.StartTime = 0
-	c.PauseTime = 0
+	c.ElapsedDuration = 0
+	c.ResumedTime = 0
 	c.Running = false
 }
 
 func (c *ClockState) GetDuration() int64 {
 	if !c.Running {
-		return c.PauseTime
+		return c.ElapsedDuration
 	}
-	return c.StartTime + GetCurrTime() - c.PauseTime
+	return c.ElapsedDuration + (GetCurrTime() - c.ResumedTime)
 }
