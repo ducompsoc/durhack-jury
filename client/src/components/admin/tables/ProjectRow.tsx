@@ -1,5 +1,6 @@
 import {FocusEvent, useEffect, useRef, useState} from 'react';
 import {errorAlert, timeSince} from '../../../util';
+import HidePopup from './HidePopup';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
@@ -17,6 +18,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
     const [popup, setPopup] = useState(false);
     const [editPopup, setEditPopup] = useState(false);
     const [deletePopup, setDeletePopup] = useState(false);
+    const [hidePopup, setHidePopup] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
 
@@ -42,8 +44,8 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 setEditPopup(true);
                 break;
             case 'hide':
-                // Hide
-                hideProject();
+                // Open hide popup
+                setHidePopup(true);
                 break;
             case 'delete':
                 // Open delete popup
@@ -54,7 +56,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         setPopup(false);
     };
 
-    const hideProject = async () => {
+    const hideProject = async () => { // to be removed
         const res = await postRequest<YesNoResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
         if (res.status === 200) {
             alert(`Project ${project.active ? 'hidden' : 'un-hidden'} successfully!`);
@@ -143,7 +145,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 </td>
             </tr>
             {deletePopup && <DeletePopup element={project} close={setDeletePopup} />}
-            {editPopup && <EditProjectPopup project={project} close={setEditPopup} />}
+            {hidePopup && <HidePopup project={project} close={setHidePopup} />}
         </>
     );
 };
