@@ -231,3 +231,14 @@ func DecrementProjectSeenCount(db *mongo.Database, ctx context.Context, project 
 	_, err := db.Collection("projects").UpdateOne(ctx, gin.H{"_id": project.Id}, gin.H{"$inc": gin.H{"seen": -1}})
 	return err
 }
+
+func InsertProjectHiddenReason(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
+	_, err := db.Collection("projects").UpdateOne(context.Background(), gin.H{"_id": id}, gin.H{"$push": gin.H{"hidden_reasons": reason}})
+	return err
+}
+
+func InsertProjectsHiddenReason(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
+	_, err := db.Collection("projects").UpdateMany(
+		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$push": gin.H{"hidden_reasons": reason}})
+	return err
+}

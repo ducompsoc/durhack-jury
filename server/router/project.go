@@ -310,27 +310,37 @@ func HideProject(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
-	// Get ID from body
-	var idReq models.IdRequest
-	err := ctx.BindJSON(&idReq)
+	// Get ID and reason from body
+	var hideReq models.IdHideReq
+	err := ctx.BindJSON(&hideReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
 		return
 	}
-	id := idReq.Id
-
+	id := hideReq.Id
+	
 	// Convert project ID string to ObjectID
 	projectObjectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID"})
 		return
 	}
-
+	
 	// Update the project in the database
 	err = database.SetProjectHidden(db, &projectObjectId, true)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
 		return
+	}
+	
+	// Insert hidden reason into the database if it exists
+	if hideReq.Reason != "" {
+		reason := models.NewHiddenReason(hideReq.Reason)
+		err = database.InsertProjectHiddenReason(db, &projectObjectId, reason)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting hidden reason into database: " + err.Error()})
+			return
+		}
 	}
 
 	// Send OK
@@ -338,7 +348,7 @@ func HideProject(ctx *gin.Context) {
 }
 
 // POST /project/hide-unhide-many - HideUnhideManyProjects hides projects in bulk (used for guilds being away)
-func HideUnhideManyProjects(ctx *gin.Context) {
+func HideUnhideManyProjects(ctx *gin.Context) { 
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
@@ -367,6 +377,14 @@ func HideUnhideManyProjects(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
 		return
+	}
+
+	if multiHideReq.Hide {
+		err = database.InsertProjectsHiddenReason(db, &projectObjectIds, models.NewHiddenReason(multiHideReq.Reason))
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting hidden reason into database: " + err.Error()})
+			return
+		}
 	}
 
 	// Send OK

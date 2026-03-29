@@ -2,9 +2,14 @@ package models
 
 import (
 	"encoding/json"
-
+	"time"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
+
+type HiddenReason struct {
+	Reason        string             `bson:"reason" json:"reason"`
+	When          primitive.DateTime `bson:"when" json"when"`
+}
 
 type Project struct {
 	Id            primitive.ObjectID `bson:"_id,omitempty" json:"id"`
@@ -18,6 +23,7 @@ type Project struct {
 	ChallengeList []string           `bson:"challenge_list" json:"challenge_list"`
 	Seen          int64              `bson:"seen" json:"seen"`
 	Active        bool               `bson:"active" json:"active"`
+	HiddenReasons []HiddenReason     `bson:"hidden_reasons" json:"hidden_reasons"`
 	LastActivity  primitive.DateTime `bson:"last_activity" json:"last_activity"`
 }
 
@@ -41,7 +47,15 @@ func NewProject(name string, guild string, location string, description string, 
 		ChallengeList: challengeList,
 		Seen:          0,
 		Active:        true,
+		HiddenReasons: []HiddenReason{},
 		LastActivity:  primitive.DateTime(0),
+	}
+}
+
+func NewHiddenReason(reason string) *HiddenReason {
+	return &HiddenReason{
+		Reason: reason,
+		When:   primitive.DateTime(time.Now().Unix()),
 	}
 }
 
