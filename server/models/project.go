@@ -8,7 +8,7 @@ import (
 
 type HiddenReason struct {
 	Reason        string             `bson:"reason" json:"reason"`
-	When          primitive.DateTime `bson:"when" json"when"`
+	When          int64              `bson:"when" json:"when"`
 }
 
 type Project struct {
@@ -55,7 +55,7 @@ func NewProject(name string, guild string, location string, description string, 
 func NewHiddenReason(reason string) *HiddenReason {
 	return &HiddenReason{
 		Reason: reason,
-		When:   primitive.DateTime(time.Now().Unix()),
+		When:   time.Now().Unix(),
 	}
 }
 
