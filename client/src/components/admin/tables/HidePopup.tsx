@@ -1,45 +1,47 @@
-import { postRequest, getRequest } from "../../../api";
+import { postRequest } from "../../../api";
 import { Project } from "../../../types";
 import { useState } from "react";
 import { errorAlert } from "../../../util";
-import { set } from "react-hook-form";
+import useAdminStore from "../../../store";
 
 interface HideProjectPopupProps {
-    /* Project to edit */
-    project: Project;
+    /* Projects to edit */
+    projects: Project[];
 
     /* Function to modify the popup state variable */
     close: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
-const HideProjectPopup = ({ project, close }: HideProjectPopupProps) => {
+const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
     const [selectedOption, setSelectedOption] = useState('');
     const [selectedReason, setSelectedReason] = useState('');
+    const fetchProjects = useAdminStore((state) => state.fetchProjects);
     const options = ['Lunch', 'Not found', 'Option 3', 'Other'];
 
     const hideProject = async () => {
         if (selectedReason == '' || selectedReason == 'Other') {
-            alert('Please select a reason for hiding the project.');
+            alert('Please select a reason for hiding the project(s).');
             return;
         }
-        const res = await postRequest('/project/hide', 
+        const res = await postRequest('/project/hide-unhide-many', 
             { 
-                id: project.id, 
+                ids: projects.map(project => project.id), 
+                hide: true,
                 reason: selectedReason 
             }
         );
         if (res.status === 200) {
             alert(`Project hidden successfully!`);
-        }
-        else {
+        } else {
             errorAlert(res);
         }
+        await fetchProjects();
         close(false);
     }
     return (
         <>
             <div className="bg-background fixed z-20 left-1/2 top-1/2 translate-x-[-50%] translate-y-[-50%] py-6 px-10 w-1/3">
-                <h1 className="text-5xl font-bold mb-2 text-center">Enter a reason for hiding {project.name}</h1>
+                <h1 className="text-5xl font-bold mb-2 text-center">Enter a reason for hiding the project(s)</h1>
                 <div className="flex flex-row justify-around mt-4">
                     <ul>
                         {options.map((option) => 

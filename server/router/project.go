@@ -379,8 +379,14 @@ func HideUnhideManyProjects(ctx *gin.Context) {
 		return
 	}
 
+	// Insert hidden reason if we're hiding the projects
 	if multiHideReq.Hide {
-		err = database.InsertProjectsHiddenReason(db, &projectObjectIds, models.NewHiddenReason(multiHideReq.Reason))
+		if multiHideReq.Reason == "" {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "reason is required when hiding projects"})
+			return
+		}
+		reason := models.NewHiddenReason(multiHideReq.Reason)
+		err = database.InsertProjectsHiddenReason(db, &projectObjectIds, reason)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting hidden reason into database: " + err.Error()})
 			return

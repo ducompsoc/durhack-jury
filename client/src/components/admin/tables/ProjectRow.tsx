@@ -37,7 +37,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         };
     }, [ref]);
 
-    const doAction = (action: 'edit' | 'prioritize' | 'hide' | 'delete') => {
+    const doAction = async (action: 'edit' | 'prioritize' | 'hide' | 'delete') => {
         switch (action) {
             case 'edit':
                 // Open edit popup
@@ -45,7 +45,11 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 break;
             case 'hide':
                 // Open hide popup
-                setHidePopup(true);
+                if (project.active) {
+                    setHidePopup(true);
+                } else {
+                    unhideProject();
+                };
                 break;
             case 'delete':
                 // Open delete popup
@@ -56,10 +60,10 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         setPopup(false);
     };
 
-    const hideProject = async () => { // to be removed
-        const res = await postRequest<YesNoResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
+    const unhideProject = async () => {
+        const res = await postRequest<YesNoResponse>('/project/unhide', {id: project.id});
         if (res.status === 200) {
-            alert(`Project ${project.active ? 'hidden' : 'un-hidden'} successfully!`);
+            alert(`Project un-hidden successfully!`);
             await fetchProjects();
         } else {
             errorAlert(res);
@@ -145,7 +149,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 </td>
             </tr>
             {deletePopup && <DeletePopup element={project} close={setDeletePopup} />}
-            {hidePopup && <HidePopup project={project} close={setHidePopup} />}
+            {hidePopup && <HidePopup projects={[project]} close={setHidePopup} />}
         </>
     );
 };

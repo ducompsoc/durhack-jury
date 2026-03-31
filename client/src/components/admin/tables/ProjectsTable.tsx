@@ -7,6 +7,7 @@ import Button from "../../Button";
 import {postRequest} from "../../../api";
 import {errorAlert} from "../../../util";
 import {Project, SortField, SortState, YesNoResponse} from "../../../types";
+import HidePopup from "./HidePopup";
 
 const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);
@@ -18,6 +19,7 @@ const ProjectsTable = () => {
         field: ProjectSortField.None,
         ascending: true,
     });
+    const [hidePopup, setHidePopup] = useState(false);
 
     const handleCheckedChange = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
         setChecked({  // this change of type is to stop React complaining about "a component is changing an uncontrolled input to be controlled"
@@ -103,15 +105,18 @@ const ProjectsTable = () => {
                 toHide.push(projects[parseInt(key)].id);
             }
         });
-
+        
         if (toHide.length === 0) {
             alert('No projects selected!');
             return;
         }
-
-        const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: hide});
+        if (hide) {
+            setHidePopup(true);
+            return;
+        }
+        const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: false});
         if (res.status === 200) {
-            alert(`${toHide.length} project(s) ${hide ? 'hidden' : 'unhidden'} successfully!`);
+            alert(`${toHide.length} project(s) unhidden successfully!`);
             await fetchProjects();
         } else {
             errorAlert(res);
@@ -242,6 +247,7 @@ const ProjectsTable = () => {
                 ))}
                 </tbody>
             </table>
+            {hidePopup && <HidePopup projects={projects.filter((_, idx) => checked[idx])} close={setHidePopup} />}
         </div>
     );
 };
