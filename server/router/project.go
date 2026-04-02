@@ -306,7 +306,7 @@ func GetProjectCount(ctx *gin.Context) {
 }
 
 // POST /project/hide - HideProject hides a project
-func HideProject(ctx *gin.Context) { // todo: update this function too
+func HideProject(ctx *gin.Context) {
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 

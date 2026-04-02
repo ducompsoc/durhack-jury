@@ -157,5 +157,4 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         </>
     );
 };
- // ['Info', project.active ? 'Hide' : 'Un-hide', 'Delete'].map((str) => (
 export default ProjectRow;
