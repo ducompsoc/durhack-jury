@@ -1,6 +1,7 @@
-import {FocusEvent, useEffect, useRef, useState} from 'react';
+import {act, FocusEvent, useEffect, useRef, useState} from 'react';
 import {errorAlert, timeSince} from '../../../util';
 import HidePopup from './HidePopup';
+import InfoPopup from './InfoPopup';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
@@ -19,6 +20,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
     const [editPopup, setEditPopup] = useState(false);
     const [deletePopup, setDeletePopup] = useState(false);
     const [hidePopup, setHidePopup] = useState(false);
+    const [infoPopup, setInfoPopup] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
 
@@ -37,19 +39,24 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         };
     }, [ref]);
 
-    const doAction = async (action: 'edit' | 'prioritize' | 'hide' | 'delete') => {
-        switch (action) {
+    const doAction = async (action: 'edit' | 'prioritize' | 'hide' | 'un-hide' | 'info' | 'delete') => {
+        console.log('Performing action: ' + action + ' on project ' + project.name);
+        switch (action) { // todo: find a way to reuse types for this functon for assignments
             case 'edit':
                 // Open edit popup
                 setEditPopup(true);
                 break;
             case 'hide':
                 // Open hide popup
-                if (project.active) {
-                    setHidePopup(true);
-                } else {
-                    unhideProject();
-                };
+                setHidePopup(true);
+                break;
+            case 'un-hide':
+                // Un-hide project
+                unhideProject();
+                break;
+            case 'info':
+                // Open info popup
+                setInfoPopup(true);
                 break;
             case 'delete':
                 // Open delete popup
@@ -119,25 +126,22 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 <td className="text-center">{project.seen}</td>
                 <td className="text-center">{timeSince(project.last_activity)}</td>
                 <td className="text-right font-bold flex align-center justify-end">
-                    {popup && (
+                    {popup &&
                         <div
                             className="absolute flex flex-col bg-background rounded-md border-lightest border-2 font-normal text-sm"
                             ref={ref}
                         >
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
-                                onClick={() => doAction('hide')}
-                            >
-                                {project.active ? 'Hide' : 'Un-hide'}
-                            </div>
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 text-error"
-                                onClick={() => doAction('delete')}
-                            >
-                                Delete
-                            </div>
+                            {['Info', project.active ? 'Hide' : 'Un-hide', 'Delete'].map((action) => 
+                                <div
+                                    key={action}
+                                    className={`py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 ${action == 'Delete' ? 'text-error' : ''}`}
+                                    onClick={() => { doAction(action.toLowerCase() as 'edit' | 'prioritize' | 'hide' | 'un-hide' | 'info' | 'delete'); }}
+                                >
+                                    {action}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    } 
                     <span
                         className="cursor-pointer px-1 hover:text-primary duration-150"
                         onClick={() => {
@@ -150,8 +154,9 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
             </tr>
             {deletePopup && <DeletePopup element={project} close={setDeletePopup} />}
             {hidePopup && <HidePopup projects={[project]} close={setHidePopup} />}
+            {infoPopup && <InfoPopup project={project} close={setInfoPopup} />}
         </>
     );
 };
-
+ // ['Info', project.active ? 'Hide' : 'Un-hide', 'Delete'].map((str) => (
 export default ProjectRow;
