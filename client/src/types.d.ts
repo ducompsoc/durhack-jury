@@ -1,9 +1,9 @@
 import {JudgeSortField, ProjectSortField} from "./enums";
 // todo: don't use these magic .d files - messes with imports
 
-interface HideReason {
+interface HiddenReason {
     reason: string;
-    when: Date;
+    when: number;
 }
 
 interface Project {
@@ -16,7 +16,7 @@ interface Project {
     try_link: string;
     video_link: string;
     challenge_list: string[];
-    hide_reasons: HideReason[];
+    hidden_reasons: HiddenReason[];
     seen: number;
     active: boolean;
     score: number;

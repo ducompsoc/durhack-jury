@@ -40,7 +40,6 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
     }, [ref]);
 
     const doAction = async (action: 'edit' | 'prioritize' | 'hide' | 'un-hide' | 'info' | 'delete') => {
-        console.log('Performing action: ' + action + ' on project ' + project.name);
         switch (action) { // todo: find a way to reuse types for this functon for assignments
             case 'edit':
                 // Open edit popup
