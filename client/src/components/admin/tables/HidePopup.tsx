@@ -16,7 +16,7 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
     const [selectedOption, setSelectedOption] = useState('');
     const [selectedReason, setSelectedReason] = useState('');
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
-    const options = ['Lunch', 'Not found', 'Option 3', 'Other'];
+    const options = ['Lunch', 'Not found', 'Low ranking', 'Other'];
 
     const hideProject = async () => {
         if (selectedReason == '' || selectedReason == 'Other') {
