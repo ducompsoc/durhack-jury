@@ -306,7 +306,7 @@ func GetProjectCount(ctx *gin.Context) {
 }
 
 // POST /project/hide - HideProject hides a project
-func HideProject(ctx *gin.Context) {
+func HideProject(ctx *gin.Context) { // todo: update this function too
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
@@ -317,7 +317,13 @@ func HideProject(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
 		return
 	}
+
+	if hideReq.Reason == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "reason is required when hiding projects"})
+		return
+	}
 	id := hideReq.Id
+	reason := models.NewHiddenReason(hideReq.Reason)
 	
 	// Convert project ID string to ObjectID
 	projectObjectId, err := primitive.ObjectIDFromHex(id)
@@ -327,33 +333,65 @@ func HideProject(ctx *gin.Context) {
 	}
 	
 	// Update the project in the database
-	err = database.SetProjectHidden(db, &projectObjectId, true)
+	err = database.SetProjectHidden(db, &projectObjectId, reason)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
 		return
-	}
-	
-	// Insert hidden reason into the database if it exists
-	if hideReq.Reason != "" {
-		reason := models.NewHiddenReason(hideReq.Reason)
-		err = database.InsertProjectHiddenReason(db, &projectObjectId, reason)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting hidden reason into database: " + err.Error()})
-			return
-		}
 	}
 
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
 
-// POST /project/hide-unhide-many - HideUnhideManyProjects hides projects in bulk (used for guilds being away)
-func HideUnhideManyProjects(ctx *gin.Context) { 
+// POST /project/hide-many - HideManyProjects hides projects in bulk (used for guilds being away)
+func HideManyProjects(ctx *gin.Context) { 
 	// Get the database from the context
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get ID from body
-	var multiHideReq models.MultiIdHideRequest
+	var multiHideReq models.MultiIdHideReq
+	err := ctx.BindJSON(&multiHideReq)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
+		return
+	}
+
+	if multiHideReq.Reason == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "reason is required when hiding projects"})
+		return
+	}
+	ids := multiHideReq.Ids
+	reason := models.NewHiddenReason(multiHideReq.Reason)
+
+	// Convert project ID strings to ObjectIDs
+	projectObjectIds := make([]primitive.ObjectID, len(ids))
+	for _, id := range ids {
+		projectObjectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": "invalid project ID (in array): " + id})
+			return
+		}
+		projectObjectIds = append(projectObjectIds, projectObjectId)
+	}
+
+	// Update the project in the database
+	err = database.SetProjectsHidden(db, &projectObjectIds, reason)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
+		return
+	}
+
+	// Send OK
+	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
+}
+
+// POST /project/unhide-many - UnhideManyProjects unhides projects in bulk
+func UnhideManyProjects(ctx *gin.Context) {
+	// Get the database from the context
+	db := ctx.MustGet("db").(*mongo.Database)
+
+	// Get ID from body
+	var multiHideReq models.MultiIdReq
 	err := ctx.BindJSON(&multiHideReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
@@ -373,26 +411,12 @@ func HideUnhideManyProjects(ctx *gin.Context) {
 	}
 
 	// Update the project in the database
-	err = database.SetProjectsHidden(db, &projectObjectIds, multiHideReq.Hide)
+	err = database.SetProjectsUnhidden(db, &projectObjectIds)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
 		return
 	}
-
-	// Insert hidden reason if we're hiding the projects
-	if multiHideReq.Hide {
-		if multiHideReq.Reason == "" {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": "reason is required when hiding projects"})
-			return
-		}
-		reason := models.NewHiddenReason(multiHideReq.Reason)
-		err = database.InsertProjectsHiddenReason(db, &projectObjectIds, reason)
-		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error inserting hidden reason into database: " + err.Error()})
-			return
-		}
-	}
-
+	
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
 }
@@ -419,7 +443,7 @@ func UnhideProject(ctx *gin.Context) {
 	}
 
 	// Update the project in the database
-	err = database.SetProjectHidden(db, &projectObjectId, false)
+	err = database.SetProjectUnhidden(db, &projectObjectId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
 		return

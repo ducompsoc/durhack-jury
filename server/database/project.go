@@ -189,17 +189,43 @@ func CountProjectDocuments(db *mongo.Database) (int64, error) {
 	return db.Collection("projects").EstimatedDocumentCount(context.Background())
 }
 
-// SetProjectHidden sets the active field of a project
-func SetProjectHidden(db *mongo.Database, id *primitive.ObjectID, hidden bool) error {
+// SetProjectHidden sets the active field of a project to true
+func SetProjectHidden(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateOne(
-		context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": !hidden}})
+		context.Background(), 
+		gin.H{"_id": id},
+		gin.H{
+			"$set": gin.H{"active": false}, 
+			"$push": gin.H{"hidden_reasons": reason},
+		},
+	)
 	return err
 }
 
-// SetProjectsHidden sets the active fields of many projects in bulk
-func SetProjectsHidden(db *mongo.Database, ids *[]primitive.ObjectID, hidden bool) error {
+// SetProjectUnhidden sets the active field of a project to false
+func SetProjectUnhidden(db *mongo.Database, id *primitive.ObjectID) error {
+	_, err := db.Collection("projects").UpdateOne(
+		context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": true}})
+	return err
+}
+
+// SetProjectsHidden sets projects as inactive in bulk
+func SetProjectsHidden(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateMany(
-		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$set": gin.H{"active": !hidden}})
+		context.Background(), 
+		gin.H{"_id": gin.H{"$in": ids}},
+		gin.H{
+			"$set": gin.H{"active": false}, 
+			"$push": gin.H{"hidden_reasons": reason},
+		},
+	)
+	return err
+}
+
+// SetProjectsUnhidden sets projects as active in bulk
+func SetProjectsUnhidden(db *mongo.Database, ids *[]primitive.ObjectID) error {
+	_, err := db.Collection("projects").UpdateMany(
+		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$set": gin.H{"active": true}})
 	return err
 }
 
@@ -229,16 +255,5 @@ func UpdateProjects(db *mongo.Database, projects []*models.Project) error {
 // DecrementProjectSeenCount decrements the seen count of a project (after being skipped)
 func DecrementProjectSeenCount(db *mongo.Database, ctx context.Context, project *models.Project) error {
 	_, err := db.Collection("projects").UpdateOne(ctx, gin.H{"_id": project.Id}, gin.H{"$inc": gin.H{"seen": -1}})
-	return err
-}
-
-func InsertProjectHiddenReason(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
-	_, err := db.Collection("projects").UpdateOne(context.Background(), gin.H{"_id": id}, gin.H{"$push": gin.H{"hidden_reasons": reason}})
-	return err
-}
-
-func InsertProjectsHiddenReason(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
-	_, err := db.Collection("projects").UpdateMany(
-		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$push": gin.H{"hidden_reasons": reason}})
 	return err
 }

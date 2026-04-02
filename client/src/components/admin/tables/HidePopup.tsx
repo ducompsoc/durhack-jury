@@ -23,10 +23,9 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
             alert('Please select a reason for hiding the project(s).');
             return;
         }
-        const res = await postRequest('/project/hide-unhide-many', 
+        const res = await postRequest('/project/hide-many', 
             { 
                 ids: projects.map(project => project.id), 
-                hide: true,
                 reason: selectedReason 
             }
         );

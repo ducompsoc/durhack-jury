@@ -114,7 +114,7 @@ const ProjectsTable = () => {
             setHidePopup(true);
             return;
         }
-        const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: false});
+        const res = await postRequest<YesNoResponse>('/project/unhide-many', {ids: toHide});
         if (res.status === 200) {
             alert(`${toHide.length} project(s) unhidden successfully!`);
             await fetchProjects();
