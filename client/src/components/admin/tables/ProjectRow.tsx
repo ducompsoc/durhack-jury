@@ -1,4 +1,4 @@
-import {act, FocusEvent, useEffect, useRef, useState} from 'react';
+import {FocusEvent, useEffect, useRef, useState} from 'react';
 import {errorAlert, timeSince} from '../../../util';
 import HidePopup from './HidePopup';
 import InfoPopup from './InfoPopup';

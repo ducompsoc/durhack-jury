@@ -333,7 +333,7 @@ func HideProject(ctx *gin.Context) {
 	}
 	
 	// Update the project in the database
-	err = database.SetProjectHidden(db, &projectObjectId, &reason)
+	err = database.AddHiddenReasonToProject(db, &projectObjectId, reason)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
 		return
@@ -375,7 +375,7 @@ func HideManyProjects(ctx *gin.Context) {
 	}
 
 	// Update the project in the database
-	err = database.SetProjectsHidden(db, &projectObjectIds, &reason)
+	err = database.AddHiddenReasonToProjects(db, &projectObjectIds, reason)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
 		return

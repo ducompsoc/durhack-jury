@@ -189,8 +189,8 @@ func CountProjectDocuments(db *mongo.Database) (int64, error) {
 	return db.Collection("projects").EstimatedDocumentCount(context.Background())
 }
 
-// SetProjectHidden sets the active field of a project to true
-func SetProjectHidden(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
+// AddHiddenReasonToProject sets the active field of a project to false, with a reason for why it was hidden
+func AddHiddenReasonToProject(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateOne(
 		context.Background(), 
 		gin.H{"_id": id},
@@ -202,15 +202,15 @@ func SetProjectHidden(db *mongo.Database, id *primitive.ObjectID, reason *models
 	return err
 }
 
-// SetProjectUnhidden sets the active field of a project to false
+// SetProjectUnhidden sets the active field of a project to true
 func SetProjectUnhidden(db *mongo.Database, id *primitive.ObjectID) error {
 	_, err := db.Collection("projects").UpdateOne(
 		context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": true}})
 	return err
 }
 
-// SetProjectsHidden sets projects as inactive in bulk
-func SetProjectsHidden(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
+// AddHiddenReasonToProjects sets projects as inactive in bulk, with a reason for why they were hidden
+func AddHiddenReasonToProjects(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateMany(
 		context.Background(), 
 		gin.H{"_id": gin.H{"$in": ids}},
