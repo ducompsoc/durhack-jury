@@ -324,7 +324,7 @@ func HideProject(ctx *gin.Context) {
 	}
 	id := hideReq.Id
 	reason := models.NewHiddenReason(hideReq.Reason)
-	
+
 	// Convert project ID string to ObjectID
 	projectObjectId, err := primitive.ObjectIDFromHex(id)
 	if err != nil {
