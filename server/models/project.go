@@ -22,7 +22,6 @@ type Project struct {
 	VideoLink     string             `bson:"video_link" json:"video_link"`
 	ChallengeList []string           `bson:"challenge_list" json:"challenge_list"`
 	Seen          int64              `bson:"seen" json:"seen"`
-	Active        bool               `bson:"active" json:"active"`
 	HiddenReasons []HiddenReason     `bson:"hidden_reasons" json:"hidden_reasons"`
 	LastActivity  primitive.DateTime `bson:"last_activity" json:"last_activity"`
 }
@@ -46,7 +45,6 @@ func NewProject(name string, guild string, location string, description string, 
 		VideoLink:     videoLink,
 		ChallengeList: challengeList,
 		Seen:          0,
-		Active:        true,
 		HiddenReasons: []HiddenReason{},
 		LastActivity:  primitive.DateTime(0),
 	}

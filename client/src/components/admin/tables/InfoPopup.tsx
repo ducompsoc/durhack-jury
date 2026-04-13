@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { HiddenReason, Project } from '../../../types';
-import { convertUnixTimestamp } from '../../../util';
+import { convertUnixTimestamp, isActive } from '../../../util';
 
 interface InfoPopupProps {
     /* Project to show */
@@ -28,7 +28,7 @@ const InfoPopup = ({ project, close }: InfoPopupProps) => {
                 <p className="text-xl"><b>Guild:</b> {project.guild}</p>
                 <p className="text-xl"><b>Location:</b> {project.location}</p>
                 <p className="text-xl"><b>Score:</b> {project.score}</p>
-                <p className="text-xl"><b>Status:</b> {project.active ? 'Active' : 'Hidden'}</p>
+                <p className="text-xl"><b>Status:</b> {isActive(project) ? 'Active' : 'Hidden'}</p>
                 {project.hidden_reasons.length > 0 && (
                     <div className="mt-4 rounded-lg border border-gray-300 bg-white/80 p-4">
                         <p className="mb-2 text-xl font-semibold text-gray-800">Hide reasons:</p>
@@ -38,12 +38,12 @@ const InfoPopup = ({ project, close }: InfoPopupProps) => {
                                 renderHiddenReasonRow(project.hidden_reasons[project.hidden_reasons.length - 1])
                             }
                         </ul>
-                        <span
+                        {project.hidden_reasons.length > 1 && <span
                             className="mt-2 inline-block cursor-pointer text-pink-500 hover:text-pink-700 transition-colors"
                             onClick={() => setShowAll(!showAll)}
                         >
                             {showAll ? 'Hide' : 'Show more'}
-                        </span>
+                        </span>}
                     </div>
                 )}
                 <div className="flex flex-row justify-around">

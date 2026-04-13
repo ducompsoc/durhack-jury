@@ -23,10 +23,10 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
             alert('Please select a reason for hiding the project(s).');
             return;
         }
-        const res = await postRequest('/project/hide-many', 
+        const res = await postRequest('/project/hide-many',
             { 
-                ids: projects.map(project => project.id), 
-                reason: selectedReason 
+                ids: projects.map(project => project.id),
+                reason: selectedReason
             }
         );
         if (res.status === 200) {
@@ -48,8 +48,8 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
                                 key={option}
                                 className={`max-w-sm rounded-md p-4 mg-12 gap-4 ${selectedOption == option ? 'bg-lightest' : 'bg-primary/20'}`}
                                 onClick={() => { 
-                                    setSelectedOption(option); 
-                                    setSelectedReason(option); 
+                                    setSelectedOption(option);
+                                    setSelectedReason(option);
                                 }}
                             >
                                 {option}
@@ -58,9 +58,9 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
                     </ul>
                 </div>
                 <div className="bg-background flex flex-row mt-4">
-                    {selectedOption == 'Other' && 
+                    {selectedOption == 'Other' &&
                     <textarea 
-                        className="border-lightest border-2 rounded-md p-2 resize-none w-full" 
+                        className="border-lightest border-2 rounded-md p-2 resize-none w-full"
                         placeholder="Enter reason here..." 
                         onChange={(e) => { setSelectedReason(e.target.value); }}
                     />}

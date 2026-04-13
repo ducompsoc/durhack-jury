@@ -391,13 +391,19 @@ func UnhideManyProjects(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get ID from body
-	var multiHideReq models.MultiIdReq
+	var multiHideReq models.MultiIdUnhideReq
 	err := ctx.BindJSON(&multiHideReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
 		return
 	}
+
+	if multiHideReq.HiddenReason == nil{
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "request is missing required parameter: hidden_reason"})
+		return
+	}
 	ids := multiHideReq.Ids
+	hiddenReason := multiHideReq.HiddenReason
 
 	// Convert project ID strings to ObjectIDs
 	projectObjectIds := make([]primitive.ObjectID, len(ids))
@@ -411,7 +417,7 @@ func UnhideManyProjects(ctx *gin.Context) {
 	}
 
 	// Update the project in the database
-	err = database.SetProjectsUnhidden(db, &projectObjectIds)
+	err = database.SetProjectsUnhidden(db, &projectObjectIds, hiddenReason)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating projects in database: " + err.Error()})
 		return
@@ -427,13 +433,19 @@ func UnhideProject(ctx *gin.Context) {
 	db := ctx.MustGet("db").(*mongo.Database)
 
 	// Get ID from body
-	var idReq models.IdRequest
-	err := ctx.BindJSON(&idReq)
+	var IdUnhideReq models.IdUnhideReq
+	err := ctx.BindJSON(&IdUnhideReq)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "error reading request body: " + err.Error()})
 		return
 	}
-	id := idReq.Id
+
+	if IdUnhideReq.HiddenReason == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "request is missing required parameter: hidden_reason"})
+		return
+	}
+	id := IdUnhideReq.Id
+	hiddenReason := IdUnhideReq.HiddenReason
 
 	// Convert project ID string to ObjectID
 	projectObjectId, err := primitive.ObjectIDFromHex(id)
@@ -443,7 +455,7 @@ func UnhideProject(ctx *gin.Context) {
 	}
 
 	// Update the project in the database
-	err = database.SetProjectUnhidden(db, &projectObjectId)
+	err = database.SetProjectUnhidden(db, &projectObjectId, hiddenReason)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error updating project in database: " + err.Error()})
 		return

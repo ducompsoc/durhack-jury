@@ -42,6 +42,16 @@ type MultiIdHideReq struct {
 	Reason string `json:"reason"`
 }
 
+type IdUnhideReq struct {
+	Id            string       `json:"id"`
+	HiddenReason *HiddenReason `json:"hidden_reason"`
+}
+
+type MultiIdUnhideReq struct {
+	Ids         []string       `json:"ids"`
+	HiddenReason *HiddenReason `json:"hidden_reason"`
+}
+
 type ProjectLocationRequest struct {
 	IdRequest
 	Location string `json:"location"`

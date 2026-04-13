@@ -1,3 +1,5 @@
+import { Project, FetchResponse } from "./types";
+
 // Convert millisecond time to "x secs/mins/hours ago"
 const timeSince = (date: number) => {
     // eslint-disable-next-line eqeqeq
@@ -79,4 +81,8 @@ function truncate(s: string, width: number = 8) {
     return s.substring(0, width-2) + '..';
 }
 
-export { timeSince, convertUnixTimestamp, arrow, fixIfFloat, fixIfFloatDigits, errorAlert, showTopFive, truncate };
+function isActive(project: Project): boolean {
+    return project.hidden_reasons.length === 0;
+}
+
+export { timeSince, convertUnixTimestamp, arrow, fixIfFloat, fixIfFloatDigits, errorAlert, showTopFive, truncate, isActive };

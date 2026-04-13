@@ -1,6 +1,7 @@
 import {FocusEvent, useEffect, useRef, useState} from 'react';
-import {errorAlert, timeSince} from '../../../util';
+import {errorAlert, timeSince, isActive} from '../../../util';
 import HidePopup from './HidePopup';
+import UnhidePopup from './UnhidePopup';
 import InfoPopup from './InfoPopup';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
@@ -20,6 +21,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
     const [editPopup, setEditPopup] = useState(false);
     const [deletePopup, setDeletePopup] = useState(false);
     const [hidePopup, setHidePopup] = useState(false);
+    const [unhidePopup, setUnhidePopup] = useState(false);
     const [infoPopup, setInfoPopup] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
@@ -51,7 +53,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 break;
             case 'un-hide':
                 // Un-hide project
-                unhideProject();
+                setUnhidePopup(true);
                 break;
             case 'info':
                 // Open info popup
@@ -64,16 +66,6 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         }
 
         setPopup(false);
-    };
-
-    const unhideProject = async () => {
-        const res = await postRequest<YesNoResponse>('/project/unhide', {id: project.id});
-        if (res.status === 200) {
-            alert(`Project un-hidden successfully!`);
-            await fetchProjects();
-        } else {
-            errorAlert(res);
-        }
     };
 
     const onInputFocusLoss = async (e: FocusEvent<HTMLInputElement>) => {
@@ -94,7 +86,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                     'border-t-2 border-backgroundDark duration-150 ' +
                     (checked
                         ? 'bg-primary/20'
-                        : !project.active
+                        : !isActive(project)
                         ? 'bg-lightest'
                         : 'bg-background')
                 }
@@ -130,7 +122,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                             className="absolute flex flex-col bg-background rounded-md border-lightest border-2 font-normal text-sm"
                             ref={ref}
                         >
-                            {['Info', project.active ? 'Hide' : 'Un-hide', 'Delete'].map((action) => 
+                            {['Info', isActive(project) ? 'Hide' : 'Un-hide', 'Delete'].map((action) =>
                                 <div
                                     key={action}
                                     className={`py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 ${action == 'Delete' ? 'text-error' : ''}`}
@@ -153,6 +145,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
             </tr>
             {deletePopup && <DeletePopup element={project} close={setDeletePopup} />}
             {hidePopup && <HidePopup projects={[project]} close={setHidePopup} />}
+            {unhidePopup && <UnhidePopup projects={[project]} close={setUnhidePopup}/>}
             {infoPopup && <InfoPopup project={project} close={setInfoPopup} />}
         </>
     );

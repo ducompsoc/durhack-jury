@@ -6,6 +6,10 @@ interface HiddenReason {
     when: number;
 }
 
+interface HiddenReasonWithCount extends HiddenReason {
+    count: number;
+}
+
 interface Project {
     id: string;
     name: string;
@@ -18,7 +22,6 @@ interface Project {
     challenge_list: string[];
     hidden_reasons: HiddenReason[];
     seen: number;
-    active: boolean;
     score: number;
     last_activity: number;
 }

@@ -195,7 +195,6 @@ func AddHiddenReasonToProject(db *mongo.Database, id *primitive.ObjectID, reason
 		context.Background(), 
 		gin.H{"_id": id},
 		gin.H{
-			"$set": gin.H{"active": false}, 
 			"$push": gin.H{"hidden_reasons": reason},
 		},
 	)
@@ -203,9 +202,14 @@ func AddHiddenReasonToProject(db *mongo.Database, id *primitive.ObjectID, reason
 }
 
 // SetProjectUnhidden sets the active field of a project to true
-func SetProjectUnhidden(db *mongo.Database, id *primitive.ObjectID) error {
+func SetProjectUnhidden(db *mongo.Database, id *primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateOne(
-		context.Background(), gin.H{"_id": id}, gin.H{"$set": gin.H{"active": true}})
+		context.Background(), 
+		gin.H{"_id": id}, 
+		gin.H{
+			"$pull": gin.H{"hidden_reasons": reason},
+		},
+	)
 	return err
 }
 
@@ -215,7 +219,6 @@ func AddHiddenReasonToProjects(db *mongo.Database, ids *[]primitive.ObjectID, re
 		context.Background(), 
 		gin.H{"_id": gin.H{"$in": ids}},
 		gin.H{
-			"$set": gin.H{"active": false}, 
 			"$push": gin.H{"hidden_reasons": reason},
 		},
 	)
@@ -223,9 +226,14 @@ func AddHiddenReasonToProjects(db *mongo.Database, ids *[]primitive.ObjectID, re
 }
 
 // SetProjectsUnhidden sets projects as active in bulk
-func SetProjectsUnhidden(db *mongo.Database, ids *[]primitive.ObjectID) error {
+func SetProjectsUnhidden(db *mongo.Database, ids *[]primitive.ObjectID, reason *models.HiddenReason) error {
 	_, err := db.Collection("projects").UpdateMany(
-		context.Background(), gin.H{"_id": gin.H{"$in": ids}}, gin.H{"$set": gin.H{"active": true}})
+		context.Background(),
+		gin.H{"_id": gin.H{"$in": ids}},
+		gin.H{
+			"$pull": gin.H{"hidden_reasons": reason},
+		},
+	)
 	return err
 }
 
