@@ -102,7 +102,14 @@ func AggregateProjectStats(db *mongo.Database) (*models.ProjectStats, error) {
 // FindActiveProjects returns a list of all active projects in the database
 func FindActiveProjects(db *mongo.Database, ctx mongo.SessionContext) ([]*models.Project, error) {
 	var projects []*models.Project
-	cursor, err := db.Collection("projects").Find(ctx, gin.H{"active": true})
+	cursor, err := db.Collection("projects").Find(
+		ctx, 
+		gin.H{
+			"hidden_reasons": gin.H{
+				"$size": 0,
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -123,7 +130,9 @@ func FindBusyProjects(db *mongo.Database, ctx mongo.SessionContext) ([]*primitiv
 		"current": gin.H{
 			"$ne": nil,
 		},
-		"active": true,
+		"hidden_reasons": gin.H{
+			"$size": 0,
+		},
 	})
 	if err != nil {
 		return nil, err
