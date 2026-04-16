@@ -12,11 +12,33 @@ interface HideProjectPopupProps {
     close: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+const options = [
+    {
+        text: "Lunch",
+        description: "The team is away for lunch.",
+        value: "Lunch"
+    },
+    {
+        text: "Low Ranking",
+        description: "The team is ranked low and is hidden to save judges' time.",
+        value: "Low Ranking"
+    },
+    {
+        text: "Not Found",
+        description: "The team has repeatedly not been found for judging.",
+        value: "Not Found"
+    },
+    {
+        text: "Other",
+        description: "The team is hidden for another reason (please enter a reason).",
+        value: "Other"
+    }
+]
+
 const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
     const [selectedOption, setSelectedOption] = useState('');
     const [selectedReason, setSelectedReason] = useState('');
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
-    const options = ['Lunch', 'Not found', 'Low ranking', 'Other'];
 
     const hideProject = async () => {
         if (selectedReason == '' || selectedReason == 'Other') {
@@ -43,16 +65,17 @@ const HideProjectPopup = ({ projects, close }: HideProjectPopupProps) => {
                 <h1 className="text-5xl font-bold mb-2 text-center">Enter a reason for hiding the project(s)</h1>
                 <div className="flex flex-row justify-around mt-4">
                     <ul>
-                        {options.map((option) => 
+                        {options.map(({text, description, value}) => 
                             <div
-                                key={option}
-                                className={`max-w-sm rounded-md p-4 mg-12 gap-4 ${selectedOption == option ? 'bg-lightest' : 'bg-primary/20'}`}
+                                key={text}
+                                className={`max-w-sm rounded-md p-4 mg-12 gap-4 ${selectedOption == text ? 'bg-lightest' : 'bg-primary/20'}`}
                                 onClick={() => { 
-                                    setSelectedOption(option);
-                                    setSelectedReason(option);
+                                    setSelectedOption(text);
+                                    setSelectedReason(value);
                                 }}
                             >
-                                {option}
+                                <h2>{text}</h2>
+                                <p className="text-sm">{description}</p>
                             </div>
                         )}
                     </ul>
