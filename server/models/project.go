@@ -2,13 +2,13 @@ package models
 
 import (
 	"encoding/json"
-	"time"
+	"server/util"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type HiddenReason struct {
 	Reason        string             `bson:"reason" json:"reason"`
-	When          int64              `bson:"when" json:"when"`
+	When          primitive.DateTime `bson:"when" json:"when"`
 }
 
 type Project struct {
@@ -53,7 +53,7 @@ func NewProject(name string, guild string, location string, description string, 
 func NewHiddenReason(reason string) *HiddenReason {
 	return &HiddenReason{
 		Reason: reason,
-		When:   time.Now().Unix(),
+		When: util.Now(),
 	}
 }
 
@@ -84,6 +84,35 @@ func (p *Project) UnmarshalJSON(data []byte) error {
 	p.LastActivity = primitive.DateTime(aux.LastActivity)
 	return nil
 }
+
+// Custom marhal function to change the format of primative.DateTime to a unix timestamp
+func (h *HiddenReason) MarshalJSON() ([]byte, error) {
+	type Alias HiddenReason
+	return json.Marshal(&struct {
+		When         int64 `json:"when"`
+		*Alias
+	}{
+		Alias:       (*Alias)(h),
+		When:        int64(h.When),
+	})
+}
+
+func (h *HiddenReason) UnmarshalJSON(data []byte) error {
+	type Alias HiddenReason
+	aux := &struct {
+		When         int64 `json:"when"`
+		*Alias
+	}{
+		Alias:       (*Alias)(h),
+	}
+	if err := json.Unmarshal(data, aux); err != nil {
+		return err
+	}
+	h.When = primitive.DateTime(aux.When)
+	return nil
+}
+
+// Custom unmarhal function to change the format of primative.DateTime from a unix timestamp
 
 // Type to sort by table number
 type ByTableNumber []*Project
