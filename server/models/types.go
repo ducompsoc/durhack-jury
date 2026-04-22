@@ -28,9 +28,28 @@ type IdRequest struct {
 	Id string `json:"id"`
 }
 
-type MultiIdHideRequest struct {
+type MultiIdReq struct {
+	Ids  []string `json:ids`
+}
+
+type IdHideReq struct {
+	Id     string `json:"id"`
+	Reason string `json:"reason"`
+}
+
+type MultiIdHideReq struct {
 	Ids  []string `json:"ids"`
-	Hide bool     `json:"hide"`
+	Reason string `json:"reason"`
+}
+
+type IdUnhideReq struct {
+	Id            string       `json:"id"`
+	HiddenReason *HiddenReason `json:"hidden_reason"`
+}
+
+type MultiIdUnhideReq struct {
+	Ids         []string       `json:"ids"`
+	HiddenReason *HiddenReason `json:"hidden_reason"`
 }
 
 type ProjectLocationRequest struct {

@@ -1,3 +1,5 @@
+import { Project, FetchResponse } from "./types";
+
 // Convert millisecond time to "x secs/mins/hours ago"
 const timeSince = (date: number) => {
     // eslint-disable-next-line eqeqeq
@@ -30,6 +32,17 @@ const timeSince = (date: number) => {
     }
     return 'just now';
 };
+
+const convertUnixTimestamp = (time: number) => {
+    const padLeft2 = (n: number) => n.toString().padStart(2, '0');
+    const date = new Date(time * 1000); // convert to miliseconds
+    const yyyy = date.getFullYear();
+    const mm = date.getMonth();
+    const dd = date.getDate();
+    const h = date.getHours();
+    const m = date.getMinutes();
+    return `${padLeft2(dd)}/${padLeft2(mm)}/${yyyy} ${padLeft2(h)}:${padLeft2(m)}`;
+}
 
 const arrow = (asc: boolean) => (asc ? '▲' : '▼');
 
@@ -68,4 +81,8 @@ function truncate(s: string, width: number = 8) {
     return s.substring(0, width-2) + '..';
 }
 
-export { timeSince, arrow, fixIfFloat, fixIfFloatDigits, errorAlert, showTopFive, truncate };
+function isActive(project: Project): boolean {
+    return project.hidden_reasons.length === 0;
+}
+
+export { timeSince, convertUnixTimestamp, arrow, fixIfFloat, fixIfFloatDigits, errorAlert, showTopFive, truncate, isActive };

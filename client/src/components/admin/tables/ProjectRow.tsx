@@ -1,5 +1,8 @@
 import {FocusEvent, useEffect, useRef, useState} from 'react';
-import {errorAlert, timeSince} from '../../../util';
+import {errorAlert, timeSince, isActive} from '../../../util';
+import HidePopup from './HidePopup';
+import UnhidePopup from './UnhidePopup';
+import InfoPopup from './InfoPopup';
 import DeletePopup from './DeletePopup';
 import EditProjectPopup from './EditProjectPopup';
 import useAdminStore from '../../../store';
@@ -17,6 +20,9 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
     const [popup, setPopup] = useState(false);
     const [editPopup, setEditPopup] = useState(false);
     const [deletePopup, setDeletePopup] = useState(false);
+    const [hidePopup, setHidePopup] = useState(false);
+    const [unhidePopup, setUnhidePopup] = useState(false);
+    const [infoPopup, setInfoPopup] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
     const fetchProjects = useAdminStore((state) => state.fetchProjects);
 
@@ -35,15 +41,23 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         };
     }, [ref]);
 
-    const doAction = (action: 'edit' | 'prioritize' | 'hide' | 'delete') => {
-        switch (action) {
+    const doAction = async (action: 'edit' | 'prioritize' | 'hide' | 'un-hide' | 'info' | 'delete') => {
+        switch (action) { // todo: find a way to reuse types for this functon for assignments
             case 'edit':
                 // Open edit popup
                 setEditPopup(true);
                 break;
             case 'hide':
-                // Hide
-                hideProject();
+                // Open hide popup
+                setHidePopup(true);
+                break;
+            case 'un-hide':
+                // Un-hide project
+                setUnhidePopup(true);
+                break;
+            case 'info':
+                // Open info popup
+                setInfoPopup(true);
                 break;
             case 'delete':
                 // Open delete popup
@@ -52,16 +66,6 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
         }
 
         setPopup(false);
-    };
-
-    const hideProject = async () => {
-        const res = await postRequest<YesNoResponse>(project.active ? '/project/hide' : '/project/unhide', {id: project.id});
-        if (res.status === 200) {
-            alert(`Project ${project.active ? 'hidden' : 'un-hidden'} successfully!`);
-            await fetchProjects();
-        } else {
-            errorAlert(res);
-        }
     };
 
     const onInputFocusLoss = async (e: FocusEvent<HTMLInputElement>) => {
@@ -82,7 +86,7 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                     'border-t-2 border-backgroundDark duration-150 ' +
                     (checked
                         ? 'bg-primary/20'
-                        : !project.active
+                        : !isActive(project)
                         ? 'bg-lightest'
                         : 'bg-background')
                 }
@@ -113,25 +117,22 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 <td className="text-center">{project.seen}</td>
                 <td className="text-center">{timeSince(project.last_activity)}</td>
                 <td className="text-right font-bold flex align-center justify-end">
-                    {popup && (
+                    {popup &&
                         <div
                             className="absolute flex flex-col bg-background rounded-md border-lightest border-2 font-normal text-sm"
                             ref={ref}
                         >
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150"
-                                onClick={() => doAction('hide')}
-                            >
-                                {project.active ? 'Hide' : 'Un-hide'}
-                            </div>
-                            <div
-                                className="py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 text-error"
-                                onClick={() => doAction('delete')}
-                            >
-                                Delete
-                            </div>
+                            {['Info', isActive(project) ? 'Hide' : 'Un-hide', 'Delete'].map((action) =>
+                                <div
+                                    key={action}
+                                    className={`py-1 pl-4 pr-2 cursor-pointer hover:bg-primary/20 duration-150 ${action == 'Delete' ? 'text-error' : ''}`}
+                                    onClick={() => { doAction(action.toLowerCase() as 'edit' | 'prioritize' | 'hide' | 'un-hide' | 'info' | 'delete'); }}
+                                >
+                                    {action}
+                                </div>
+                            )}
                         </div>
-                    )}
+                    } 
                     <span
                         className="cursor-pointer px-1 hover:text-primary duration-150"
                         onClick={() => {
@@ -143,9 +144,10 @@ const ProjectRow = ({project, idx, checked, handleCheckedChange}: ProjectRowProp
                 </td>
             </tr>
             {deletePopup && <DeletePopup element={project} close={setDeletePopup} />}
-            {editPopup && <EditProjectPopup project={project} close={setEditPopup} />}
+            {hidePopup && <HidePopup projects={[project]} close={setHidePopup} />}
+            {unhidePopup && <UnhidePopup projects={[project]} close={setUnhidePopup}/>}
+            {infoPopup && <InfoPopup project={project} close={setInfoPopup} />}
         </>
     );
 };
-
 export default ProjectRow;
