@@ -97,6 +97,7 @@ func (h *HiddenReason) MarshalJSON() ([]byte, error) {
 	})
 }
 
+// Custom unmarhal function to change the format of primative.DateTime from a unix timestamp
 func (h *HiddenReason) UnmarshalJSON(data []byte) error {
 	type Alias HiddenReason
 	aux := &struct {
@@ -111,8 +112,6 @@ func (h *HiddenReason) UnmarshalJSON(data []byte) error {
 	h.When = primitive.DateTime(aux.When)
 	return nil
 }
-
-// Custom unmarhal function to change the format of primative.DateTime from a unix timestamp
 
 // Type to sort by table number
 type ByTableNumber []*Project
