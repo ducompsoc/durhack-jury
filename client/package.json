@@ -38,7 +38,7 @@
         "docker": "pnpm install && yarn start",
         "start": "vite",
         "build": "vite build",
-        "lint": "enter command here"
+        "lint": "biome check --write"
     },
     "eslintConfig": {},
     "browserslist": {

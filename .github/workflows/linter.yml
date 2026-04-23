@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   golangci:
-    name: lint
+    name: go-linter
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -24,3 +24,20 @@ jobs:
           working-directory: server
           only-new-issues: true
           version: v2.11
+  biome:
+    name: js-linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - name: Setup Biome
+        uses: biomejs/setup-biome@v2
+        with:
+          version: latest
+      - name: Run Biome
+        run: biome ci
+        with:
+          working-directory: client
+          only-new-issues: true
