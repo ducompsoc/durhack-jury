@@ -40,7 +40,6 @@
         "build": "vite build",
         "lint": "biome check --write"
     },
-    "eslintConfig": {},
     "browserslist": {
         "production": [
             ">0.2%",
