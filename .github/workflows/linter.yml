@@ -37,7 +37,5 @@ jobs:
         with:
           version: latest
       - name: Run Biome
+        working-directory: client
         run: biome ci
-        with:
-          working-directory: client
-          only-new-issues: true
