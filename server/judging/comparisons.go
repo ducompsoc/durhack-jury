@@ -141,7 +141,11 @@ func (c *Comparisons) FindLeastCompared(projects []*models.Project, prevSeen []m
 		curr := 0
 		vId := c.IdNumMap[v.Id]
 		for _, p := range prevSeen {
-			pId := c.IdNumMap[p.ProjectId]
+			pId, ok := c.IdNumMap[p.ProjectId]
+			// If project was deleted or doesnt exist then ignore (just in case)
+			if !ok {
+				continue
+			}
 			curr += c.Arr[vId][pId]
 		}
 		if curr < minCompares {

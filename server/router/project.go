@@ -235,13 +235,29 @@ func DeleteProject(ctx *gin.Context) {
 		return
 	}
 
+	// todo: think about if we should invoke RemoveProjectFromComparison
+	'''
+	// Remove from comparisons matrix
+    comps := ctx.MustGet("comps").(*judging.Comparisons)
+    err = comps.RemoveProjectFromComparison(projectObjectId)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error removing project from comparisons: " + err.Error()})
+        return
+    }'''
+    
+    // Remove from all judges' seen/ranking lists
+    err = database.RemoveProjectFromAllJudges(db, projectObjectId)
+    if err != nil {
+        ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error removing project from judges: " + err.Error()})
+        return
+    }
+
 	// Delete the project from the database
 	err = database.DeleteProjectById(db, projectObjectId)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "error deleting project from database: " + err.Error()})
 		return
 	}
-	// todo: also remove project from all judges' current lists so that they don't get an error
 
 	// Send OK
 	ctx.JSON(http.StatusOK, gin.H{"yes_no": 1})
