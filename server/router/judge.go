@@ -154,11 +154,21 @@ func getJudgeKeycloakInfo(adminClient *gocloak.GoCloak, userID string) (*judgeKe
 	userAttributes := *user.Attributes
 	preferredNamesAttribute, preferredNamesAttributeExist := userAttributes["preferredNames"]
 	var preferredNames *string
-	if preferredNamesAttributeExist {
+	if preferredNamesAttributeExist && len(preferredNamesAttribute) > 0{
 		preferredNames = &preferredNamesAttribute[0]
 	} else {
 		preferredNames = nil
 	}
+
+	firstNamesAttribute, firstNamesAttributeExist := userAttributes["firstNames"]
+	lastNamesAttribute, lastNamesAttributeExist := userAttributes["lastNames"]
+	if !firstNamesAttributeExist || len(firstNamesAttribute) == 0{
+		return nil, fmt.Errorf("ERROR: No firstNames attribute found for user %s", userID)
+	}
+	if !lastNamesAttributeExist || len(lastNamesAttribute) == 0{
+		return nil, fmt.Errorf("ERROR: No lastNames attribute found for user %s", userID)
+	}
+
 	attributes := judgeKeycloak{
 		preferredNames,
 		userAttributes["firstNames"][0],
