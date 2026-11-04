@@ -5,3 +5,4 @@ data
 .cargo
 .vscode
 server/tmp
+.idea

@@ -7,6 +7,7 @@ import (
 	"server/util"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -53,6 +54,19 @@ func FindAllProjects(db *mongo.Database) ([]*models.Project, error) {
 // DeleteProjectById deletes a project from the database by id
 func DeleteProjectById(db *mongo.Database, id primitive.ObjectID) error {
 	_, err := db.Collection("projects").DeleteOne(context.Background(), gin.H{"_id": id})
+	return err
+}
+
+func RemoveProjectFromJudgeSeenLists(db *mongo.Database, projectId primitive.ObjectID) error {
+	_, err := db.Collection("judges").UpdateMany(context.Background(), []gin.H{}, []gin.H{
+		{
+			"$pullAll": gin.H{
+				"seen_projects": bson.A{
+					gin.H{"project_id": projectId},
+				},
+			},
+		},
+	})
 	return err
 }
 
