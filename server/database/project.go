@@ -58,13 +58,9 @@ func DeleteProjectById(db *mongo.Database, id primitive.ObjectID) error {
 }
 
 func RemoveProjectFromJudgeSeenLists(db *mongo.Database, projectId primitive.ObjectID) error {
-	_, err := db.Collection("judges").UpdateMany(context.Background(), []gin.H{}, []gin.H{
-		{
-			"$pullAll": gin.H{
-				"seen_projects": bson.A{
-					gin.H{"project_id": projectId},
-				},
-			},
+	_, err := db.Collection("judges").UpdateMany(context.Background(), bson.M{}, bson.M{
+		"$pull": bson.M{
+			"seen_projects": bson.M{"project_id": projectId},
 		},
 	})
 	return err
