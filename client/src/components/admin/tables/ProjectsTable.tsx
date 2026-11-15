@@ -5,8 +5,10 @@ import HeaderEntry from './HeaderEntry';
 import { ProjectSortField } from '../../../enums';
 import Button from "../../Button";
 import {postRequest} from "../../../api";
-import {errorAlert} from "../../../util";
+import {errorAlert, isActive} from "../../../util";
 import {Project, SortField, SortState, YesNoResponse} from "../../../types";
+import HidePopup from "./HidePopup";
+import UnhidePopup from "./UnhidePopup";
 
 const ProjectsTable = () => {
     const unsortedProjects = useAdminStore((state) => state.projects);
@@ -18,6 +20,8 @@ const ProjectsTable = () => {
         field: ProjectSortField.None,
         ascending: true,
     });
+    const [hidePopup, setHidePopup] = useState(false);
+    const [unhidePopup, setUnhidePopup] = useState(false);
 
     const handleCheckedChange = (e: React.ChangeEvent<HTMLInputElement>, i: number) => {
         setChecked({  // this change of type is to stop React complaining about "a component is changing an uncontrolled input to be controlled"
@@ -108,14 +112,16 @@ const ProjectsTable = () => {
             alert('No projects selected!');
             return;
         }
-
-        const res = await postRequest<YesNoResponse>('/project/hide-unhide-many', {ids: toHide, hide: hide});
-        if (res.status === 200) {
-            alert(`${toHide.length} project(s) ${hide ? 'hidden' : 'unhidden'} successfully!`);
-            await fetchProjects();
-        } else {
-            errorAlert(res);
+        if (hide) {
+            setHidePopup(true);
+            return;
         }
+        if (projects.filter((_, idx) => checked[idx]).every(project => isActive(project))) {
+            alert('Selected projects are all active')
+            return;
+        }
+        setUnhidePopup(true);
+        return;
     }
 
     useEffect(() => {
@@ -242,6 +248,8 @@ const ProjectsTable = () => {
                 ))}
                 </tbody>
             </table>
+            {hidePopup && <HidePopup projects={projects.filter((_, idx) => checked[idx])} close={setHidePopup} />}
+            {unhidePopup && <UnhidePopup projects={projects.filter((_, idx) => checked[idx])} close={setUnhidePopup} />}
         </div>
     );
 };
